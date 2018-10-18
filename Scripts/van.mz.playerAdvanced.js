@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    http://www.budeng.win:852/
-// @version      0.3
+// @version      0.4
 // @description  Player display optimization
 // @author       van
 // @match        https://www.managerzone.com/?p=players*
@@ -114,22 +114,22 @@ function setSrc(img, skill, maxed) {
     }
 }
 function showMax() {
-    $(mz.player.filteredPlayerListIds).each(function (key, value) {
-        let imgs = $("#thePlayers_" + key).find("img.skill");
-
-        let player = pmax[value];
-
-        setSrc(imgs[0], player.skills.speed, player.maxed.speed);
-        setSrc(imgs[1], player.skills.stamina, player.maxed.stamina);
-        setSrc(imgs[2], player.skills.gameintelligence, player.maxed.gameintelligence);
-        setSrc(imgs[3], player.skills.passing, player.maxed.passing);
-        setSrc(imgs[4], player.skills.shooting, player.maxed.shooting);
-        setSrc(imgs[5], player.skills.heading, player.maxed.heading);
-        setSrc(imgs[6], player.skills.goalkeeping, player.maxed.goalkeeping);
-        setSrc(imgs[7], player.skills.technique, player.maxed.technique);
-        setSrc(imgs[8], player.skills.tackling, player.maxed.tackling);
-        setSrc(imgs[9], player.skills.highpassing, player.maxed.highpassing);
-        setSrc(imgs[10], player.skills.situations, player.maxed.situations);
-    });
+    for (var pid in pmax) {
+        let imgs = $("#player_id_" + pid).parent().parent().find("img.skill");
+        if (imgs.length > 0) {
+            let player = pmax[pid];
+            setSrc(imgs[0], player.skills.speed, player.maxed.speed);
+            setSrc(imgs[1], player.skills.stamina, player.maxed.stamina);
+            setSrc(imgs[2], player.skills.gameintelligence, player.maxed.gameintelligence);
+            setSrc(imgs[3], player.skills.passing, player.maxed.passing);
+            setSrc(imgs[4], player.skills.shooting, player.maxed.shooting);
+            setSrc(imgs[5], player.skills.heading, player.maxed.heading);
+            setSrc(imgs[6], player.skills.goalkeeping, player.maxed.goalkeeping);
+            setSrc(imgs[7], player.skills.technique, player.maxed.technique);
+            setSrc(imgs[8], player.skills.tackling, player.maxed.tackling);
+            setSrc(imgs[9], player.skills.highpassing, player.maxed.highpassing);
+            setSrc(imgs[10], player.skills.situations, player.maxed.situations);
+        }
+    }
     return false;
 }
