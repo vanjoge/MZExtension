@@ -1,11 +1,12 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    http://www.budeng.win:852/
-// @version      0.2
+// @version      0.3
 // @description  Player display optimization
 // @author       van
 // @match        https://www.managerzone.com/?p=players*
-// @grant        unsafeWindow
+// @match        https://www.managerzone.com/?p=shortlist
+// @grant        none
 // ==/UserScript==
 
 (function () {
