@@ -9,41 +9,41 @@
 // ==/UserScript==
 
 (function () {
-	'use strict';
-	// Your code here...
-	//$(document.body).append("<div id='vanMzInfo' style='z-index:999999'></div>")
-	//var x = document.getElementById("vanMzInfo");
-	//var button = document.createElement("a"); //创建一个input对象（提示框按钮）
-	//button.setAttribute("href", "#");
-	//button.id = "btnGetMax";
-	//button.addEventListener('click', getMax);
-	//button.className = "mzbtn buttondiv button_blue";
-	//$(button).append('<span style="white-space: nowrap">获取涨停</span>');
-	//button.style.zIndex = 99999;
-	//x.appendChild(button);
+    'use strict';
+    // Your code here...
+    //$(document.body).append("<div id='vanMzInfo' style='z-index:999999'></div>")
+    //var x = document.getElementById("vanMzInfo");
+    //var button = document.createElement("a"); //创建一个input对象（提示框按钮）
+    //button.setAttribute("href", "#");
+    //button.id = "btnGetMax";
+    //button.addEventListener('click', getMax);
+    //button.className = "mzbtn buttondiv button_blue";
+    //$(button).append('<span style="white-space: nowrap">获取涨停</span>');
+    //button.style.zIndex = 99999;
+    //x.appendChild(button);
 
 
-	//var button = document.createElement("a"); //创建一个input对象（提示框按钮）
-	//button.setAttribute("href", "#");
-	//button.id = "btnShowMax";
-	//button.addEventListener('click', showMax);
-	//button.className = "mzbtn buttondiv button_blue";
-	//button.style.zIndex = 99999;
-	//$(button).append('<span style="white-space: nowrap">显示涨停</span>');
-	//x.appendChild(button);
-	getMax();
+    //var button = document.createElement("a"); //创建一个input对象（提示框按钮）
+    //button.setAttribute("href", "#");
+    //button.id = "btnShowMax";
+    //button.addEventListener('click', showMax);
+    //button.className = "mzbtn buttondiv button_blue";
+    //button.style.zIndex = 99999;
+    //$(button).append('<span style="white-space: nowrap">显示涨停</span>');
+    //x.appendChild(button);
+    getMax();
 })();
 
 function getLang() {
 
-	//<meta name="language" content="en">
+    //<meta name="language" content="en">
 
 }
 var mzreg = {
-	playerMax: /trainingField.players\s*=\s*({.+})/
+    playerMax: /trainingField.players\s*=\s*({.+})/
 };
 var mzImg = {
-	red_skill:
+    red_skill:
         [
             "",
             "",
@@ -57,7 +57,7 @@ var mzImg = {
             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAH4AAAAKCAYAAABykOpfAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADeSURBVFhH7ZhLDoQgEETdyuG9kdeZxezmBJgeKFN2RiOZRjZFYlSsINSj+U1TTeuy5E9Kh8vy8N3fpU95pD9nXJryAdwagsRgfWHS5y90+PC0P01w70TuTr0+MOBfI4P0ZYTkyOcO0cOfEOhWCCqOaEfF/Tt+KH2J9FH+hILnnsnzPPItj8FLXyJ9hD/dwPuIt8ZdgZf+WX9CwRs8XthxRAPs2VDv5zHpyzTQy88w8FbB1zwf5i2DyYsUv3iRfpw/YeCtoHfdv9/dzkl/vZ3r7U8ofB3IjD2QafX/X/gb1OjNbdNi8SQAAAAASUVORK5CYII=",
             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAH4AAAAKCAYAAABykOpfAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADQSURBVFhH7ZhNDoQgDIXZyuG50VzHhTtPwKQDz9QGCLNrk0diVHgaeF9aflLq5VNKvXN+XVKHdnunPtdI/gw5ArgMBEWDtR9RX3/Q4YN3f4bQ9QAe6v1BAx5lBupbhtSR783PWcZO6DiiHR237/gB9S3So/izBK8jV8/zqJc6DZ76FukR/NkGbyNeBrcCT71vf7ZTvZ23AXaW6qlvqd+rP1PwAvY8jte8JTD1IsUuXqiP488UvDRcff++u52jfr2d8+bPEj4PZGIdyPzLy8L/AkpZx9CM/6kBAAAAAElFTkSuQmCC"
         ],
-	red_skill_blevel:
+    red_skill_blevel:
         [
             "",
             "",
@@ -71,7 +71,7 @@ var mzImg = {
             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAH4AAAAKCAYAAABykOpfAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAOJJREFUeNpiYICCvX19/z9ycaFgkBgDDjCqnr7q////D8fLly8HiYMxiI0sRywGA2SLYADZIeiOHFVPf/XokT7/aS0Ykxv5KCkNHWBLeaPqB0Y9Uk4FR3j90dj/Nk1S8MgnOeJhBsNSG8wh6Hzk1Dmqnv7q0SMeFvkURTy2VIYsju7QUfX0V49c1DMyMlJe1KNbjJ7iCDl0VD191FO9cYde1KADQkXTqHr6qCcncgk27p5xcuJtVaI3RkbV0189tSOeybmoiJGFkZEBHwCpQWaPqh849VQHowMmQ2cAhxoYIMAAohYfTLMKd8QAAAAASUVORK5CYII=",
             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAH4AAAAKCAYAAABykOpfAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAO9JREFUeNrsmDEOwjAMReOKpT0CXIWNS2Rh4ArdERJ07hXY2lMwsnEN2DlBaCJcOW5oVhf5S1ZT6zUZvuVaKcxXt7Z176qKwufMDykvm3fOjdH3vc+H8GufC6IfoujG/FDl5fPc9OvzGALNjyqHK1VJyi+DR+PR9NN977bn9Wi+QRCrBzfm77TalJfPc+PR/Mj4VNXQPD9Yefk8bfUAMGn1Bf9/PJomeuakvGzeWgtd15nD5hJiMD3kJq2DK9dqlJfJ06k+FWFYeJXl7JTIhwvl5fM544tdXcMKYLadeIaulV8On5VegPzvBU4qPgIMABoVn4y9nkDEAAAAAElFTkSuQmCC"
         ],
-	green_skill:
+    green_skill:
         [
             "",
             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAH4AAAAKCAYAAABykOpfAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACPSURBVFhH7ZgxCoAwFEO79f5ncejVdFICjcQPQuc0H0T9uiQvta2tzRrHdfd+fg70+DxnQwcIHKBZGgRDyZGkgF/q80IDEafMHABcwOdoZxDqvZnsyAF4LZ3n2UcvTpk5UMHXEQ/4AW8GHXLqp77O8wyCofS9Jeni7m9Vn22daUaynTMFuyIrP3BWXPJ55wH1ZAeNPHeqYQAAAABJRU5ErkJggg==",
@@ -85,7 +85,7 @@ var mzImg = {
             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAH4AAAAKCAYAAABykOpfAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADZSURBVFhH7ZjBDoQgDES9+f/fsof9NT1hujibsVnIEou9DIlRa4Mwj0JhWc7yfu1lXbfLZTZ893f5byVTnxaXITuAW0dQGKyvTP7lAx06PK3PENx/IvdL/XxgwL9mBvnXGZIjnwfEDH1CoFslaDiiHQ337/ih/GukZ+kTCp5HJq/zsJuNwcu/RnqGPtPA+4i3zvXAy/9ZfULBGzxO7DiiAbY11ft1TP51GZilZxh4TkZaWX0reZF/P7mboU8YeCR4nLBYFGduV7Rd7OsfCl8HMrkHMqP634V/AA8vQ+1df+9kAAAAAElFTkSuQmCC",
             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAH4AAAAKCAYAAABykOpfAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADESURBVFhH7ZhLDoAgDETZcf+zuPBqusJUHFMbSmTXJkNiVBgNzEvLp5Sn7NvZaj0+l9Sh3d6pP1omf4YcAVwGgqLB2o+obzd0+BDdnyF0PYCX+vOgAY8yA/U9Q+rIj+anl7ELOo5oR8ftO35AfY/0LP5MwevI1fM86qVOg6e+R3oGf36DtxEvg5uBpz62P79TvZ23AdZL9dT31B/VHxe8Xox4q3pv8UL9fHEXwR8XvDRwe5Zre7bKawqfBzK5DmRWeVn4FzPlS3kjdc0LAAAAAElFTkSuQmCC"
         ],
-	green_skill_blevel:
+    green_skill_blevel:
         [
             "",
             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAH4AAAAKCAYAAABykOpfAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAOdJREFUeNrslzEKAjEQRWdEzB2s9iB2aRQULGw9ighexHIbC0FBL+BRvEPWJpLgxL8R0TZhHnzYnWyVP/mZJXpxOXXeGNdTqMm69z6pbdtQjwrPuKYqQxE0WsBGQOPF9P19E6XmF2o8GpyTNYR0SjR8e1v7yW6czNfNLEvD5crT8cCS6HQ9P0hqzpn07hz1aJqGrLWkFEp+0vGOxxpGPTNr1Jce9bnxEv1436PxOtzVIQ6mStRP56OPRHhHvWHNx4rA4e7bVI/DnaoODWaL3yf5n2+UsmA8+SHSkXAFiOnpp1+pgqcAAwA2YdI0uYtBawAAAABJRU5ErkJggg==",
@@ -99,55 +99,55 @@ var mzImg = {
             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAH4AAAAKCAYAAABykOpfAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAANtJREFUeNpiYICC7Zt//mdn/4GCQWIMOMCoevqq////PxwvX74cJA7GIDayHLEYDJAtggFkh6A7clQ9/dWjR/r8p7VgTG7ko6Q0dIAt5Y2qHxj1SDkVHOH1R2P/2zRJwSOf5IiHGQxLbTCHoPORU+eoevqrR494WORTFPHYUhmyOLpDR9XTXz1yUc/IyEh5UY9uMXqKI+TQUfX0UU/1xh16UYMOCBVNo+rpo56cyCW6cYerVYmrMTKqnn7qqR3xTJ6+7IwMBACymlH1A6ue6mB0wGToDOBQAwMEGADJEoG8ooBn0wAAAABJRU5ErkJggg==",
             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAH4AAAAKCAYAAABykOpfAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAANNJREFUeNrsmMEJQjEMhlMv3cFZXMCDIziKCC7isQN4cAJHcQc9RVrMI/1tyTVP8kPgNXwvPfwhhBJ9db+9OedXFzVHEwXvm2fmJUopNd+iftdck/5RpAvjpcH759H06/PUQszvOgc16qTg18GL8WL6+XHk3WW7mE8CSvdIYTzrbgveP4/Gi/md8aOu0Xm8OHj/vB71KaXfUY+FsIOsi4P3yZvLHY4OlDVqgvfJa+NH0S0Lsy1xtlwE75e3jN/sDzmRIc0Evy7eVDyA/O8Dzig+AgwAwwcw6YPFEjsAAAAASUVORK5CYII="
         ]
-}
+};
 var pmax = false;
 function getMax() {
-	$.ajax({
-		type: "GET",
-		url: "/?p=training",
-		dataType: "html",
-		success: function (data) {
-			var result = data.match(mzreg.playerMax);
-			pmax = JSON.parse(result[1]);
-			showMax();
-		}
-	});
-	return false;
+    $.ajax({
+        type: "GET",
+        url: "/?p=training",
+        dataType: "html",
+        success: function (data) {
+            var result = data.match(mzreg.playerMax);
+            pmax = JSON.parse(result[1]);
+            showMax();
+        }
+    });
+    return false;
 }
 function setSrc(img, skill, maxed) {
-	if (skill > 0) {
-		if (maxed == "red") {
-			if (/blevel_/.test(img.src)) {
-				img.src = mzImg.red_skill_blevel[skill];
-			} else {
-				img.src = mzImg.red_skill[skill];
-			}
-		} else if (maxed == "green") {
-			if (/blevel_/.test(img.src)) {
-				img.src = mzImg.green_skill_blevel[skill];
-			} else {
-				img.src = mzImg.green_skill[skill];
-			}
-		}
-	}
+    if (skill > 0) {
+        if (maxed == "red") {
+            if (/blevel_/.test(img.src)) {
+                img.src = mzImg.red_skill_blevel[skill];
+            } else {
+                img.src = mzImg.red_skill[skill];
+            }
+        } else if (maxed == "green") {
+            if (/blevel_/.test(img.src)) {
+                img.src = mzImg.green_skill_blevel[skill];
+            } else {
+                img.src = mzImg.green_skill[skill];
+            }
+        }
+    }
 }
 function showMax() {
-	$(mz.player.filteredPlayerListIds).each(function (key, value) {
-		let imgs = $("#thePlayers_" + key).find("img.skill");
+    $(mz.player.filteredPlayerListIds).each(function (key, value) {
+        let imgs = $("#thePlayers_" + key).find("img.skill");
 
-		let player = pmax[value];
+        let player = pmax[value];
 
-		setSrc(imgs[0], player.skills.speed, player.maxed.speed);
-		setSrc(imgs[1], player.skills.stamina, player.maxed.stamina);
-		setSrc(imgs[2], player.skills.gameintelligence, player.maxed.gameintelligence);
-		setSrc(imgs[3], player.skills.passing, player.maxed.passing);
-		setSrc(imgs[4], player.skills.shooting, player.maxed.shooting);
-		setSrc(imgs[5], player.skills.heading, player.maxed.heading);
-		setSrc(imgs[6], player.skills.goalkeeping, player.maxed.goalkeeping);
-		setSrc(imgs[7], player.skills.technique, player.maxed.technique);
-		setSrc(imgs[8], player.skills.tackling, player.maxed.tackling);
-		setSrc(imgs[9], player.skills.highpassing, player.maxed.highpassing);
-		setSrc(imgs[10], player.skills.situations, player.maxed.situations);
-	});
-	return false;
+        setSrc(imgs[0], player.skills.speed, player.maxed.speed);
+        setSrc(imgs[1], player.skills.stamina, player.maxed.stamina);
+        setSrc(imgs[2], player.skills.gameintelligence, player.maxed.gameintelligence);
+        setSrc(imgs[3], player.skills.passing, player.maxed.passing);
+        setSrc(imgs[4], player.skills.shooting, player.maxed.shooting);
+        setSrc(imgs[5], player.skills.heading, player.maxed.heading);
+        setSrc(imgs[6], player.skills.goalkeeping, player.maxed.goalkeeping);
+        setSrc(imgs[7], player.skills.technique, player.maxed.technique);
+        setSrc(imgs[8], player.skills.tackling, player.maxed.tackling);
+        setSrc(imgs[9], player.skills.highpassing, player.maxed.highpassing);
+        setSrc(imgs[10], player.skills.situations, player.maxed.situations);
+    });
+    return false;
 }
