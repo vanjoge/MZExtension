@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    http://www.budeng.win:852/
-// @version      0.1
+// @version      0.2
 // @description  Player display optimization
 // @author       van
 // @match        https://www.managerzone.com/?p=players*
@@ -10,28 +10,9 @@
 
 (function () {
     'use strict';
-    // Your code here...
-    //$(document.body).append("<div id='vanMzInfo' style='z-index:999999'></div>")
-    //var x = document.getElementById("vanMzInfo");
-    //var button = document.createElement("a"); //创建一个input对象（提示框按钮）
-    //button.setAttribute("href", "#");
-    //button.id = "btnGetMax";
-    //button.addEventListener('click', getMax);
-    //button.className = "mzbtn buttondiv button_blue";
-    //$(button).append('<span style="white-space: nowrap">获取涨停</span>');
-    //button.style.zIndex = 99999;
-    //x.appendChild(button);
-
-
-    //var button = document.createElement("a"); //创建一个input对象（提示框按钮）
-    //button.setAttribute("href", "#");
-    //button.id = "btnShowMax";
-    //button.addEventListener('click', showMax);
-    //button.className = "mzbtn buttondiv button_blue";
-    //button.style.zIndex = 99999;
-    //$(button).append('<span style="white-space: nowrap">显示涨停</span>');
-    //x.appendChild(button);
-    getMax();
+    if ($(".player_share_skills").length > 0) {
+        getMax();
+    }
 })();
 
 function getLang() {
@@ -116,13 +97,13 @@ function getMax() {
 }
 function setSrc(img, skill, maxed) {
     if (skill > 0) {
-        if (maxed == "red") {
+        if (maxed === "red") {
             if (/blevel_/.test(img.src)) {
                 img.src = mzImg.red_skill_blevel[skill];
             } else {
                 img.src = mzImg.red_skill[skill];
             }
-        } else if (maxed == "green") {
+        } else if (maxed === "green") {
             if (/blevel_/.test(img.src)) {
                 img.src = mzImg.green_skill_blevel[skill];
             } else {
