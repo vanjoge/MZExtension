@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    http://www.budeng.win:852/
-// @version      0.4
+// @version      1.0
 // @description  Player display optimization
 // @author       van
 // @match        https://www.managerzone.com/?p=players*
@@ -9,12 +9,6 @@
 // @grant        none
 // ==/UserScript==
 
-(function () {
-    'use strict';
-    if ($(".player_share_skills").length > 0) {
-        getMax();
-    }
-})();
 
 function getLang() {
 
@@ -22,7 +16,8 @@ function getLang() {
 
 }
 var mzreg = {
-    playerMax: /trainingField.players\s*=\s*({.+})/
+    playerMax: /trainingField.players\s*=\s*({.+})/,
+    playerId: /player_id_(\d+)/
 };
 var mzImg = {
     red_skill:
@@ -82,7 +77,7 @@ var mzImg = {
             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAH4AAAAKCAYAAABykOpfAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAANNJREFUeNrsmMEJQjEMhlMv3cFZXMCDIziKCC7isQN4cAJHcQc9RVrMI/1tyTVP8kPgNXwvPfwhhBJ9db+9OedXFzVHEwXvm2fmJUopNd+iftdck/5RpAvjpcH759H06/PUQszvOgc16qTg18GL8WL6+XHk3WW7mE8CSvdIYTzrbgveP4/Gi/md8aOu0Xm8OHj/vB71KaXfUY+FsIOsi4P3yZvLHY4OlDVqgvfJa+NH0S0Lsy1xtlwE75e3jN/sDzmRIc0Evy7eVDyA/O8Dzig+AgwAwwcw6YPFEjsAAAAASUVORK5CYII="
         ]
 };
-var pmax = false;
+var pmax = {};
 function getMax() {
     $.ajax({
         type: "GET",
@@ -114,10 +109,13 @@ function setSrc(img, skill, maxed) {
     }
 }
 function showMax() {
-    for (var pid in pmax) {
-        let imgs = $("#player_id_" + pid).parent().parent().find("img.skill");
-        if (imgs.length > 0) {
-            let player = pmax[pid];
+    let players = $(".playerContainer");
+    for (var i = 0; i < players.length; i++) {
+        let pdom = players.eq(i);
+        let pid = pdom.html().match(mzreg.playerId)[1];
+        let player = pmax[pid];
+        let imgs = pdom.find("img.skill");
+        if (player) {
             setSrc(imgs[0], player.skills.speed, player.maxed.speed);
             setSrc(imgs[1], player.skills.stamina, player.maxed.stamina);
             setSrc(imgs[2], player.skills.gameintelligence, player.maxed.gameintelligence);
@@ -129,7 +127,46 @@ function showMax() {
             setSrc(imgs[8], player.skills.tackling, player.maxed.tackling);
             setSrc(imgs[9], player.skills.highpassing, player.maxed.highpassing);
             setSrc(imgs[10], player.skills.situations, player.maxed.situations);
+        } else if (pdom.find(".training_graphs").length > 0 && imgs.length > 0) {
+            let skills = pdom.find(".skillval");
+            getTrainingGraphs(pid, imgs, skills);
         }
     }
     return false;
 }
+function getTrainingGraphs(pid, imgs, skills) {
+    $.ajax({
+        type: "GET",
+        url: "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=soccer&player_id=" + pid,
+        dataType: "html",
+        success: function (data) {
+            eval(data);
+            let maxeds = ["green", "green", "green", "green", "green", "green", "green", "green", "green", "green", "green"];
+
+            for (var i = 0; i < series.length; i++) {
+                for (var j = 0; j < series[i].data.length; j++) {
+                    let g = series[i].data[j];
+                    if ((series[i].type == "line" && series[i].color == "rgba(255,0,0,0.7)") || g.name == "Maxed") {
+                        let index = g.y - 1;
+                        if (index >= 0 && g.y <= 11) {
+                            maxeds[index] = "red";
+                        }
+                    }
+                }
+            }
+            for (var k = 0; k < maxeds.length; k++) {
+                setSrc(imgs[k], skills.eq(k).html().replace("(", "").replace(")", ""), maxeds[k]);
+            }
+        }
+    });
+}
+
+(function () {
+    'use strict';
+
+    if ($(".player_share_skills").length > 0) {
+        getMax();
+    } else if ($(".playerContainer").find(".training_graphs").length > 0) {
+        showMax();
+    }
+})();
