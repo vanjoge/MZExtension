@@ -202,7 +202,7 @@ function initgw() {
     css.innerHTML = "#gw_run{position:fixed;bottom:20%;right:1px;border:1px solid gray;padding:3px;width:12px;font-size:12px;cursor:pointer;border-radius: 3px;text-shadow: 1px 1px 3px #676767;background-color: #000000;color: #FFFFFF;}";
     document.getElementsByTagName('head')[0].appendChild(css);
 
-    $(document.body).append("<div id='gw_run' title='点击可手动着色 快捷键:alt + A'><b>手动着色</b></div>");
+    $(document.body).append("<div id='gw_run' title='点击可手动着色 快捷键:ALT + A'><b>手动着色</b></div>");
     $('#gw_run')[0].addEventListener('click', gw_start);
 
     document.onkeydown = function () {
