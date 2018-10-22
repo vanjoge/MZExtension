@@ -1,20 +1,14 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    http://www.budeng.win:852/
-// @version      1.0
-// @description  Player display optimization
+// @version      1.1
+// @description  Player display optimization 球员着色插件
 // @author       van
-// @match        https://www.managerzone.com/?p=players*
-// @match        https://www.managerzone.com/?p=shortlist
-// @grant        none
+// @match        https://www.managerzone.com/*
+// @grant        GM_setValue
+// @grant        GM_getValue
 // ==/UserScript==
 
-
-function getLang() {
-
-    //<meta name="language" content="en">
-
-}
 var mzreg = {
     playerMax: /trainingField.players\s*=\s*({.+})/,
     playerId: /player_id_(\d+)/
@@ -78,17 +72,59 @@ var mzImg = {
         ]
 };
 var pmax = {};
-function getMax() {
+function myAjax(url, callback, noCache) {
+    if (!noCache) {
+        let tdata = getLocValue(url);
+        if (tdata) {
+            callback(tdata, true);
+            return;
+        }
+    }
     $.ajax({
         type: "GET",
-        url: "/?p=training",
+        url: url,
         dataType: "html",
         success: function (data) {
+            setLocValue(url, data);
+            callback(data, false);
+        }
+    });
+
+}
+function getLocValue(key) {
+    let ts = GM_getValue("Dt_" + key, false);
+
+    if (ts) {
+        let dt = new Date(ts);
+        let now = new Date();
+        //let d = now.getTime() - dt.getTime();
+        if (now.toLocaleDateString() == dt.toLocaleDateString()) {
+            if (now.getHours() >= 6 && now.getHours() <= 9 && now.getHours() != dt.getHours()) {
+                return false;
+            }
+        } else {
+            if (now.getHours() >= 6) {
+                return false;
+            }
+        }
+        return GM_getValue(key, false);
+
+    } else {
+        return false;
+    }
+}
+function setLocValue(key, val) {
+    GM_setValue("Dt_" + key, new Date().getTime());
+    GM_setValue(key, val);
+}
+function getMax() {
+    myAjax(
+        "/?p=training",
+        function (data) {
             var result = data.match(mzreg.playerMax);
             pmax = JSON.parse(result[1]);
             showMax();
-        }
-    });
+        });
     return false;
 }
 function setSrc(img, skill, maxed) {
@@ -134,39 +170,58 @@ function showMax() {
     }
     return false;
 }
-function getTrainingGraphs(pid, imgs, skills) {
-    $.ajax({
-        type: "GET",
-        url: "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=soccer&player_id=" + pid,
-        dataType: "html",
-        success: function (data) {
-            eval(data);
-            let maxeds = ["green", "green", "green", "green", "green", "green", "green", "green", "green", "green", "green"];
+function drawPlayerByTrainingGraphs(data, imgs, skills) {
+    eval(data);
+    let maxeds = ["green", "green", "green", "green", "green", "green", "green", "green", "green", "green", "green"];
 
-            for (var i = 0; i < series.length; i++) {
-                for (var j = 0; j < series[i].data.length; j++) {
-                    let g = series[i].data[j];
-                    if ((series[i].type == "line" && series[i].color == "rgba(255,0,0,0.7)") || g.name == "Maxed") {
-                        let index = g.y - 1;
-                        if (index >= 0 && g.y <= 11) {
-                            maxeds[index] = "red";
-                        }
-                    }
+    for (var i = 0; i < series.length; i++) {
+        for (var j = 0; j < series[i].data.length; j++) {
+            let g = series[i].data[j];
+            if ((series[i].type == "line" && series[i].color == "rgba(255,0,0,0.7)") || g.name == "Maxed") {
+                let index = g.y - 1;
+                if (index >= 0 && g.y <= 11) {
+                    maxeds[index] = "red";
                 }
             }
-            for (var k = 0; k < maxeds.length; k++) {
-                setSrc(imgs[k], skills.eq(k).html().replace("(", "").replace(")", ""), maxeds[k]);
-            }
         }
-    });
+    }
+    for (var k = 0; k < maxeds.length; k++) {
+        setSrc(imgs[k], skills.eq(k).html().replace("(", "").replace(")", ""), maxeds[k]);
+    }
 }
+function getTrainingGraphs(pid, imgs, skills) {
+    myAjax(
+        "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=soccer&player_id=" + pid,
+        function (data) {
+            drawPlayerByTrainingGraphs(data, imgs, skills);
+        });
+}
+function initgw() {
+    var css = document.createElement('style');
+    css.type = 'text/css';
+    css.innerHTML = "#gw_run{position:fixed;bottom:20%;right:1px;border:1px solid gray;padding:3px;width:12px;font-size:12px;cursor:pointer;border-radius: 3px;text-shadow: 1px 1px 3px #676767;background-color: #000000;color: #FFFFFF;}";
+    document.getElementsByTagName('head')[0].appendChild(css);
 
-(function () {
-    'use strict';
+    $(document.body).append("<div id='gw_run' title='点击可手动着色 快捷键:alt + A'><b>手动着色</b></div>");
+    $('#gw_run')[0].addEventListener('click', gw_start);
 
+    document.onkeydown = function () {
+        if (event.altKey && window.event.keyCode == 65) {
+            //alt + A
+            gw_start();
+        }
+    };
+}
+function gw_start() {
     if ($(".player_share_skills").length > 0) {
         getMax();
     } else if ($(".playerContainer").find(".training_graphs").length > 0) {
         showMax();
     }
+}
+(function () {
+    'use strict';
+
+    initgw();
+    gw_start();
 })();
