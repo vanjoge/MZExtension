@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    http://www.budeng.win:852/
-// @version      1.1
+// @version      1.2
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -135,7 +135,14 @@ function setSrc(img, skill, maxed) {
             } else {
                 img.src = mzImg.red_skill[skill];
             }
-        } else if (maxed === "green") {
+        } else if (maxed === "red?") {
+            img.src = mzImg.red_skill[skill];
+            if (skill < 10 && skill >= 4) {
+                $(img).parent().find("b").remove();
+                $(img).parent().append("<b>?</b>");
+            }
+        }
+        else if (maxed === "green") {
             if (/blevel_/.test(img.src)) {
                 img.src = mzImg.green_skill_blevel[skill];
             } else {
@@ -173,14 +180,28 @@ function showMax() {
 function drawPlayerByTrainingGraphs(data, imgs, skills) {
     eval(data);
     let maxeds = ["green", "green", "green", "green", "green", "green", "green", "green", "green", "green", "green"];
-
+    var dtnow = new Date().getTime();
     for (var i = 0; i < series.length; i++) {
-        for (var j = 0; j < series[i].data.length; j++) {
-            let g = series[i].data[j];
-            if ((series[i].type == "line" && series[i].color == "rgba(255,0,0,0.7)") || g.name == "Maxed") {
+        if ((series[i].type == "line" && series[i].color == "rgba(255,0,0,0.7)")) {
+            if (series[i].data.length > 0) {
+                let g = series[i].data[0];
                 let index = g.y - 1;
                 if (index >= 0 && g.y <= 11) {
                     maxeds[index] = "red";
+                }
+            }
+        } else {
+            for (var j = 0; j < series[i].data.length; j++) {
+                let g = series[i].data[j];
+                if (g.name == "Maxed") {
+                    let index = g.y - 1;
+                    if (index >= 0 && g.y <= 11) {
+                        if (dtnow - g.x > 345600000) {
+                            maxeds[index] = "red";
+                        } else {
+                            maxeds[index] = "red?";
+                        }
+                    }
                 }
             }
         }
