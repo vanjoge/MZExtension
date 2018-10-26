@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    http://www.budeng.win:852/
-// @version      1.2
+// @version      1.3
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -127,19 +127,19 @@ function getMax() {
         });
     return false;
 }
-function setSrc(img, skill, maxed) {
+function setSrc(img, skill, maxed, skillBallDay) {
     if (skill > 0) {
+        if (skillBallDay) {
+            if (new Date().getTime() - skillBallDay < 345600000) {
+                $(img).parent().find("b").remove();
+                $(img).parent().append("<b>?</b>");
+            }
+        }
         if (maxed === "red") {
             if (/blevel_/.test(img.src)) {
                 img.src = mzImg.red_skill_blevel[skill];
             } else {
                 img.src = mzImg.red_skill[skill];
-            }
-        } else if (maxed === "red?") {
-            img.src = mzImg.red_skill[skill];
-            if (skill < 10 && skill >= 4) {
-                $(img).parent().find("b").remove();
-                $(img).parent().append("<b>?</b>");
             }
         }
         else if (maxed === "green") {
@@ -180,7 +180,7 @@ function showMax() {
 function drawPlayerByTrainingGraphs(data, imgs, skills) {
     eval(data);
     let maxeds = ["green", "green", "green", "green", "green", "green", "green", "green", "green", "green", "green"];
-    var dtnow = new Date().getTime();
+    let skillBallDays = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     for (var i = 0; i < series.length; i++) {
         if ((series[i].type == "line" && series[i].color == "rgba(255,0,0,0.7)")) {
             if (series[i].data.length > 0) {
@@ -193,13 +193,16 @@ function drawPlayerByTrainingGraphs(data, imgs, skills) {
         } else {
             for (var j = 0; j < series[i].data.length; j++) {
                 let g = series[i].data[j];
-                if (g.name == "Maxed") {
-                    let index = g.y - 1;
-                    if (index >= 0 && g.y <= 11) {
-                        if (dtnow - g.x > 345600000) {
-                            maxeds[index] = "red";
-                        } else {
-                            maxeds[index] = "red?";
+                let index = g.y - 1;
+                if (index >= 0 && g.y <= 11) {
+                    if (g.name == "Maxed") {
+                        maxeds[index] = "red";
+                    }
+                    if (g.marker && g.marker.symbol) {
+                        if (/_ball/.test(g.marker.symbol)) {
+                            if (skillBallDays[index] < g.x) {
+                                skillBallDays[index] = g.x;
+                            }
                         }
                     }
                 }
@@ -207,7 +210,7 @@ function drawPlayerByTrainingGraphs(data, imgs, skills) {
         }
     }
     for (var k = 0; k < maxeds.length; k++) {
-        setSrc(imgs[k], skills.eq(k).html().replace("(", "").replace(")", ""), maxeds[k]);
+        setSrc(imgs[k], skills.eq(k).html().replace("(", "").replace(")", ""), maxeds[k], skillBallDays[k]);
     }
 }
 function getTrainingGraphs(pid, imgs, skills) {
