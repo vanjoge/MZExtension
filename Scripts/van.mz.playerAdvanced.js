@@ -1,12 +1,13 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    http://www.budeng.win:852/
-// @version      1.3
+// @version      1.4
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
 // @grant        GM_setValue
 // @grant        GM_getValue
+// @grant        GM_listValues
 // ==/UserScript==
 
 var mzreg = {
@@ -72,6 +73,7 @@ var mzImg = {
         ]
 };
 var pmax = {};
+var isAjaxing = false;
 function myAjax(url, callback, noCache) {
     if (!noCache) {
         let tdata = getLocValue(url);
@@ -87,6 +89,7 @@ function myAjax(url, callback, noCache) {
         success: function (data) {
             setLocValue(url, data);
             callback(data, false);
+            isAjaxing = false;
         }
     });
 
@@ -131,8 +134,8 @@ function setSrc(img, skill, maxed, skillBallDay) {
     if (skill > 0) {
         if (skillBallDay) {
             if (new Date().getTime() - skillBallDay < 345600000) {
-                $(img).parent().find("b").remove();
-                $(img).parent().append("<b>?</b>");
+                $(img).parent().find("span").remove();
+                $(img).parent().append("<span class=\"help_button_placeholder\"><a class=\"help_button\" href=\"#\" onclick=\"showHelpLayer('挂牌后属性可能有变动，不确定转会市场显示是否是真实属性，请自行甄别。<br/>属性变动时间" + new Date(skillBallDay).toLocaleString() + "', '属性不确定', true); return false\"><span class=\"help_button_wrapper\"><span class=\"help_button_text\">?</span></span></a></span>");
             }
         }
         if (maxed === "red") {
