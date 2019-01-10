@@ -1,5 +1,5 @@
 ﻿// ==UserScript==
-// @name         van.mz.playerAdvanced
+// @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
 // @version      1.5
 // @description  Player display optimization 球员增强插件
