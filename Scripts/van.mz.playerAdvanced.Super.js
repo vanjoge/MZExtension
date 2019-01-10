@@ -10,7 +10,7 @@
 // @grant        GM_listValues
 // @grant        GM_deleteValue
 // @require      https://cdn.jsdelivr.net/pako/1.0.5/pako.min.js
-// @require      https://raw.githubusercontent.com/beatgammit/base64-js/master/base64js.min.js
+// @require      https://greasyfork.org/scripts/376535-base64js/code/base64js.js?version=661147
 // ==/UserScript==
 
 function trainingStat() {
