@@ -8,6 +8,9 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_listValues
+// @grant        GM_deleteValue
+// @require      https://cdn.jsdelivr.net/pako/1.0.5/pako.min.js
+// @require      https://raw.githubusercontent.com/beatgammit/base64-js/master/base64js.min.js
 // ==/UserScript==
 
 var mzreg = {
@@ -74,6 +77,25 @@ var mzImg = {
 };
 var pmax = {};
 var isAjaxing = false;
+function clearCache() {
+    var lists = GM_listValues();
+    for (var i = 0; i < lists.length; i++) {
+        let ts;
+        if (lists[i].startsWith("Dt_")) {
+            ts = GM_getValue(lists[i], false);
+        } else {
+            ts = GM_getValue("Dt_" + lists[i], false);
+        }
+        if (ts) {
+            let dt = new Date(ts);
+            let now = new Date();
+            if (now.toLocaleDateString() == dt.toLocaleDateString()) {
+                continue;
+            }
+        }
+        GM_deleteValue(lists[i]);
+    }
+}
 function myAjax(url, callback, noCache) {
     if (!noCache) {
         let tdata = getLocValue(url);
@@ -110,7 +132,16 @@ function getLocValue(key) {
                 return false;
             }
         }
-        return GM_getValue(key, false);
+        let b64 = GM_getValue(key, false);
+        if (b64) {
+            if (b64.startsWith("H4sIAA")) {
+                return pako.ungzip(base64js.toByteArray(b64), { to: 'string' });
+            } else {
+                return b64;
+            }
+
+        }
+        return false;
 
     } else {
         return false;
@@ -118,7 +149,8 @@ function getLocValue(key) {
 }
 function setLocValue(key, val) {
     GM_setValue("Dt_" + key, new Date().getTime());
-    GM_setValue(key, val);
+    let b64 = base64js.fromByteArray(pako.gzip(val));
+    GM_setValue(key, b64);
 }
 function getMax() {
     myAjax(
@@ -139,14 +171,16 @@ function setSrc(img, skill, maxed, skillBallDay) {
             }
         }
         if (maxed === "red") {
-            if (/blevel_/.test(img.src)) {
+            if (/blevel_/.test(img.src) || img.blevel == 1) {
+                img.blevel = 1;
                 img.src = mzImg.red_skill_blevel[skill];
             } else {
                 img.src = mzImg.red_skill[skill];
             }
         }
         else if (maxed === "green") {
-            if (/blevel_/.test(img.src)) {
+            if (/blevel_/.test(img.src) || img.blevel == 1) {
+                img.blevel = 1;
                 img.src = mzImg.green_skill_blevel[skill];
             } else {
                 img.src = mzImg.green_skill[skill];
@@ -226,16 +260,18 @@ function getTrainingGraphs(pid, imgs, skills) {
 function initgw() {
     var css = document.createElement('style');
     css.type = 'text/css';
-    css.innerHTML = "#gw_run{position:fixed;bottom:20%;right:1px;border:1px solid gray;padding:3px;width:12px;font-size:12px;cursor:pointer;border-radius: 3px;text-shadow: 1px 1px 3px #676767;background-color: #000000;color: #FFFFFF;}";
+    css.innerHTML = ".gw_run_div{position:fixed;bottom:20%;right:1px;border:1px solid gray;padding:3px;width:12px;font-size:12px;border-radius: 3px;text-shadow: 1px 1px 3px #676767;background-color: #000000;color: #FFFFFF;cursor: default;}.gw_run{cursor:pointer;}";
     document.getElementsByTagName('head')[0].appendChild(css);
 
-    $(document.body).append("<div id='gw_run' title='点击可手动着色 快捷键:ALT + A'><b>手动着色</b></div>");
-    $('#gw_run')[0].addEventListener('click', gw_start);
-
+    $(document.body).append("<div class='gw_run_div'><div id='gw_run' class='gw_run' title='点击可手动着色 快捷键:ALT + A'><b>手动着色</b></div><div>---</div><div id='gw_run3' class='gw_run' title='点击可清理缓存，可在运行变慢的时候点击'><b>清理缓存</b></div></div>");
+    $('#gw_run')[0].addEventListener('click', function () { gw_start(0); });
+    $('#gw_run3')[0].addEventListener('click', function () { clearCache(); });
     document.onkeydown = function () {
-        if (event.altKey && window.event.keyCode == 65) {
-            //alt + A
-            gw_start();
+        if (event.altKey) {
+            if (window.event.keyCode == 65) {
+                //alt + A
+                gw_start();
+            }
         }
     };
 }
