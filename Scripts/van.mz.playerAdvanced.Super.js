@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      1.5
+// @version      1.6
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -38,10 +38,16 @@ function trainingStat() {
         this[type][tn] += 1;
     };
     this.getSum = function () {
+        let ret = 0;
         if (this.neg) {
-            return this.all.getSum() - this.neg.getSum();
+            ret = this.all.getSum() - this.neg.getSum();
+        } else {
+            ret = this.all.getSum();
         }
-        return this.all.getSum();
+        if (ret >= 100) {
+            ret = 99.99;
+        }
+        return ret;
     };
     this.getAvg = function () {
         //let ret = this.getSum() / (this.t1 * 1 + this.t2 * 1 + this.t3 * 1 + this.t4 * 1 + this.t5 * 1 + this.t6 * 1 + this.t7 * 1 + this.t8 * 1 + this.t9 * 1 + this.t10 * 1);
@@ -292,7 +298,7 @@ function setSrc(transfer, img, skill, maxed, skillBallDay, training) {
                 }
             }
             trainingInfo[id] = training;
-            $(img).parent().parent().append("<td class='skill_exact2'><div><span id=" + id + " class='skillval skill_exact_van'>" + training.all.getSum() + "%</span></div></td>");
+            $(img).parent().parent().append("<td class='skill_exact2'><div><span id=" + id + " class='skillval skill_exact_van'>" + training.getSum() + "%</span></div></td>");
         }
         if (maxed === "red") {
             if (/blevel_/.test(img.src) || img.blevel == 1) {
@@ -460,9 +466,9 @@ function showPop(parent) {
         str += training.getDayByAvg(training.pos.getAvg()) + "(无教练)";
     }
     let content = "<div class='clearfix'><h3 style='margin: 0; padding: 0'>当前训练进度"
-        + training.all.getSum()
+        + training.getSum()
         + "%</h3><div class='skill_exact big'><div class='skill_exact_wrapper clearfix'><div class='skill_exact_bar' style='width: "
-        + training.all.getSum() * 2
+        + training.getSum() * 2
         + "px;'></div></div></div><p>"
         + str
         + "</p></div>";
@@ -484,7 +490,7 @@ function initgw() {
     $('#gw_run')[0].addEventListener('click', function () { gw_start(0); });
     $('#gw_run2')[0].addEventListener('click', function () { gw_start(1); });
     $('#gw_run3')[0].addEventListener('click', function () { clearCache(); });
-    if($("#players_container").width()<660)
+    if ($("#players_container").width() < 660)
         $("#players_container").width("660");
 
     document.onkeydown = function () {
