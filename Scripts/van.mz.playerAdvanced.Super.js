@@ -13,6 +13,14 @@
 // @require      https://greasyfork.org/scripts/376535-base64js/code/base64js.js?version=661147
 // ==/UserScript==
 
+function playerTrainingBySkill() {
+    //涨球时间
+    this.ballDay = 0;
+    //训练统计
+    this.stat = new trainingStat();
+    //当前球数
+    this.skill = 0;
+}
 function trainingStat() {
     //所有 不包含掉球
     this.all = new trainingDay();
@@ -37,15 +45,17 @@ function trainingStat() {
         }
         this[type][tn] += 1;
     };
-    this.getSum = function () {
+    this.getSum = function (canOver100) {
         let ret = 0;
         if (this.neg) {
             ret = this.all.getSum() - this.neg.getSum();
         } else {
             ret = this.all.getSum();
         }
-        if (ret >= 100) {
-            ret = 99.99;
+        if (!canOver100) {
+            if (ret >= 100) {
+                ret = 99.99;
+            }
         }
         return ret;
     };
@@ -55,6 +65,28 @@ function trainingStat() {
         //return ret;
 
         return this.all.getAvg();
+    };
+    this.getTnText = function () {
+        let str = "";
+        if (this.pos) {
+            str += " 无教练" + this.pos.getTnText();
+        }
+        if (this.camp) {
+            str += " 进营" + this.camp.getTnText();
+        }
+        if (this.coach) {
+            str += " 有教练" + this.coach.getTnText();
+        }
+        if (this.ycc) {
+            str += " 调整" + this.ycc.getTnText();
+        }
+        if (this.itc) {
+            str += " 强化" + this.itc.getTnText();
+        }
+        if (this.neg) {
+            str += " 掉球" + this.neg.getTnText();
+        }
+        return str;
     };
     //this.getAvgAndText = function () {
     //    //let ret = this.getSum() / (this.t1 * 1 + this.t2 * 1 + this.t3 * 1 + this.t4 * 1 + this.t5 * 1 + this.t6 * 1 + this.t7 * 1 + this.t8 * 1 + this.t9 * 1 + this.t10 * 1);
@@ -120,6 +152,40 @@ function trainingDay() {
         let ret = this.getSum() / (this.t1 * 1 + this.t2 * 1 + this.t3 * 1 + this.t4 * 1 + this.t5 * 1 + this.t6 * 1 + this.t7 * 1 + this.t8 * 1 + this.t9 * 1 + this.t10 * 1);
         ret = parseFloat(ret).toFixed(1);
         return ret;
+    };
+    this.getTnText = function () {
+        let str = "";
+        if (this.t1 > 0) {
+            str += " 1格(" + this.t1 + ")";
+        }
+        if (this.t2 > 0) {
+            str += " 2格(" + this.t2 + ")";
+        }
+        if (this.t3 > 0) {
+            str += " 3格(" + this.t3 + ")";
+        }
+        if (this.t4 > 0) {
+            str += " 4格(" + this.t4 + ")";
+        }
+        if (this.t5 > 0) {
+            str += " 5格(" + this.t5 + ")";
+        }
+        if (this.t6 > 0) {
+            str += " 6格(" + this.t6 + ")";
+        }
+        if (this.t7 > 0) {
+            str += " 7格(" + this.t7 + ")";
+        }
+        if (this.t8 > 0) {
+            str += " 8格(" + this.t8 + ")";
+        }
+        if (this.t9 > 0) {
+            str += " 9格(" + this.t9 + ")";
+        }
+        if (this.t10 > 0) {
+            str += " 10格(" + this.t10 + ")";
+        }
+        return str;
     };
 }
 var mzreg = {
@@ -277,7 +343,7 @@ function getMax() {
         });
     return false;
 }
-function setSrc(transfer, img, skill, maxed, skillBallDay, training) {
+function setSrc(transfer, img, skill, maxed, skillBallDay, pid, k) {
     if (skill > 0) {
         if (transfer && skillBallDay) {
             if (new Date().getTime() - skillBallDay < 345600000) {
@@ -285,20 +351,16 @@ function setSrc(transfer, img, skill, maxed, skillBallDay, training) {
                 $(img).parent().append("<span class=\"help_button_placeholder\"><a class=\"help_button\" href=\"#\" onclick=\"showHelpLayer('挂牌后属性可能有变动，不确定转会市场显示是否是真实属性，请自行甄别。<br/>属性变动时间" + new Date(skillBallDay).toLocaleString() + "', '属性不确定', true); return false\"><span class=\"help_button_wrapper\"><span class=\"help_button_text\">?</span></span></a></span>");
             }
         }
-        if (training) {
+        if (pid && trainingInfo[pid][k]) {
             let extmp = $(img).parent().parent().find(".skill_exact2");
-            let id = 0;
             if (extmp.length > 0) {
-                id = extmp.find(".skillval").attr('id');
                 extmp.remove();
-            } else {
-                id = new Date().getTime();
-                while (trainingInfo[id]) {
-                    id = new Date().getTime();
-                }
             }
-            trainingInfo[id] = training;
-            $(img).parent().parent().append("<td class='skill_exact2'><div><span id=" + id + " class='skillval skill_exact_van'>" + training.getSum() + "%</span></div></td>");
+            let sum = 0;
+            if (trainingInfo[pid][k][skill]) {
+                sum = trainingInfo[pid][k][skill].stat.getSum();
+            }
+            $(img).parent().parent().append("<td class='skill_exact2'><div><span id=" + pid + "_" + k + "_" + skill + " class='skillval skill_exact_van'>" + sum + "%</span></div></td>");
         }
         if (maxed === "red") {
             if (/blevel_/.test(img.src) || img.blevel == 1) {
@@ -344,11 +406,11 @@ function showMax(GraphsType) {
     }
     return false;
 }
-function drawPlayerByTrainingGraphs(data, imgs, skills) {
+function drawPlayerByTrainingGraphs(pid, data, imgs, skills) {
     eval(data);
     let maxeds = ["green", "green", "green", "green", "green", "green", "green", "green", "green", "green", "green"];
     let skillBallDays = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-    let skillTraining = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    let allSkillTraining_tmp = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     for (var i = 0; i < series.length; i++) {
         if ((series[i].type == "line" && series[i].color == "rgba(255,0,0,0.7)")) {
             if (series[i].data.length > 0) {
@@ -367,11 +429,16 @@ function drawPlayerByTrainingGraphs(data, imgs, skills) {
                         maxeds[index] = "red";
                     }
                     if (g.marker && g.marker.symbol) {
+                        if (allSkillTraining_tmp[index] == 0) {
+                            allSkillTraining_tmp[index] = new Array();
+                            allSkillTraining_tmp[index].push(new playerTrainingBySkill());
+                        }
+                        let playerTS = allSkillTraining_tmp[index][allSkillTraining_tmp[index].length - 1];
                         if (/_ball/.test(g.marker.symbol)) {
                             if (skillBallDays[index] < g.x) {
                                 skillBallDays[index] = g.x;
-                                skillTraining[index] = 0;
-                                continue;
+                                playerTS.ballDay = g.x;
+                                allSkillTraining_tmp[index].push(new playerTrainingBySkill());
                             }
                         }
                         let result = g.marker.symbol.match(mzreg.trainingType);
@@ -405,35 +472,52 @@ function drawPlayerByTrainingGraphs(data, imgs, skills) {
                             }
                         }
                         if (type == "") {
-                            fillTrainingLevel("itc", mzreg.bar_itc, skillTraining, index, g.marker.symbol);
-                            fillTrainingLevel("ycc", mzreg.bar_ycc, skillTraining, index, g.marker.symbol);
-                            fillTrainingLevel("pos", mzreg.bar_pos, skillTraining, index, g.marker.symbol);
-                            fillTrainingLevel("neg", mzreg.bar_neg, skillTraining, index, g.marker.symbol, true);
+                            fillTrainingLevel("itc", mzreg.bar_itc, playerTS, g.marker.symbol);
+                            fillTrainingLevel("ycc", mzreg.bar_ycc, playerTS, g.marker.symbol);
+                            fillTrainingLevel("pos", mzreg.bar_pos, playerTS, g.marker.symbol);
+                            fillTrainingLevel("neg", mzreg.bar_neg, playerTS, g.marker.symbol, true);
                         } else {
-                            fillTrainingLevel(type, mzreg.bar_itc, skillTraining, index, g.marker.symbol);
-                            fillTrainingLevel(type, mzreg.bar_ycc, skillTraining, index, g.marker.symbol);
-                            fillTrainingLevel(type, mzreg.bar_pos, skillTraining, index, g.marker.symbol);
-                            fillTrainingLevel(type, mzreg.bar_neg, skillTraining, index, g.marker.symbol, true);
+                            fillTrainingLevel(type, mzreg.bar_itc, playerTS, g.marker.symbol);
+                            fillTrainingLevel(type, mzreg.bar_ycc, playerTS, g.marker.symbol);
+                            fillTrainingLevel(type, mzreg.bar_pos, playerTS, g.marker.symbol);
+                            fillTrainingLevel(type, mzreg.bar_neg, playerTS, g.marker.symbol, true);
                         }
                     }
                 }
             }
         }
     }
+    let allSkillTraining = new Array();
+    for (var t1 = 0; t1 < allSkillTraining_tmp.length; t1++) {
+        if (skills[t1].nowSkill == undefined) {
+            skills[t1].nowSkill = skills.eq(t1).html().replace("(", "").replace(")", "");
+        }
+        let nowSkill = parseInt(skills[t1].nowSkill);
+        let tmp = {};
+        for (var t2 = 0; t2 < allSkillTraining_tmp[t1].length; t2++) {
+            let tmp2 = allSkillTraining_tmp[t1][t2];
+            if (tmp2.stat.getSum() != 0) {
+                tmp2.skill = nowSkill + 1 - allSkillTraining_tmp[t1].length + t2;
+                tmp[tmp2.skill] = tmp2;
+            }
+        }
+        allSkillTraining[t1] = tmp;
+    }
+    trainingInfo[pid] = allSkillTraining;
     for (var k = 0; k < maxeds.length; k++) {
-        setSrc($(".player_share_skills").length == 0, imgs[k], skills.eq(k).html().replace("(", "").replace(")", ""), maxeds[k], skillBallDays[k], skillTraining[k]);
+        setSrc($(".player_share_skills").length == 0, imgs[k], skills[k].nowSkill, maxeds[k], skillBallDays[k], pid, k);
     }
 }
-function fillTrainingLevel(type, reg, skillTraining, index, url, isneg) {
+function fillTrainingLevel(type, reg, playerTS, url, isneg) {
     let result = url.match(reg);
     if (result && result.length > 0) {
-        let stat;
-        if (skillTraining[index] == 0) {
-            stat = new trainingStat();
-            skillTraining[index] = stat;
-        } else {
-            stat = skillTraining[index];
-        }
+        let stat = playerTS.stat;
+        //if (skillTraining[index] == 0) {
+        //    stat = new trainingStat();
+        //    skillTraining[index] = stat;
+        //} else {
+        //    stat = skillTraining[index];
+        //}
         if (isneg) {
             stat.add(type, "t" + result[1]);
         } else {
@@ -446,31 +530,52 @@ function getTrainingGraphs(pid, imgs, skills) {
     myAjax(
         "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=soccer&player_id=" + pid,
         function (data) {
-            drawPlayerByTrainingGraphs(data, imgs, skills);
+            drawPlayerByTrainingGraphs(pid, data, imgs, skills);
         });
 }
 function showPop(parent) {
     $("body").append("<div id=\"informationBubble\" class=\"shadow\"></div>");
     var bubble = $("#informationBubble");
     bubble.css("width", "200px");
-    let training = trainingInfo[parent.attr('id')];
-    //let training = new trainingStat();
-    let str = "平均效率 " + training.getAvg() + "%<br/><br/>离下一次涨球训练天数:<br/>";
-    if (training.camp) {
-        str += training.getDayByAvg(training.camp.getAvg()) + "(进营) ";
+    let tmpArr = parent.attr('id').split("_");
+
+    let playTS = trainingInfo[tmpArr[0]][tmpArr[1]];
+    let str = "";
+    let sum = 0;
+    if (playTS[tmpArr[2]]) {
+        let training = playTS[tmpArr[2]].stat;
+        //let training = new trainingStat();
+        str = "平均 " + training.getAvg() + "%" + training.getTnText() + "<br/><br/>离下一次涨球训练天数:<br/>";
+        if (training.camp) {
+            str += training.getDayByAvg(training.camp.getAvg()) + "(进营) ";
+        }
+        if (training.coach) {
+            str += training.getDayByAvg(training.coach.getAvg()) + "(有教练) ";
+        }
+        if (training.pos) {
+            str += training.getDayByAvg(training.pos.getAvg()) + "(无教练)";
+        }
+        str += "<br/><br/>";
+
+        sum = training.getSum();
     }
-    if (training.coach) {
-        str += training.getDayByAvg(training.coach.getAvg()) + "(有教练) ";
+    let flag = false;
+    str += "分段训练效率:";
+    for (var i = 0; i < 10; i++) {
+        if (playTS[i]) {
+            flag = true;
+            str += "<br/>" + i + "-" + (i + 1) + " 进度"
+                + playTS[i].stat.getSum(true) + "%"
+                + " 平均" + playTS[i].stat.getAvg() + "%<br/>" + playTS[i].stat.getTnText();
+        }
     }
-    if (training.pos) {
-        str += training.getDayByAvg(training.pos.getAvg()) + "(无教练)";
-    }
+
     let content = "<div class='clearfix'><h3 style='margin: 0; padding: 0'>当前训练进度"
-        + training.getSum()
+        + sum
         + "%</h3><div class='skill_exact big'><div class='skill_exact_wrapper clearfix'><div class='skill_exact_bar' style='width: "
-        + training.getSum() * 2
+        + sum * 2
         + "px;'></div></div></div><p>"
-        + str
+        + (flag ? str : "")
         + "</p></div>";
     bubble.html(content);
     mz.stickToParent(bubble, parent);
@@ -483,15 +588,14 @@ function showPop(parent) {
 function initgw() {
     var css = document.createElement('style');
     css.type = 'text/css';
-    css.innerHTML = ".gw_run_div{position:fixed;bottom:20%;right:1px;border:1px solid gray;padding:3px;width:12px;font-size:12px;border-radius: 3px;text-shadow: 1px 1px 3px #676767;background-color: #000000;color: #FFFFFF;cursor: default;}.gw_run{cursor:pointer;}";
+    css.innerHTML = ".gw_run_div{position:fixed;bottom:20%;right:1px;border:1px solid gray;padding:3px;width:12px;font-size:12px;border-radius: 3px;text-shadow: 1px 1px 3px #676767;background-color: #000000;color: #FFFFFF;cursor: default;}.gw_run{cursor:pointer;}.gw_div_left{float:left;position:fixed;left:0px;top:120px;}.gw_div_right{float:right;position:fixed;right:0px;top:120px;}";
     document.getElementsByTagName('head')[0].appendChild(css);
 
     $(document.body).append("<div class='gw_run_div'><div id='gw_run' class='gw_run' title='点击可手动着色 快捷键:ALT + A'><b>手动着色</b></div><div>---</div><div id='gw_run2' class='gw_run' title='点击可手动着色和分析训练效率 快捷键:ALT + S'><b>训练效率分析</b></div><div>---</div><div id='gw_run3' class='gw_run' title='点击可清理缓存，可在运行变慢的时候点击'><b>清理缓存</b></div></div>");
     $('#gw_run')[0].addEventListener('click', function () { gw_start(0); });
     $('#gw_run2')[0].addEventListener('click', function () { gw_start(1); });
     $('#gw_run3')[0].addEventListener('click', function () { clearCache(); });
-    if ($("#players_container").width() < 660)
-        $("#players_container").width("660");
+
 
     document.onkeydown = function () {
         if (event.altKey) {
@@ -503,6 +607,10 @@ function initgw() {
                 //alt + S
                 gw_start(1);
             }
+            else if (window.event.keyCode == 68) {
+                //alt + D
+                Advanced2D();
+            }
         }
     };
     $("body").on("mouseenter", ".skill_exact_van", function () {
@@ -511,6 +619,8 @@ function initgw() {
 }
 //GraphsType 0 自动模式 1 强制训练图
 function gw_start(GraphsType) {
+    if ($("#players_container").width() < 660)
+        $("#players_container").width("660");
     if ($(".player_share_skills").length > 0) {
         if (GraphsType == 0) {
             getMax();
@@ -519,6 +629,84 @@ function gw_start(GraphsType) {
         }
     } else if ($(".playerContainer").find(".training_graphs").length > 0) {
         showMax(GraphsType);
+    }
+}
+
+function MatchEvent() {
+    this.data = new Array();
+    this.setAllPlayerEvent = function (team) {
+        for (var i = 0; i < team.m_players.length; i++) {
+            let len = team.m_players[i].m_events.getLength();
+            for (var j = 0; j < len; j++) {
+                this.data.push(team.m_players[i].m_events.at(j));
+            }
+        }
+    };
+    this.Sort = function () {
+        this.data.sort(function (a, b) {
+            return a.m_frame - b.m_frame;
+        });
+    };
+}
+
+
+//以下为2D比赛辅助
+function Advanced2D() {
+    if (typeof (MyGame) == "function" && MyGame.prototype.mzlive && MyGame.prototype.mzlive.m_match) {
+        if ($("#canvas").length > 0) {
+
+            let home = MyGame.prototype.mzlive.m_match.getHomeTeam();
+            let away = MyGame.prototype.mzlive.m_match.getAwayTeam();
+
+            if (home != null && away != null) {
+                let lstEventHome = new MatchEvent();
+                let lstEventAway = new MatchEvent();
+                lstEventHome.setAllPlayerEvent(home);
+                lstEventAway.setAllPlayerEvent(away);
+
+                lstEventHome.Sort();
+                lstEventAway.Sort();
+
+
+                if ($('.gw_div_left').length == 0) {
+                    $('#canvas').parent().append('<div class="gw_div_left"></div>');
+                } else {
+                    $('.gw_div_left').empty();
+                }
+                for (var i = 0; i < lstEventHome.data.length; i++) {
+                    $('.gw_div_left').append('<div><b id="gw_eventH' + i + '" class="gw_run">'
+                        + MyGame.prototype.mzlive.m_match.frameToMatchMinute(lstEventHome.data[i].m_frame) + "′ "
+                        + lstEventHome.data[i].m_owner.m_name + "(" + lstEventHome.data[i].m_owner.m_shirtNo + ") "
+                        + lstEventHome.data[i].m_description + '</b></div>');
+                    let dom = $('#gw_eventH' + i)[0];
+                    dom.m_frame = lstEventHome.data[i].m_frame;
+                    dom.m_frame -= 45;
+                    if (dom.m_frame < 0) {
+                        dom.m_frame = 0;
+                    }
+                    dom.addEventListener('click', function () { MyGame.prototype.mzlive.m_match.setCurrentFrame(this.m_frame); });
+                }
+
+                if ($('.gw_div_right').length == 0) {
+                    $('#canvas').parent().append('<div class="gw_div_right"></div>');
+                } else {
+                    $('.gw_div_right').empty();
+                }
+                for (var ii = 0; ii < lstEventAway.data.length; ii++) {
+                    $('.gw_div_right').append('<div><b id="gw_eventA' + ii + '" class="gw_run">'
+                        + MyGame.prototype.mzlive.m_match.frameToMatchMinute(lstEventAway.data[ii].m_frame) + "′ "
+                        + " " + lstEventAway.data[ii].m_owner.m_name + "(" + lstEventAway.data[ii].m_owner.m_shirtNo + ") "
+                        + lstEventAway.data[ii].m_description + '</b></div>');
+                    let dom = $('#gw_eventA' + ii)[0];
+                    dom.m_frame = lstEventAway.data[ii].m_frame;
+                    dom.m_frame -= 45;
+                    if (dom.m_frame < 0) {
+                        dom.m_frame = 0;
+                    }
+                    dom.addEventListener('click', function () { MyGame.prototype.mzlive.m_match.setCurrentFrame(this.m_frame); });
+                }
+            }
+        }
     }
 }
 

@@ -260,7 +260,7 @@ function getTrainingGraphs(pid, imgs, skills) {
 function initgw() {
     var css = document.createElement('style');
     css.type = 'text/css';
-    css.innerHTML = ".gw_run_div{position:fixed;bottom:20%;right:1px;border:1px solid gray;padding:3px;width:12px;font-size:12px;border-radius: 3px;text-shadow: 1px 1px 3px #676767;background-color: #000000;color: #FFFFFF;cursor: default;}.gw_run{cursor:pointer;}";
+    css.innerHTML = ".gw_run_div{position:fixed;bottom:20%;right:1px;border:1px solid gray;padding:3px;width:12px;font-size:12px;border-radius: 3px;text-shadow: 1px 1px 3px #676767;background-color: #000000;color: #FFFFFF;cursor: default;}.gw_run{cursor:pointer;}.gw_div_left{float:left;position:fixed;left:0px;top:120px;}.gw_div_right{float:right;position:fixed;right:0px;top:120px;}";
     document.getElementsByTagName('head')[0].appendChild(css);
 
     $(document.body).append("<div class='gw_run_div'><div id='gw_run' class='gw_run' title='点击可手动着色 快捷键:ALT + A'><b>手动着色</b></div><div>---</div><div id='gw_run3' class='gw_run' title='点击可清理缓存，可在运行变慢的时候点击'><b>清理缓存</b></div></div>");
@@ -272,6 +272,10 @@ function initgw() {
                 //alt + A
                 gw_start();
             }
+            else if (window.event.keyCode == 68) {
+                //alt + D
+                Advanced2D();
+            }
         }
     };
 }
@@ -282,6 +286,84 @@ function gw_start() {
         showMax();
     }
 }
+
+function MatchEvent() {
+    this.data = new Array();
+    this.setAllPlayerEvent = function (team) {
+        for (var i = 0; i < team.m_players.length; i++) {
+            let len = team.m_players[i].m_events.getLength();
+            for (var j = 0; j < len; j++) {
+                this.data.push(team.m_players[i].m_events.at(j));
+            }
+        }
+    };
+    this.Sort = function () {
+        this.data.sort(function (a, b) {
+            return a.m_frame - b.m_frame;
+        });
+    };
+}
+
+//以下为2D比赛辅助
+function Advanced2D() {
+    if (typeof (MyGame) == "function" && MyGame.prototype.mzlive && MyGame.prototype.mzlive.m_match) {
+        if ($("#canvas").length > 0) {
+
+            let home = MyGame.prototype.mzlive.m_match.getHomeTeam();
+            let away = MyGame.prototype.mzlive.m_match.getAwayTeam();
+
+            if (home != null && away != null) {
+                let lstEventHome = new MatchEvent();
+                let lstEventAway = new MatchEvent();
+                lstEventHome.setAllPlayerEvent(home);
+                lstEventAway.setAllPlayerEvent(away);
+
+                lstEventHome.Sort();
+                lstEventAway.Sort();
+
+
+                if ($('.gw_div_left').length == 0) {
+                    $('#canvas').parent().append('<div class="gw_div_left"></div>');
+                } else {
+                    $('.gw_div_left').empty();
+                }
+                for (var i = 0; i < lstEventHome.data.length; i++) {
+                    $('.gw_div_left').append('<div><b id="gw_eventH' + i + '" class="gw_run">'
+                        + MyGame.prototype.mzlive.m_match.frameToMatchMinute(lstEventHome.data[i].m_frame) + "′ "
+                        + lstEventHome.data[i].m_owner.m_name + "(" + lstEventHome.data[i].m_owner.m_shirtNo + ") "
+                        + lstEventHome.data[i].m_description + '</b></div>');
+                    let dom = $('#gw_eventH' + i)[0];
+                    dom.m_frame = lstEventHome.data[i].m_frame;
+                    dom.m_frame -= 45;
+                    if (dom.m_frame < 0) {
+                        dom.m_frame = 0;
+                    }
+                    dom.addEventListener('click', function () { MyGame.prototype.mzlive.m_match.setCurrentFrame(this.m_frame); });
+                }
+
+                if ($('.gw_div_right').length == 0) {
+                    $('#canvas').parent().append('<div class="gw_div_right"></div>');
+                } else {
+                    $('.gw_div_right').empty();
+                }
+                for (var ii = 0; ii < lstEventAway.data.length; ii++) {
+                    $('.gw_div_right').append('<div><b id="gw_eventA' + ii + '" class="gw_run">'
+                        + MyGame.prototype.mzlive.m_match.frameToMatchMinute(lstEventAway.data[ii].m_frame) + "′ "
+                        + " " + lstEventAway.data[ii].m_owner.m_name + "(" + lstEventAway.data[ii].m_owner.m_shirtNo + ") "
+                        + lstEventAway.data[ii].m_description + '</b></div>');
+                    let dom = $('#gw_eventA' + ii)[0];
+                    dom.m_frame = lstEventAway.data[ii].m_frame;
+                    dom.m_frame -= 45;
+                    if (dom.m_frame < 0) {
+                        dom.m_frame = 0;
+                    }
+                    dom.addEventListener('click', function () { MyGame.prototype.mzlive.m_match.setCurrentFrame(this.m_frame); });
+                }
+            }
+        }
+    }
+}
+
 (function () {
     'use strict';
 
