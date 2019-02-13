@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      1.7
+// @version      1.8
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -588,7 +588,7 @@ function showPop(parent) {
 function initgw() {
     var css = document.createElement('style');
     css.type = 'text/css';
-    css.innerHTML = ".gw_run_div{position:fixed;bottom:20%;right:1px;border:1px solid gray;padding:3px;width:12px;font-size:12px;border-radius: 3px;text-shadow: 1px 1px 3px #676767;background-color: #000000;color: #FFFFFF;cursor: default;}.gw_run{cursor:pointer;}.gw_div_left{float:left;position:fixed;left:0px;top:120px;}.gw_div_right{float:right;position:fixed;right:0px;top:120px;}";
+    css.innerHTML = ".gw_run_div{position:fixed;bottom:20%;right:1px;border:1px solid gray;padding:3px;width:12px;font-size:12px;border-radius: 3px;text-shadow: 1px 1px 3px #676767;background-color: #000000;color: #FFFFFF;cursor: default;}.gw_run{cursor:pointer;}.gw_div_left{float:left;position:fixed;left:0px;top:120px;height:528px;overflow-y:auto;}.gw_div_right{float:right;position:fixed;right:0px;top:120px;height:528px;overflow-y:auto;}";
     document.getElementsByTagName('head')[0].appendChild(css);
 
     $(document.body).append("<div class='gw_run_div'><div id='gw_run' class='gw_run' title='点击可手动着色 快捷键:ALT + A'><b>手动着色</b></div><div>---</div><div id='gw_run2' class='gw_run' title='点击可手动着色和分析训练效率 快捷键:ALT + S'><b>训练效率分析</b></div><div>---</div><div id='gw_run3' class='gw_run' title='点击可清理缓存，可在运行变慢的时候点击'><b>清理缓存</b></div></div>");
@@ -648,8 +648,123 @@ function MatchEvent() {
         });
     };
 }
+function MatchEvent2() {
+    //格式status->player->array
+    this.data = {};
+    this.psSet = {};
+    this.setData = function (match) {
+        //构建临时数据(不合并连续帧)
+        let matchBuffer = match.matchBuffer;
+        //格式status->player->array
+        let tmp = {};
+        let tmpKey = {};
+        for (var i = 0; i < matchBuffer.length; i++) {
+            let players = matchBuffer[i].players;
+            for (var j = 0; j < players.length; j++) {
+                if (players[j].status != undefined && players[j].status != MatchStatus.BA_NORMAL) {
 
+                    let isHome = true;
+                    var p = match.getHomeTeam().getPlayerByPlayerId(players[j].id);
+                    if (p == null) {
+                        p = match.getAwayTeam().getPlayerByPlayerId(players[j].id);
+                        isHome = false;
 
+                    }
+
+                    let arr;
+                    if (tmp[players[j].status] == undefined) {
+                        tmp[players[j].status] = {};
+                        tmp[players[j].status][players[j].id] = arr = new Array();
+                    } else if (tmp[players[j].status][players[j].id] == undefined) {
+                        tmp[players[j].status][players[j].id] = arr = new Array();
+                    } else {
+                        arr = tmp[players[j].status][players[j].id];
+                    }
+
+                    let key = players[j].id + "_" + players[j].status + "_" + i;
+                    if (tmpKey[key] == undefined) {
+
+                        arr.push({
+                            m_frame: i,
+                            status: players[j].status,
+                            owner: p,
+                            isHome: isHome
+                        });
+                        tmpKey[key] = 1;
+                    } else {
+                        tmpKey[key] += 1;
+                    }
+                }
+            }
+        }
+
+        //合并连续帧
+        //tmpStart为合并临时数据
+        let tmpStart = {};
+        for (let status in tmp) {
+            if (tmpStart[status] == undefined) {
+                tmpStart[status] = {};
+            }
+            if (this.data[status] == undefined) {
+                this.data[status] = {};
+            }
+            for (let pid in tmp[status]) {
+                for (var k = 0; k < tmp[status][pid].length; k++) {
+                    if (tmpStart[status][pid] == undefined) {
+                        tmpStart[status][pid] = { start: tmp[status][pid][k].m_frame, last: tmp[status][pid][k].m_frame, owner: tmp[status][pid][k].owner, isHome: tmp[status][pid][k].isHome };
+                    } else {
+                        if (tmpStart[status][pid].last == tmp[status][pid][k].m_frame - 1) {
+                            tmpStart[status][pid].last = tmp[status][pid][k].m_frame;
+                        } else {
+                            if (this.data[status][pid] == undefined) {
+                                this.data[status][pid] = new Array();
+                            }
+                            this.data[status][pid].push({
+                                m_frame_start: tmpStart[status][pid].start,
+                                m_frame_end: tmpStart[status][pid].last,
+                                owner: tmpStart[status][pid].owner
+                            });
+                            tmpStart[status][pid] = { start: tmp[status][pid][k].m_frame, last: tmp[status][pid][k].m_frame, owner: tmp[status][pid][k].owner, isHome: tmp[status][pid][k].isHome };
+                        }
+                    }
+                }
+
+            }
+        };
+        //合并连续帧(tmpStart结束处理)
+        for (let status in tmpStart) {
+            if (this.data[status] == undefined) {
+                this.data[status] = {};
+            }
+            for (let pid in tmpStart[status]) {
+                if (this.psSet[pid] == undefined) {
+                    this.psSet[pid] = new Array();
+                }
+                this.psSet[pid].push(parseInt(status));
+
+                if (this.data[status][pid] == undefined) {
+                    this.data[status][pid] = new Array();
+                }
+                this.psSet[pid]["name"] = tmpStart[status][pid].owner.m_name;
+                this.psSet[pid]["isHome"] = tmpStart[status][pid].isHome;
+                this.data[status][pid].push({
+                    m_frame_start: tmpStart[status][pid].start,
+                    m_frame_end: tmpStart[status][pid].last,
+                    owner: tmpStart[status][pid].owner
+                });
+
+            }
+        }
+
+    };
+    this.Sort = function () {
+        this.data.sort(function (a, b) {
+            return a.m_frame - b.m_frame;
+        });
+    };
+}
+
+let mEvent, mStaticEventHome, mStaticEventAway;
 //以下为2D比赛辅助
 function Advanced2D() {
     if (typeof (MyGame) == "function" && MyGame.prototype.mzlive && MyGame.prototype.mzlive.m_match) {
@@ -667,46 +782,213 @@ function Advanced2D() {
                 lstEventHome.Sort();
                 lstEventAway.Sort();
 
+                mStaticEventHome = lstEventHome;
+                mStaticEventAway = lstEventAway;
+
+                let lstEvent2 = new MatchEvent2();
+                lstEvent2.setData(MyGame.prototype.mzlive.m_match);
+                mEvent = lstEvent2;
 
                 if ($('.gw_div_left').length == 0) {
                     $('#canvas').parent().append('<div class="gw_div_left"></div>');
+                    $('#canvas').parent().append('<div class="gw_div_right"></div>');
+                    $('#canvas').parent().append('<div><b id="gw_jijing" class="gw_run" style="color: red;">比赛集锦</b>    <b id="gw_dongzuo" class="gw_run" style="color: red;">球员动作</b></div>');
+
+                    $('#gw_jijing')[0].addEventListener('click', function () {
+                        ShowDiv(0);
+                    });
+
+                    $('#gw_dongzuo')[0].addEventListener('click', function () {
+                        ShowDiv(1);
+                    });
+
+
                 } else {
                     $('.gw_div_left').empty();
-                }
-                for (var i = 0; i < lstEventHome.data.length; i++) {
-                    $('.gw_div_left').append('<div><b id="gw_eventH' + i + '" class="gw_run">'
-                        + MyGame.prototype.mzlive.m_match.frameToMatchMinute(lstEventHome.data[i].m_frame) + "′ "
-                        + lstEventHome.data[i].m_owner.m_name + "(" + lstEventHome.data[i].m_owner.m_shirtNo + ") "
-                        + lstEventHome.data[i].m_description + '</b></div>');
-                    let dom = $('#gw_eventH' + i)[0];
-                    dom.m_frame = lstEventHome.data[i].m_frame;
-                    dom.m_frame -= 45;
-                    if (dom.m_frame < 0) {
-                        dom.m_frame = 0;
-                    }
-                    dom.addEventListener('click', function () { MyGame.prototype.mzlive.m_match.setCurrentFrame(this.m_frame); });
-                }
-
-                if ($('.gw_div_right').length == 0) {
-                    $('#canvas').parent().append('<div class="gw_div_right"></div>');
-                } else {
                     $('.gw_div_right').empty();
-                }
-                for (var ii = 0; ii < lstEventAway.data.length; ii++) {
-                    $('.gw_div_right').append('<div><b id="gw_eventA' + ii + '" class="gw_run">'
-                        + MyGame.prototype.mzlive.m_match.frameToMatchMinute(lstEventAway.data[ii].m_frame) + "′ "
-                        + " " + lstEventAway.data[ii].m_owner.m_name + "(" + lstEventAway.data[ii].m_owner.m_shirtNo + ") "
-                        + lstEventAway.data[ii].m_description + '</b></div>');
-                    let dom = $('#gw_eventA' + ii)[0];
-                    dom.m_frame = lstEventAway.data[ii].m_frame;
-                    dom.m_frame -= 45;
-                    if (dom.m_frame < 0) {
-                        dom.m_frame = 0;
-                    }
-                    dom.addEventListener('click', function () { MyGame.prototype.mzlive.m_match.setCurrentFrame(this.m_frame); });
                 }
             }
         }
+    }
+}
+function ShowDiv(type) {
+    $('.gw_div_left').empty();
+    $('.gw_div_right').empty();
+    if (type == 0) {
+        let lstEventHome = mStaticEventHome;
+        let lstEventAway = mStaticEventAway;
+
+        for (var i = 0; i < lstEventHome.data.length; i++) {
+            $('.gw_div_left').append('<div><b id="gw_eventH' + i + '" class="gw_run">'
+                + MyGame.prototype.mzlive.m_match.frameToMatchMinute(lstEventHome.data[i].m_frame) + "′ "
+                + lstEventHome.data[i].m_owner.m_name + "(" + lstEventHome.data[i].m_owner.m_shirtNo + ") "
+                + lstEventHome.data[i].m_description + '</b></div>');
+            let dom = $('#gw_eventH' + i)[0];
+            dom.m_frame = lstEventHome.data[i].m_frame;
+            dom.m_frame -= 45;
+            if (dom.m_frame < 0) {
+                dom.m_frame = 0;
+            }
+            dom.addEventListener('click', function () { MyGame.prototype.mzlive.m_match.setCurrentFrame(this.m_frame); });
+        }
+
+        for (var ii = 0; ii < lstEventAway.data.length; ii++) {
+            $('.gw_div_right').append('<div><b id="gw_eventA' + ii + '" class="gw_run">'
+                + MyGame.prototype.mzlive.m_match.frameToMatchMinute(lstEventAway.data[ii].m_frame) + "′ "
+                + " " + lstEventAway.data[ii].m_owner.m_name + "(" + lstEventAway.data[ii].m_owner.m_shirtNo + ") "
+                + lstEventAway.data[ii].m_description + '</b></div>');
+            let dom = $('#gw_eventA' + ii)[0];
+            dom.m_frame = lstEventAway.data[ii].m_frame;
+            dom.m_frame -= 45;
+            if (dom.m_frame < 0) {
+                dom.m_frame = 0;
+            }
+            dom.addEventListener('click', function () { MyGame.prototype.mzlive.m_match.setCurrentFrame(this.m_frame); });
+        }
+    } else {
+
+        for (let pid in mEvent.psSet) {
+            let divname;
+            if (mEvent.psSet[pid].isHome) {
+                divname = '.gw_div_left';
+            } else {
+                divname = '.gw_div_right';
+            }
+
+            $(divname).append('<div><b>'
+                + mEvent.psSet[pid].name + "</b></div>");
+            for (var j = 0; j < mEvent.psSet[pid].length; j++) {
+                $(divname).append('<div><b id="gw_player_' + pid + "_" + mEvent.psSet[pid][j]
+                    + '" class="gw_run"> -'
+                    + getMatchStatusName(mEvent.psSet[pid][j])
+                    + "(" + mEvent.data[mEvent.psSet[pid][j]][pid].length + ")"
+                    + "</b></div>");
+                let dom = $("#gw_player_" + pid + "_" + mEvent.psSet[pid][j])[0];
+                dom.pid = pid;
+                dom.status = mEvent.psSet[pid][j];
+                dom.divname = divname;
+                dom.addEventListener('click', function () {
+                    $(this.divname).empty();
+
+                    $(this.divname).append('<div><b>'
+                        + getMatchStatusName(this.status) + "</b></div>");
+
+                    let arr = mEvent.data[this.status][this.pid];
+                    for (var k = 0; k < arr.length; k++) {
+                        let key = 'gw_player_' + pid + "_" + this.status + "_" + k;
+                        $(this.divname).append('<div><b id="' + key + '" class="gw_run">'
+                            + MyGame.prototype.mzlive.m_match.frameToMatchMinute(arr[k].m_frame_start) + "′ ("
+                            + (arr[k].m_frame_end - arr[k].m_frame_start)
+                            + ")"
+                            + "</b></div>");
+
+                        let dom = $("#" + key)[0];
+                        dom.m_frame = arr[k].m_frame_start;
+                        dom.addEventListener('click', function () { MyGame.prototype.mzlive.m_match.setCurrentFrame(this.m_frame); });
+                    }
+                });
+            }
+
+
+
+        }
+    }
+}
+
+function getMatchStatusName(status) {
+    switch (status) {
+        case MatchStatus.BA_NORMAL:
+            return "BA_NORMAL";
+        case MatchStatus.BA_WALL:
+            return "BA_WALL";
+        case MatchStatus.BA_HOLD:
+            return "BA_HOLD";
+        case MatchStatus.BA_DOWN:
+            return "BA_DOWN";
+        case MatchStatus.BA_HOLD_THROWIN:
+            return "BA_HOLD_THROWIN";
+        case MatchStatus.BA_THROWIN:
+            return "BA_THROWIN";
+        case MatchStatus.BA_LEFT_FOOT_SHOT_FWD:
+            return "BA_LEFT_FOOT_SHOT_FWD";
+        case MatchStatus.BA_LEFT_FOOT_SHOT_BACK:
+            return "BA_LEFT_FOOT_SHOT_BACK";
+        case MatchStatus.BA_LEFT_FOOT_SHOT_RIGHT:
+            return "BA_LEFT_FOOT_SHOT_RIGHT";
+        case MatchStatus.BA_LEFT_FOOT_SHOT_LEFT:
+            return "BA_LEFT_FOOT_SHOT_LEFT";
+        case MatchStatus.BA_RIGHT_FOOT_SHOT_FWD:
+            return "BA_RIGHT_FOOT_SHOT_FWD";
+        case MatchStatus.BA_RIGHT_FOOT_SHOT_BACK:
+            return "BA_RIGHT_FOOT_SHOT_BACK";
+        case MatchStatus.BA_RIGHT_FOOT_SHOT_RIGHT:
+            return "BA_RIGHT_FOOT_SHOT_RIGHT";
+        case MatchStatus.BA_RIGHT_FOOT_SHOT_LEFT:
+            return "BA_RIGHT_FOOT_SHOT_LEFT";
+        case MatchStatus.BA_LEFT_FOOT_PASS_FWD:
+            return "BA_LEFT_FOOT_PASS_FWD";
+        case MatchStatus.BA_LEFT_FOOT_PASS_BACK:
+            return "BA_LEFT_FOOT_PASS_BACK";
+        case MatchStatus.BA_LEFT_FOOT_PASS_RIGHT:
+            return "BA_LEFT_FOOT_PASS_RIGHT";
+        case MatchStatus.BA_LEFT_FOOT_PASS_LEFT:
+            return "BA_LEFT_FOOT_PASS_LEFT";
+        case MatchStatus.BA_RIGHT_FOOT_PASS_FWD:
+            return "BA_RIGHT_FOOT_PASS_FWD";
+        case MatchStatus.BA_RIGHT_FOOT_PASS_BACK:
+            return "BA_RIGHT_FOOT_PASS_BACK";
+        case MatchStatus.BA_RIGHT_FOOT_PASS_RIGHT:
+            return "BA_RIGHT_FOOT_PASS_RIGHT";
+        case MatchStatus.BA_RIGHT_FOOT_PASS_LEFT:
+            return "BA_RIGHT_FOOT_PASS_LEFT";
+        case MatchStatus.BA_PICK_UP_BALL:
+            return "BA_PICK_UP_BALL";
+        case MatchStatus.BA_DROP_BALL:
+            return "BA_DROP_BALL";
+        case MatchStatus.BA_HEADER:
+            return "BA_HEADER";
+        case MatchStatus.BA_TRIP:
+            return "BA_TRIP";
+        case MatchStatus.BA_CELEBRATE:
+            return "BA_CELEBRATE";
+        case MatchStatus.BA_GK_READY:
+            return "BA_GK_READY";
+        case MatchStatus.BA_GK_ACRO_LEFT:
+            return "BA_GK_ACRO_LEFT";
+        case MatchStatus.BA_GK_ACRO_LEFT_HOLD:
+            return "BA_GK_ACRO_LEFT_HOLD";
+        case MatchStatus.BA_GK_ACRO_RIGHT:
+            return "BA_GK_ACRO_RIGHT";
+        case MatchStatus.BA_GK_ACRO_RIGHT_HOLD:
+            return "BA_GK_ACRO_RIGHT_HOLD";
+        case MatchStatus.BA_GK_SIDESTEP_LEFT:
+            return "BA_GK_SIDESTEP_LEFT";
+        case MatchStatus.BA_GK_SIDESTEP_RIGHT:
+            return "BA_GK_SIDESTEP_RIGHT";
+        case MatchStatus.BA_GK_KICK:
+            return "BA_GK_KICK";
+        case MatchStatus.BA_GK_THROW_BALL:
+            return "BA_GK_THROW_BALL";
+        case MatchStatus.BA_GK_STRETCH_LEFT:
+            return "BA_GK_STRETCH_LEFT";
+        case MatchStatus.BA_GK_STRETCH_LEFT_HOLD:
+            return "BA_GK_STRETCH_LEFT_HOLD";
+        case MatchStatus.BA_GK_STRETCH_RIGHT:
+            return "BA_GK_STRETCH_RIGHT";
+        case MatchStatus.BA_GK_STRETCH_RIGHT_HOLD:
+            return "BA_GK_STRETCH_RIGHT_HOLD";
+        case MatchStatus.BA_BALL_OWNER:
+            return "BA_BALL_OWNER";
+        case MatchStatus.BA_TACKLE:
+            return "BA_TACKLE";
+        case MatchStatus.BA_SLIDING_TACKLE:
+            return "BA_SLIDING_TACKLE";
+        case MatchStatus.BA_SLIDING_TACKLE_STAND:
+            return "BA_SLIDING_TACKLE_STAND";
+        case MatchStatus.BA_MAX:
+            return "BA_MAX";
+        default:
+            return "未知状态";
     }
 }
 
