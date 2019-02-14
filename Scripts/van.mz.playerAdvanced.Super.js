@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      2.0
+// @version      2.1
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -875,6 +875,8 @@ function ShowDiv(type) {
             dom.addEventListener('click', function () {
                 $(this.divname).empty();
 
+                $(divname).append('<div><b>'
+                    + mEvent.dataByPlayer[pid].owner.m_name + "(" + mEvent.dataByPlayer[pid].owner.m_shirtNo + ")</b></div>");
                 let arr = mEvent.dataByPlayer[this.pid].data;
                 for (var k = 0; k < arr.length; k++) {
                     let key = 'gw_player_' + pid + "_s_" + k;
@@ -910,9 +912,9 @@ function getMatchStatusName(status) {
         case MatchStatus.BA_DOWN:
             return "倒地?";
         case MatchStatus.BA_HOLD_THROWIN:
-            return "BA_HOLD_THROWIN";
+            return "界外球准备";
         case MatchStatus.BA_THROWIN:
-            return "BA_THROWIN";
+            return "界外球";
         case MatchStatus.BA_LEFT_FOOT_SHOT_FWD:
             return "左脚射门/长传FWD";
         case MatchStatus.BA_LEFT_FOOT_SHOT_BACK:
