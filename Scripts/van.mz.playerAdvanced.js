@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      2.1
+// @version      2.2
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -15,7 +15,8 @@
 
 var mzreg = {
     playerMax: /trainingField.players\s*=\s*({.+})/,
-    playerId: /player_id_(\d+)/
+    playerId: /player_id_(\d+)/,
+    data2d_url: /matchviewer\/getMatchFiles.php\?type=data&mid=\d+/
 };
 var mzImg = {
     red_skill:
@@ -287,6 +288,7 @@ function gw_start() {
     }
 }
 
+//以下为2D比赛辅助
 function MatchEvent() {
     this.data = new Array();
     this.setAllPlayerEvent = function (team) {
@@ -308,6 +310,8 @@ function MatchEvent2() {
     this.data = {};
     //格式player->array
     this.dataByPlayer = {};
+    //格式player->{frame_count,[{start,end}]}
+    this.playerFool = {};
 
     this.setData = function (match) {
         //构建临时数据(不合并连续帧)
@@ -315,49 +319,89 @@ function MatchEvent2() {
         //格式status->player->array
         let tmp = {};
         let tmpKey = {};
+        let tmpLastPosition = {};
+        let playerFool = {};
         for (var i = 0; i < matchBuffer.length; i++) {
             let players = matchBuffer[i].players;
             for (var j = 0; j < players.length; j++) {
-                if (players[j].status != undefined && players[j].status != MatchStatus.BA_NORMAL) {
+                if (players[j].status != undefined) {
 
-                    let isHome = true;
-                    var p = match.getHomeTeam().getPlayerByPlayerId(players[j].id);
-                    if (p == null) {
-                        p = match.getAwayTeam().getPlayerByPlayerId(players[j].id);
-                        isHome = false;
-
-                    }
-
-                    let arr;
-                    if (tmp[players[j].status] == undefined) {
-                        tmp[players[j].status] = {};
-                        tmp[players[j].status][players[j].id] = arr = new Array();
-                    } else if (tmp[players[j].status][players[j].id] == undefined) {
-                        tmp[players[j].status][players[j].id] = arr = new Array();
+                    if (tmpLastPosition[players[j].id] == undefined) {
+                        tmpLastPosition[players[j].id] = {};
+                        tmpLastPosition[players[j].id].FoolStart = -1;
                     } else {
-                        arr = tmp[players[j].status][players[j].id];
+                        if (tmpLastPosition[players[j].id].x == players[j].position.x
+                            &&
+                            tmpLastPosition[players[j].id].y == players[j].position.y
+                            &&
+                            tmpLastPosition[players[j].id].z == players[j].position.z) {
+                            if (tmpLastPosition[players[j].id].FoolStart == -1) {
+                                tmpLastPosition[players[j].id].FoolStart = i - 1;
+                            }
+                        } else {
+                            if (tmpLastPosition[players[j].id].FoolStart > 0) {
+                                if (playerFool[players[j].id] == undefined) {
+                                    playerFool[players[j].id] = {};
+                                    playerFool[players[j].id].frame_count = 0;
+                                    playerFool[players[j].id].data = new Array();
+                                }
+                                let tmpd = {
+                                    start: tmpLastPosition[players[j].id].FoolStart,
+                                    end: i - 1
+                                };
+                                playerFool[players[j].id].data.push(tmpd);
+                                playerFool[players[j].id].frame_count += tmpd.end - tmpd.start + 1;
+                                tmpLastPosition[players[j].id].FoolStart = -1;
+                            }
+                        }
                     }
+                    tmpLastPosition[players[j].id].x = players[j].position.x;
+                    tmpLastPosition[players[j].id].y = players[j].position.y;
+                    tmpLastPosition[players[j].id].z = players[j].position.z;
+                    if (players[j].status != MatchStatus.BA_NORMAL) {
 
-                    let key = players[j].id + "_" + players[j].status + "_" + i;
-                    if (tmpKey[key] == undefined) {
+                        let isHome = true;
+                        var p = match.getHomeTeam().getPlayerByPlayerId(players[j].id);
+                        if (p == null) {
+                            p = match.getAwayTeam().getPlayerByPlayerId(players[j].id);
+                            isHome = false;
 
-                        arr.push({
-                            m_frame: i,
-                            status: players[j].status,
-                            owner: p,
-                            isHome: isHome
-                        });
-                        tmpKey[key] = 1;
-                    } else {
-                        tmpKey[key] += 1;
+                        }
+
+                        let arr;
+                        if (tmp[players[j].status] == undefined) {
+                            tmp[players[j].status] = {};
+                            tmp[players[j].status][players[j].id] = arr = new Array();
+                        } else if (tmp[players[j].status][players[j].id] == undefined) {
+                            tmp[players[j].status][players[j].id] = arr = new Array();
+                        } else {
+                            arr = tmp[players[j].status][players[j].id];
+                        }
+
+                        let key = players[j].id + "_" + players[j].status + "_" + i;
+                        if (tmpKey[key] == undefined) {
+
+                            arr.push({
+                                m_frame: i,
+                                status: players[j].status,
+                                owner: p,
+                                isHome: isHome
+                            });
+                            tmpKey[key] = 1;
+                        } else {
+                            tmpKey[key] += 1;
+                        }
                     }
                 }
             }
         }
+        this.playerFool = playerFool;
 
         //合并连续帧
         //tmpStart为合并临时数据
         let tmpStart = {};
+        let dataByPlayer = {};
+        this.data = {};
         for (let status in tmp) {
             if (tmpStart[status] == undefined) {
                 tmpStart[status] = {};
@@ -366,10 +410,10 @@ function MatchEvent2() {
                 this.data[status] = {};
             }
             for (let pid in tmp[status]) {
-                if (this.dataByPlayer[pid] == undefined) {
-                    this.dataByPlayer[pid] = {};
-                    this.dataByPlayer[pid].status = new Array();
-                    this.dataByPlayer[pid].data = new Array();
+                if (dataByPlayer[pid] == undefined) {
+                    dataByPlayer[pid] = {};
+                    dataByPlayer[pid].status = new Array();
+                    dataByPlayer[pid].data = new Array();
                 }
                 for (var k = 0; k < tmp[status][pid].length; k++) {
                     if (tmpStart[status][pid] == undefined) {
@@ -386,7 +430,7 @@ function MatchEvent2() {
                                 m_frame_end: tmpStart[status][pid].last,
                                 owner: tmpStart[status][pid].owner
                             });
-                            this.dataByPlayer[pid].data.push({
+                            dataByPlayer[pid].data.push({
                                 m_frame_start: tmpStart[status][pid].start,
                                 m_frame_end: tmpStart[status][pid].last,
                                 status: parseInt(status)
@@ -404,27 +448,97 @@ function MatchEvent2() {
                 this.data[status] = {};
             }
             for (let pid in tmpStart[status]) {
-                this.dataByPlayer[pid].status.push(parseInt(status));
+                dataByPlayer[pid].status.push(parseInt(status));
 
                 if (this.data[status][pid] == undefined) {
                     this.data[status][pid] = new Array();
                 }
-                this.dataByPlayer[pid].owner = tmpStart[status][pid].owner;
-                this.dataByPlayer[pid].isHome = tmpStart[status][pid].isHome;
+                dataByPlayer[pid].owner = tmpStart[status][pid].owner;
+                dataByPlayer[pid].isHome = tmpStart[status][pid].isHome;
                 this.data[status][pid].push({
                     m_frame_start: tmpStart[status][pid].start,
                     m_frame_end: tmpStart[status][pid].last,
                     owner: tmpStart[status][pid].owner
                 });
-                this.dataByPlayer[pid].data.push({
+                dataByPlayer[pid].data.push({
                     m_frame_start: tmpStart[status][pid].start,
                     m_frame_end: tmpStart[status][pid].last,
                     status: parseInt(status)
                 });
 
-                this.dataByPlayer[pid].data.sort(function (a, b) {
+                dataByPlayer[pid].data.sort(function (a, b) {
                     return a.m_frame_start - b.m_frame_start;
                 });
+            }
+        }
+        //更改统计帧
+        this.dataByPlayer = {};
+        for (let pid in dataByPlayer) {
+            this.dataByPlayer[pid] = {};
+            this.dataByPlayer[pid].isHome = dataByPlayer[pid].isHome;
+            this.dataByPlayer[pid].owner = dataByPlayer[pid].owner;
+            this.dataByPlayer[pid].status = dataByPlayer[pid].status;
+            this.dataByPlayer[pid].data = new Array();
+
+            let arr = dataByPlayer[pid].data;
+            for (var q = 0; q < arr.length; q++) {
+                //接下来还有
+                if (q + 1 < arr.length) {
+                    //连续动作判断
+                    if (arr[q].m_frame_end + 1 == arr[q + 1].m_frame_start) {
+                        //头球时判断接下来的动作
+                        if (arr[q].status == MatchStatus.BA_HEADER) {
+                            //接下来动作是射门
+                            if (arr[q + 1].status == MatchStatus.BA_LEFT_FOOT_SHOT_FWD) {
+                                this.dataByPlayer[pid].data.push({
+                                    m_frame_start: arr[q].m_frame_start,
+                                    m_frame_end: arr[q + 1].m_frame_end,
+                                    status: 1001,
+                                    old_arr: [arr[q], arr[q + 1]]
+                                });
+                                q += 1;
+                                continue;
+                            } else if (arr[q + 1].status == MatchStatus.BA_RIGHT_FOOT_SHOT_FWD) {
+                                this.dataByPlayer[pid].data.push({
+                                    m_frame_start: arr[q].m_frame_start,
+                                    m_frame_end: arr[q + 1].m_frame_end,
+                                    status: 1002,
+                                    old_arr: [arr[q], arr[q + 1]]
+                                });
+                                q += 1;
+                                continue;
+                            }
+                            //接下来是持球
+                            else if (arr[q + 1].status == MatchStatus.BA_BALL_OWNER) {
+                                this.dataByPlayer[pid].data.push({
+                                    m_frame_start: arr[q].m_frame_start,
+                                    m_frame_end: arr[q + 1].m_frame_end,
+                                    status: 1003,
+                                    old_arr: [arr[q], arr[q + 1]]
+                                });
+                                q += 1;
+                                continue;
+                            }
+                        }
+                        //上抢
+                        if (arr[q].status == MatchStatus.BA_TACKLE) {
+                            if (arr[q + 1].status == MatchStatus.BA_LEFT_FOOT_SHOT_FWD
+                                || arr[q + 1].status == MatchStatus.BA_RIGHT_FOOT_SHOT_FWD
+                                || arr[q + 1].status == MatchStatus.BA_BALL_OWNER
+                            ) {
+                                //上抢(成功)
+                                this.dataByPlayer[pid].data.push({
+                                    m_frame_start: arr[q].m_frame_start,
+                                    m_frame_end: arr[q].m_frame_end,
+                                    status: 1011,
+                                    old_arr: [arr[q]]
+                                });
+                                continue;
+                            }
+                        }
+                    }
+                }
+                this.dataByPlayer[pid].data.push(arr[q]);
             }
         }
 
@@ -432,9 +546,9 @@ function MatchEvent2() {
 }
 
 let mEvent, mStaticEventHome, mStaticEventAway;
-//以下为2D比赛辅助
+
 function Advanced2D() {
-    if (typeof (MyGame) == "function" && MyGame.prototype.mzlive && MyGame.prototype.mzlive.m_match) {
+    if (typeof (MyGame) == "function" && MyGame.prototype.mzlive && MyGame.prototype.mzlive.buttonToggleClose != undefined) {
         if ($("#canvas").length > 0) {
 
             let home = MyGame.prototype.mzlive.m_match.getHomeTeam();
@@ -474,6 +588,10 @@ function Advanced2D() {
                     $('.gw_div_left').empty();
                     $('.gw_div_right').empty();
                 }
+            }
+            if (handleInterval) {
+                clearInterval(handleInterval);
+                handleInterval = false;
             }
         }
     }
@@ -521,9 +639,13 @@ function ShowDiv(type) {
             } else {
                 divname = '.gw_div_right';
             }
-
+            let frame_count = 0;
+            if (mEvent.playerFool[pid]) {
+                frame_count = mEvent.playerFool[pid].frame_count;
+            }
             $(divname).append('<div><b id="gw_player_' + pid + '" class="gw_run">'
-                + mEvent.dataByPlayer[pid].owner.m_name + "(" + mEvent.dataByPlayer[pid].owner.m_shirtNo + ")</b></div>");
+                + mEvent.dataByPlayer[pid].owner.m_name + "(" + mEvent.dataByPlayer[pid].owner.m_shirtNo + ")"
+                + "[" + frame_count + "]</b></div>");
             let dom = $("#gw_player_" + pid)[0];
             dom.pid = pid;
             dom.divname = divname;
@@ -565,13 +687,13 @@ function getMatchStatusName(status) {
         case MatchStatus.BA_HOLD:
             return "抱着球";
         case MatchStatus.BA_DOWN:
-            return "倒地?";
+            return "倒地";
         case MatchStatus.BA_HOLD_THROWIN:
             return "界外球准备";
         case MatchStatus.BA_THROWIN:
             return "界外球";
         case MatchStatus.BA_LEFT_FOOT_SHOT_FWD:
-            return "左脚射门/长传FWD";
+            return "左脚射门/长传";
         case MatchStatus.BA_LEFT_FOOT_SHOT_BACK:
             return "BA_LEFT_FOOT_SHOT_BACK";
         case MatchStatus.BA_LEFT_FOOT_SHOT_RIGHT:
@@ -579,7 +701,7 @@ function getMatchStatusName(status) {
         case MatchStatus.BA_LEFT_FOOT_SHOT_LEFT:
             return "BA_LEFT_FOOT_SHOT_LEFT";
         case MatchStatus.BA_RIGHT_FOOT_SHOT_FWD:
-            return "右脚射门/长传FWD";
+            return "右脚射门/长传";
         case MatchStatus.BA_RIGHT_FOOT_SHOT_BACK:
             return "BA_RIGHT_FOOT_SHOT_BACK";
         case MatchStatus.BA_RIGHT_FOOT_SHOT_RIGHT:
@@ -587,7 +709,7 @@ function getMatchStatusName(status) {
         case MatchStatus.BA_RIGHT_FOOT_SHOT_LEFT:
             return "BA_RIGHT_FOOT_SHOT_LEFT";
         case MatchStatus.BA_LEFT_FOOT_PASS_FWD:
-            return "左脚短传FWD";
+            return "左脚短传";
         case MatchStatus.BA_LEFT_FOOT_PASS_BACK:
             return "BA_LEFT_FOOT_PASS_BACK";
         case MatchStatus.BA_LEFT_FOOT_PASS_RIGHT:
@@ -595,7 +717,7 @@ function getMatchStatusName(status) {
         case MatchStatus.BA_LEFT_FOOT_PASS_LEFT:
             return "BA_LEFT_FOOT_PASS_LEFT";
         case MatchStatus.BA_RIGHT_FOOT_PASS_FWD:
-            return "右脚短传FWD";
+            return "右脚短传";
         case MatchStatus.BA_RIGHT_FOOT_PASS_BACK:
             return "BA_RIGHT_FOOT_PASS_BACK";
         case MatchStatus.BA_RIGHT_FOOT_PASS_RIGHT:
@@ -607,7 +729,7 @@ function getMatchStatusName(status) {
         case MatchStatus.BA_DROP_BALL:
             return "放下球";
         case MatchStatus.BA_HEADER:
-            return "头球?";
+            return "争顶";
         case MatchStatus.BA_TRIP:
             return "失误/被抢断?";
         case MatchStatus.BA_CELEBRATE:
@@ -641,22 +763,48 @@ function getMatchStatusName(status) {
         case MatchStatus.BA_BALL_OWNER:
             return "持球/带球?";
         case MatchStatus.BA_TACKLE:
-            return "上抢?";
+            return "上抢(失败?)";
         case MatchStatus.BA_SLIDING_TACKLE:
             return "BA_SLIDING_TACKLE";
         case MatchStatus.BA_SLIDING_TACKLE_STAND:
             return "BA_SLIDING_TACKLE_STAND";
         case MatchStatus.BA_MAX:
             return "BA_MAX";
+        case 1001:
+            return "头球攻门(左)";
+        case 1002:
+            return "头球攻门(右)";
+        case 1003:
+            return "胸部/头部停球";
+        case 1011:
+            return "上抢(成功)";
+        case 1012:
+            return "上抢(失败)";
         default:
             return "未知";
     }
 }
 
-
+let _open;
+let handleInterval = false;
 (function () {
     'use strict';
 
     initgw();
-    gw_start();
+
+    _open = window.XMLHttpRequest.prototype.open;
+    window.XMLHttpRequest.prototype.open = function () {
+        if (mzreg.data2d_url.test(arguments[1])) {
+            if (typeof (MyGame) == "function" && MyGame.prototype.mzlive && MyGame.prototype.mzlive.buttonToggleClose != undefined) {
+                MyGame.prototype.mzlive.buttonToggleClose = undefined;
+            }
+            if (handleInterval) {
+                clearInterval(handleInterval);
+            }
+            handleInterval = setInterval(Advanced2D, 2000);
+        }
+        return _open.apply(this, arguments);
+    };
+
+    gw_start(0);
 })();
