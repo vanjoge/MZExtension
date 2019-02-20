@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      2.2
+// @version      2.3
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -894,7 +894,7 @@ function MatchEvent2() {
 let mEvent, mStaticEventHome, mStaticEventAway;
 
 function Advanced2D() {
-    if (typeof (MyGame) == "function" && MyGame.prototype.mzlive && MyGame.prototype.mzlive.buttonToggleClose != undefined) {
+    if (unsafeWindow.myTouchButtons != undefined) {
         if ($("#canvas").length > 0) {
 
             let home = MyGame.prototype.mzlive.m_match.getHomeTeam();
@@ -917,6 +917,33 @@ function Advanced2D() {
                 mEvent = lstEvent2;
 
                 if ($('.gw_div_left').length == 0) {
+                    let processButtonPresses = MyGame.prototype.mzlive.processButtonPresses;
+                    MyGame.prototype.mzlive.processButtonPresses = function () {
+                        processButtonPresses.apply(this);
+                        if (this.m_state < 2) {
+                            return;
+                        }
+                        if (ig.input.pressed('jijing')) {
+                            ShowDiv(0);
+                        } else if (ig.input.pressed('dongzuo')) {
+                            ShowDiv(1);
+                        }
+                    };
+                     
+                    MyGame.prototype.mzlive.buttonJiJing = new ig.TouchButton('jijing', {
+                        left: 24,
+                        top: 24
+                    }, 48, 48, MyGame.prototype.mzlive.buttonImagesHelp, 0, 1, 'highlight');
+                    unsafeWindow.myTouchButtons.buttons.push(MyGame.prototype.mzlive.buttonJiJing);
+
+                    MyGame.prototype.mzlive.buttonDongZuo = new ig.TouchButton('dongzuo', {
+                        left: 88,
+                        top: 24
+                    }, 48, 48, MyGame.prototype.mzlive.buttonImagesRestart, 0, 1, 'highlight');
+                    unsafeWindow.myTouchButtons.buttons.push(MyGame.prototype.mzlive.buttonDongZuo);
+                    unsafeWindow.myTouchButtons.align();
+
+
                     $('#canvas').parent().append('<div class="gw_div_left"></div>');
                     $('#canvas').parent().append('<div class="gw_div_right"></div>');
                     $('#canvas').parent().append('<div><b id="gw_jijing" class="gw_run" style="color: red;">比赛集锦</b>    <b id="gw_dongzuo" class="gw_run" style="color: red;">球员动作</b></div>');
@@ -1141,9 +1168,7 @@ let handleInterval = false;
     _open = window.XMLHttpRequest.prototype.open;
     window.XMLHttpRequest.prototype.open = function () {
         if (mzreg.data2d_url.test(arguments[1])) {
-            if (typeof (MyGame) == "function" && MyGame.prototype.mzlive && MyGame.prototype.mzlive.buttonToggleClose != undefined) {
-                MyGame.prototype.mzlive.buttonToggleClose = undefined;
-            }
+            unsafeWindow.myTouchButtons = undefined;
             if (handleInterval) {
                 clearInterval(handleInterval);
             }
