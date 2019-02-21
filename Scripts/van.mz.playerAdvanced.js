@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      2.2
+// @version      2.4
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -288,6 +288,7 @@ function gw_start() {
     }
 }
 
+
 //以下为2D比赛辅助
 function MatchEvent() {
     this.data = new Array();
@@ -548,7 +549,8 @@ function MatchEvent2() {
 let mEvent, mStaticEventHome, mStaticEventAway;
 
 function Advanced2D() {
-    if (typeof (MyGame) == "function" && MyGame.prototype.mzlive && MyGame.prototype.mzlive.buttonToggleClose != undefined) {
+
+    if (OK_2D) {
         if ($("#canvas").length > 0) {
 
             let home = MyGame.prototype.mzlive.m_match.getHomeTeam();
@@ -588,10 +590,18 @@ function Advanced2D() {
                     $('.gw_div_left').empty();
                     $('.gw_div_right').empty();
                 }
-            }
-            if (handleInterval) {
-                clearInterval(handleInterval);
-                handleInterval = false;
+                //MyGame.prototype.mzlive.buttonJiJing = new ig.TouchButton('jijing', {
+                //    left: 24,
+                //    top: 24
+                //}, 48, 48, MyGame.prototype.mzlive.buttonImagesHelp, 0, 1, 'highlight');
+                //unsafeWindow.myTouchButtons.buttons.push(MyGame.prototype.mzlive.buttonJiJing);
+
+                //MyGame.prototype.mzlive.buttonDongZuo = new ig.TouchButton('dongzuo', {
+                //    left: 88,
+                //    top: 24
+                //}, 48, 48, MyGame.prototype.mzlive.buttonImagesRestart, 0, 1, 'highlight');
+                //unsafeWindow.myTouchButtons.buttons.push(MyGame.prototype.mzlive.buttonDongZuo);
+                //unsafeWindow.myTouchButtons.align();
             }
         }
     }
@@ -786,7 +796,8 @@ function getMatchStatusName(status) {
 }
 
 let _open;
-let handleInterval = false;
+let finalInitAfterLoading, processButtonPresses;
+let OK_2D = false;
 (function () {
     'use strict';
 
@@ -795,13 +806,31 @@ let handleInterval = false;
     _open = window.XMLHttpRequest.prototype.open;
     window.XMLHttpRequest.prototype.open = function () {
         if (mzreg.data2d_url.test(arguments[1])) {
-            if (typeof (MyGame) == "function" && MyGame.prototype.mzlive && MyGame.prototype.mzlive.buttonToggleClose != undefined) {
-                MyGame.prototype.mzlive.buttonToggleClose = undefined;
+            OK_2D = false;
+            if (MyGame.prototype.mzlive.R_GW == undefined) {
+                MyGame.prototype.mzlive.R_GW = true;
+
+                finalInitAfterLoading = MyGame.prototype.mzlive.finalInitAfterLoading;
+                MyGame.prototype.mzlive.finalInitAfterLoading = function () {
+                    finalInitAfterLoading.apply(this);
+                    OK_2D = true;
+                    Advanced2D();
+                };
+                //processButtonPresses = MyGame.prototype.mzlive.processButtonPresses;
+                //MyGame.prototype.mzlive.processButtonPresses = function () {
+                //    processButtonPresses.apply(this);
+                //    if (this.m_state < 2) {
+                //        return;
+                //    }
+                //    if (ig.input.pressed('jijing')) {
+                //        ShowDiv(0);
+                //    } else if (ig.input.pressed('dongzuo')) {
+                //        ShowDiv(1);
+                //    }
+                //};
+
+
             }
-            if (handleInterval) {
-                clearInterval(handleInterval);
-            }
-            handleInterval = setInterval(Advanced2D, 2000);
         }
         return _open.apply(this, arguments);
     };
