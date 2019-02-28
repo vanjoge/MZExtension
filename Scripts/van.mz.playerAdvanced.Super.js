@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      2.4
+// @version      2.5
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -9,6 +9,7 @@
 // @grant        GM_getValue
 // @grant        GM_listValues
 // @grant        GM_deleteValue
+// @grant        GM_setClipboard
 // @require      https://cdn.jsdelivr.net/pako/1.0.5/pako.min.js
 // @require      https://greasyfork.org/scripts/376535-base64js/code/base64js.js?version=661147
 // ==/UserScript==
@@ -196,8 +197,8 @@ var mzreg = {
     bar_pos: /bar_pos_(\d+)/,
     bar_neg: /bar_neg_(\d+)/,
     trainingType: /&t=([^)]+)/,
-    data2d_url: /matchviewer\/getMatchFiles.php\?type=data&mid=\d+/
-
+    data2d_url: /matchviewer\/media/
+    //data2d_url: /matchviewer\/getMatchFiles.php\?type=data&mid=\d+/
 };
 var mzImg = {
     red_skill:
@@ -335,13 +336,14 @@ function setLocValue(key, val) {
     let b64 = base64js.fromByteArray(pako.gzip(val));
     GM_setValue(key, b64);
 }
-function getMax() {
+function getMax(callback) {
     myAjax(
         "/?p=training",
         function (data) {
             var result = data.match(mzreg.playerMax);
             pmax = JSON.parse(result[1]);
-            showMax(0);
+            callback();
+
         });
     return false;
 }
@@ -625,7 +627,9 @@ function gw_start(GraphsType) {
         $("#players_container").width("660");
     if ($(".player_share_skills").length > 0) {
         if (GraphsType == 0) {
-            getMax();
+            getMax(function () {
+                showMax(0);
+            });
         } else {
             showMax(GraphsType);
         }
@@ -662,48 +666,74 @@ function MatchEvent2() {
     this.setData = function (match) {
         //构建临时数据(不合并连续帧)
         let matchBuffer = match.matchBuffer;
+        //player->frame->{}
+        let playersMatchBuffer = {};
         //格式status->player->array
         let tmp = {};
         let tmpKey = {};
         let tmpLastPosition = {};
         let playerFool = {};
+        out_of_play.resetIndex();
+        let ball_move;
         for (var i = 0; i < matchBuffer.length; i++) {
+            ball_move = false;
+            if (i - 1 >= 0) {
+                if (matchBuffer[i].ball.x == matchBuffer[i - 1].ball.x
+                    &&
+                    matchBuffer[i].ball.y == matchBuffer[i - 1].ball.y
+                    &&
+                    matchBuffer[i].ball.z == matchBuffer[i - 1].ball.z
+                ) {
+                    ball_move = false;
+                }
+                else {
+                    ball_move = true;
+                }
+            }
+
+
             let players = matchBuffer[i].players;
             for (var j = 0; j < players.length; j++) {
                 if (players[j].status != undefined) {
-
-                    if (tmpLastPosition[players[j].id] == undefined) {
-                        tmpLastPosition[players[j].id] = {};
-                        tmpLastPosition[players[j].id].FoolStart = -1;
-                    } else {
-                        if (tmpLastPosition[players[j].id].x == players[j].position.x
-                            &&
-                            tmpLastPosition[players[j].id].y == players[j].position.y
-                            &&
-                            tmpLastPosition[players[j].id].z == players[j].position.z) {
-                            if (tmpLastPosition[players[j].id].FoolStart == -1) {
-                                tmpLastPosition[players[j].id].FoolStart = i - 1;
-                            }
+                    if (ball_move && out_of_play.notin(i)) {
+                        if (tmpLastPosition[players[j].id] == undefined) {
+                            tmpLastPosition[players[j].id] = {};
+                            tmpLastPosition[players[j].id].FoolStart = -1;
                         } else {
-                            if (tmpLastPosition[players[j].id].FoolStart > 0) {
-                                if (playerFool[players[j].id] == undefined) {
-                                    playerFool[players[j].id] = {};
-                                    playerFool[players[j].id].frame_count = 0;
-                                    playerFool[players[j].id].data = new Array();
+                            if (tmpLastPosition[players[j].id].x == players[j].position.x
+                                &&
+                                tmpLastPosition[players[j].id].y == players[j].position.y
+                                &&
+                                tmpLastPosition[players[j].id].z == players[j].position.z) {
+                                if (tmpLastPosition[players[j].id].FoolStart == -1) {
+                                    tmpLastPosition[players[j].id].FoolStart = i - 1;
+                                    tmpLastPosition[players[j].id].frame_count = 0;
                                 }
-                                let tmpd = {
-                                    start: tmpLastPosition[players[j].id].FoolStart,
-                                    end: i - 1
-                                };
-                                playerFool[players[j].id].data.push(tmpd);
-                                playerFool[players[j].id].frame_count += tmpd.end - tmpd.start + 1;
-                                tmpLastPosition[players[j].id].FoolStart = -1;
+                                tmpLastPosition[players[j].id].frame_count++;
+                            } else {
+                                if (tmpLastPosition[players[j].id].FoolStart > 0) {
+                                    if (playerFool[players[j].id] == undefined) {
+                                        playerFool[players[j].id] = {};
+                                        playerFool[players[j].id].frame_count = 0;
+                                        playerFool[players[j].id].data = new Array();
+                                    }
+                                    let tmpd = {
+                                        start: tmpLastPosition[players[j].id].FoolStart,
+                                        end: i - 1,
+                                        frame_count: tmpLastPosition[players[j].id].frame_count
+                                    };
+                                    playerFool[players[j].id].data.push(tmpd);
+                                    playerFool[players[j].id].frame_count += tmpd.frame_count;
+                                    tmpLastPosition[players[j].id].FoolStart = -1;
+                                    tmpLastPosition[players[j].id].frame_count = 0;
+                                }
                             }
                         }
+                        tmpLastPosition[players[j].id].x = players[j].position.x;
+                        tmpLastPosition[players[j].id].y = players[j].position.y;
+                        tmpLastPosition[players[j].id].z = players[j].position.z;
                     }
-                    tmpLastPosition[players[j].id].x = players[j].position.x;
-                    tmpLastPosition[players[j].id].y = players[j].position.y;
-                    tmpLastPosition[players[j].id].z = players[j].position.z;
+
                     if (players[j].status != MatchStatus.BA_NORMAL) {
 
                         let isHome = true;
@@ -738,6 +768,17 @@ function MatchEvent2() {
                             tmpKey[key] += 1;
                         }
                     }
+
+                    if (playersMatchBuffer[players[j].id] == undefined) {
+                        playersMatchBuffer[players[j].id] = {};
+                    }
+                    if (playersMatchBuffer[players[j].id][i] == undefined) {
+                        playersMatchBuffer[players[j].id][i] = {};
+                    }
+                    playersMatchBuffer[players[j].id][i].data = players[j];
+                    playersMatchBuffer[players[j].id][i].ball_move = ball_move;
+                    playersMatchBuffer[players[j].id][i].owner = matchBuffer[i];
+
                 }
             }
         }
@@ -886,12 +927,78 @@ function MatchEvent2() {
                 }
                 this.dataByPlayer[pid].data.push(arr[q]);
             }
+
+            this.dataByPlayer[pid].FoolCount = 0;
+            for (var n = 0; n < this.dataByPlayer[pid].data.length; n++) {
+
+                let item = this.dataByPlayer[pid].data[n];
+                item.FoolCount = 0;
+
+                if (n + 1 < this.dataByPlayer[pid].data.length
+                    &&
+                    this.dataByPlayer[pid].data[n + 1].m_frame_start == item.m_frame_end + 1
+                ) {
+                    //连续动作 下一个再判断
+                    continue;
+                }
+
+                let m_index = item.m_frame_start;
+                let last = playersMatchBuffer[pid][m_index];
+                m_index++;
+                while (last != undefined && playersMatchBuffer[pid][m_index] != undefined) {
+                    if (playersMatchBuffer[pid][m_index].data.position.x == last.data.position.x
+                        &&
+                        playersMatchBuffer[pid][m_index].data.position.y == last.data.position.y
+                        //&&
+                        //playersMatchBuffer[pid][m_index].data.position.z == last.data.position.z
+                    ) {
+                        item.FoolCount++;
+                        last = playersMatchBuffer[pid][m_index];
+                        m_index++;
+                    } else {
+                        break;
+                    }
+                }
+                this.dataByPlayer[pid].FoolCount += item.FoolCount;
+            }
         }
 
     };
 }
+function OutOfPlay() {
+    this.data = new Array();
+    this.add = function (begin, end) {
+        this.data.push({
+            begin: begin,
+            end: end
+        });
+    };
+    this.resetIndex = function () {
+        this.index = 0;
+    };
+    this.notin = function (frame) {
+        while (this.index < this.data.length) {
+            let item = this.data[this.index];
+            if (frame < item.begin) {
+                return true;
+            } else if (frame <= item.end) {
+                return false;
+            }
+            if (frame > item.end) {
+                this.index++;
+            }
+        }
+        return true;
+    };
+    this.Sort = function () {
+        this.data.sort(function (a, b) {
+            return a.begin - b.begin;
+        });
+    }
+}
 
 let mEvent, mStaticEventHome, mStaticEventAway;
+let out_of_play;
 
 function Advanced2D() {
 
@@ -902,6 +1009,23 @@ function Advanced2D() {
             let away = MyGame.prototype.mzlive.m_match.getAwayTeam();
 
             if (home != null && away != null) {
+                let events = matchLoader.matchXml.documentElement.evaluate('Events/*');
+                let re, begin, end;
+                out_of_play = new OutOfPlay();
+                out_of_play.add(0, MyGame.prototype.mzlive.m_match.m_koFrame);
+                out_of_play.add(MyGame.prototype.mzlive.m_match.m_htFrame, MyGame.prototype.mzlive.m_match.m_ko2Frame);
+                while (re = events.iterateNext()) {
+                    begin = re.getAttribute('intervalendframe');
+                    end = re.getAttribute('startframe');
+                    //re.tagName
+                    if (begin != undefined && end != undefined) {
+                        out_of_play.add(begin, end);
+                    }
+                }
+                out_of_play.Sort();
+
+
+
                 let lstEventHome = new MatchEvent();
                 let lstEventAway = new MatchEvent();
                 lstEventHome.setAllPlayerEvent(home);
@@ -920,7 +1044,7 @@ function Advanced2D() {
                 if ($('.gw_div_left').length == 0) {
                     $('#canvas').parent().append('<div class="gw_div_left"></div>');
                     $('#canvas').parent().append('<div class="gw_div_right"></div>');
-                    $('#canvas').parent().append('<div><b id="gw_jijing" class="gw_run" style="color: red;">比赛集锦</b>    <b id="gw_dongzuo" class="gw_run" style="color: red;">球员动作</b></div>');
+                    $('#canvas').parent().append('<div><b id="gw_jijing" class="gw_run" style="color: red;">比赛集锦</b>    <b id="gw_dongzuo" class="gw_run" style="color: red;">球员动作</b>    <b id="gw_copyxml1" class="gw_run" style="color: red;">复制主队战术</b>    <b id="gw_copyxml2" class="gw_run" style="color: red;">复制客队战术</b></div>');
 
                     $('#gw_jijing')[0].addEventListener('click', function () {
                         ShowDiv(0);
@@ -928,6 +1052,18 @@ function Advanced2D() {
 
                     $('#gw_dongzuo')[0].addEventListener('click', function () {
                         ShowDiv(1);
+                    });
+
+                    $('#gw_copyxml1')[0].addEventListener('click', function () {
+                        getMax(function () {
+                            Stats2XML(MyGame.prototype.mzlive.m_match.getHomeTeam(), true, pmax);
+                        });
+
+                    });
+                    $('#gw_copyxml2')[0].addEventListener('click', function () {
+                        getMax(function () {
+                            Stats2XML(MyGame.prototype.mzlive.m_match.getAwayTeam(), false, pmax);
+                        });
                     });
 
 
@@ -995,9 +1131,10 @@ function ShowDiv(type) {
                 divname = '.gw_div_right';
             }
             let frame_count = 0;
-            if (mEvent.playerFool[pid]) {
-                frame_count = mEvent.playerFool[pid].frame_count;
-            }
+            //if (mEvent.playerFool[pid]) {
+            //    frame_count = mEvent.playerFool[pid].frame_count;
+            //}
+            frame_count = mEvent.dataByPlayer[pid].FoolCount;
             $(divname).append('<div><b id="gw_player_' + pid + '" class="gw_run">'
                 + mEvent.dataByPlayer[pid].owner.m_name + "(" + mEvent.dataByPlayer[pid].owner.m_shirtNo + ")"
                 + "[" + frame_count + "]</b></div>");
@@ -1015,7 +1152,7 @@ function ShowDiv(type) {
                     $(this.divname).append('<div><b id="' + key + '" class="gw_run">'
                         + MyGame.prototype.mzlive.m_match.frameToMatchMinute(arr[k].m_frame_start) + "′["
                         + arr[k].m_frame_start + "+" + (arr[k].m_frame_end - arr[k].m_frame_start + 1)
-                        + "]"
+                        + "]" + (arr[k].FoolCount == 0 ? "" : ("+" + arr[k].FoolCount)) + " "
                         + getMatchStatusName(arr[k].status)
                         + "</b></div>");
 
@@ -1139,9 +1276,50 @@ function getMatchStatusName(status) {
             return "未知";
     }
 }
+function StatsToPos_X(i, IsLocal) {
+    var ret = IsLocal ? Math.round(-.255800462 * i + 199.8228530689) : Math.round(.2555000556 * i + 8.3741302936);
+    return ret;
+}
+function StatsToPos_Y(i, IsLocal) {
+    var ret = IsLocal ? Math.round(-.3073207154 * i + 315.9278777381) : Math.round(.3070644902 * i + 9.2794889414);
+    return ret;
+}
+function Stats2XML(team, ishome, players) {
+
+
+    let pidArr = new Array();
+    for (let pid in players) {
+        pidArr.push(pid);
+    }
+
+    let pl;
+    let nl = matchLoader.matchXml.documentElement.evaluate('Player');
+    let tmpXML = "<?xml version=\"1.0\" ?>" + "\r\n<SoccerTactics>\r\n\t<Team tactics=" + "\"" + team.getTactics() + "\" playstyle=\"" + team.getPlayStyle() + "\" aggression=\"" + team.getAggression() + "\" />\r\n"
+        + "\t<Pos pos=\"goalie\" pid=\"" + pidArr.shift() + "\" x=\"103\" y=\"315\" x1=\"103\" y1=\"315\" x2=\"103\" y2=\"315\" pt=\"15\" fk=\"15\" />\r\n";
+
+
+    while (pl = nl.iterateNext()) {
+        let origin = pl.getAttribute('origin');
+        let teamId = pl.getAttribute("teamId");
+        if (origin != "" && origin != "375,0" && origin != "375,1000") {
+            let arr = origin.split(",");
+            if (team.getId() == teamId) {
+                let x = StatsToPos_X(arr[0], ishome);
+                let y = StatsToPos_Y(arr[1], ishome);
+                tmpXML += "\t<Pos pos=\"normal\" pid=\"" + pidArr.shift() + "\" x=\"" + x + "\" y=\"" + y + "\" x1=\"" + x + "\" y1=\"" + y + "\" x2=\"" + x + "\" y2=\"" + y + "\" pt=\"1\" fk=\"1\" />\r\n";
+            }
+
+        }
+    }
+    tmpXML += "</SoccerTactics>\r\n";
+    GM_setClipboard(tmpXML);
+    alert("战术已复制到剪切板");
+    return tmpXML;
+}
+
 
 let _open;
-let finalInitAfterLoading, processButtonPresses;
+let finalInitAfterLoading, processButtonPresses, Load010SetupMainSceneInstance;
 let OK_2D = false;
 (function () {
     'use strict';
@@ -1160,6 +1338,11 @@ let OK_2D = false;
                     finalInitAfterLoading.apply(this);
                     OK_2D = true;
                     Advanced2D();
+                };
+                Load010SetupMainSceneInstance = MyGame.prototype.Load010SetupMainSceneInstance;
+                MyGame.prototype.Load010SetupMainSceneInstance = function () {
+                    window.matchLoader = arguments[0];
+                    Load010SetupMainSceneInstance.apply(this, arguments);
                 };
                 //processButtonPresses = MyGame.prototype.mzlive.processButtonPresses;
                 //MyGame.prototype.mzlive.processButtonPresses = function () {
