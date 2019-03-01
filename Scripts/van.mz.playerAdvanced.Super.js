@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      2.5
+// @version      2.6
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -13,6 +13,180 @@
 // @require      https://cdn.jsdelivr.net/pako/1.0.5/pako.min.js
 // @require      https://greasyfork.org/scripts/376535-base64js/code/base64js.js?version=661147
 // ==/UserScript==
+
+
+var gm_mzlanguage = {
+    cn: {
+        ChangeLanguage: "English",
+        ChangeLanguageTitle: "Click to Change to English",
+        NotSureEx: "挂牌后属性可能有变动，不确定转会市场显示是否是真实属性，请自行甄别。<br/>属性变动时间",
+        NotSure: "属性不确定",
+        ManualColorTitle: "点击可手动着色 快捷键:ALT + A",
+        ManualColor: "手动着色",
+        Jijing: "比赛集锦",
+        dongzuo: "球员动作",
+        Copyxml1: "复制主队战术",
+        Copyxml2: "复制客队战术",
+        CopyXmlMsg: "战术已复制到剪切板",
+        BA_NORMAL: "BA_NORMAL",
+        BA_WALL: "站人墙",
+        BA_HOLD: "抱着球",
+        BA_DOWN: "倒地",
+        BA_HOLD_THROWIN: "界外球准备",
+        BA_THROWIN: "界外球",
+        BA_LEFT_FOOT_SHOT_FWD: "射门/长传(L)",
+        BA_LEFT_FOOT_SHOT_BACK: "BA_LEFT_FOOT_SHOT_BACK",
+        BA_LEFT_FOOT_SHOT_RIGHT: "BA_LEFT_FOOT_SHOT_RIGHT",
+        BA_LEFT_FOOT_SHOT_LEFT: "BA_LEFT_FOOT_SHOT_LEFT",
+        BA_RIGHT_FOOT_SHOT_FWD: "射门/长传(R)",
+        BA_RIGHT_FOOT_SHOT_BACK: "BA_RIGHT_FOOT_SHOT_BACK",
+        BA_RIGHT_FOOT_SHOT_RIGHT: "BA_RIGHT_FOOT_SHOT_RIGHT",
+        BA_RIGHT_FOOT_SHOT_LEFT: "BA_RIGHT_FOOT_SHOT_LEFT",
+        BA_LEFT_FOOT_PASS_FWD: "短传(L)",
+        BA_LEFT_FOOT_PASS_BACK: "BA_LEFT_FOOT_PASS_BACK",
+        BA_LEFT_FOOT_PASS_RIGHT: "BA_LEFT_FOOT_PASS_RIGHT",
+        BA_LEFT_FOOT_PASS_LEFT: "BA_LEFT_FOOT_PASS_LEFT",
+        BA_RIGHT_FOOT_PASS_FWD: "短传(R)",
+        BA_RIGHT_FOOT_PASS_BACK: "BA_RIGHT_FOOT_PASS_BACK",
+        BA_RIGHT_FOOT_PASS_RIGHT: "BA_RIGHT_FOOT_PASS_RIGHT",
+        BA_RIGHT_FOOT_PASS_LEFT: "BA_RIGHT_FOOT_PASS_LEFT",
+        BA_PICK_UP_BALL: "捡起球",
+        BA_DROP_BALL: "放下球",
+        BA_HEADER: "争顶",
+        BA_TRIP: "失误/被抢断?",
+        BA_CELEBRATE: "庆祝进球",
+        BA_GK_READY: "准备扑救?",
+        BA_GK_ACRO_LEFT: "ACRO(L)",
+        BA_GK_ACRO_LEFT_HOLD: "ACRO_HOLD(L)",
+        BA_GK_ACRO_RIGHT: "ACRO(R)",
+        BA_GK_ACRO_RIGHT_HOLD: "ACRO_HOLD(R)",
+        BA_GK_SIDESTEP_LEFT: "移动(L)",
+        BA_GK_SIDESTEP_RIGHT: "移动(R)",
+        BA_GK_KICK: "BA_GK_KICK",
+        BA_GK_THROW_BALL: "BA_GK_THROW_BALL",
+        BA_GK_STRETCH_LEFT: "BA_GK_STRETCH_LEFT",
+        BA_GK_STRETCH_LEFT_HOLD: "BA_GK_STRETCH_LEFT_HOLD",
+        BA_GK_STRETCH_RIGHT: "BA_GK_STRETCH_RIGHT",
+        BA_GK_STRETCH_RIGHT_HOLD: "BA_GK_STRETCH_RIGHT_HOLD",
+        BA_BALL_OWNER: "持球/带球?",
+        BA_TACKLE: "上抢(失败?)",
+        BA_SLIDING_TACKLE: "BA_SLIDING_TACKLE",
+        BA_SLIDING_TACKLE_STAND: "BA_SLIDING_TACKLE_STAND",
+        BA_MAX: "BA_MAX",
+        BA_MY_1001: "头球攻门(L)",
+        BA_MY_1002: "头球攻门(R)",
+        BA_MY_1003: "胸部/头部停球",
+        BA_MY_1011: "上抢(成功)",
+        BA_MY_1012: "上抢(失败)",
+        Unknown: "未知"
+
+
+        ,
+        training_pos: "无教练",
+        training_camp: "进营",
+        training_coach: "有教练",
+        training_ycc: "调整",
+        training_itc: "强化",
+        training_neg: "掉球",
+        training_unit: "格",
+        training_unknown: "未知训练类型",
+        training_ball_day: "离下一次涨球训练天数",
+        training_part: "分段训练效率",
+        training_percent: "进度",
+        training_avg: "平均",
+        training_now: "当前训练进度",
+        SkillsAnalysisTitle: "点击可手动着色和分析训练效率 快捷键:ALT + S",
+        SkillsAnalysis: "训练效率分析"
+
+
+    }
+    ,
+
+    en: {
+        ChangeLanguage: "中文",
+        ChangeLanguageTitle: "点击可改变成中文",
+        NotSureEx: "Skills may change after entering the transfer market.<br/>Change time ",
+        NotSure: "Uncertain skill",
+        ManualColorTitle: "Click the Colorable Skill. Shortcut key : ALT + A",
+        ManualColor: "Colorable Skill",
+        Jijing: "Events",
+        dongzuo: "PlayerStatus",
+        Copyxml1: "CopyXML(home)",
+        Copyxml2: "CopyXML(away)",
+        CopyXmlMsg: "The tactic was copied to the Clipboard!",
+        BA_NORMAL: "Normal",
+        BA_WALL: "Wall",
+        BA_HOLD: "Hold",
+        BA_DOWN: "Down",
+        BA_HOLD_THROWIN: "HoldThrowin",
+        BA_THROWIN: "Throwin",
+        BA_LEFT_FOOT_SHOT_FWD: "FootShot(L)",
+        BA_LEFT_FOOT_SHOT_BACK: "FootShotBack(L)",
+        BA_LEFT_FOOT_SHOT_RIGHT: "FootShotRight(L)",
+        BA_LEFT_FOOT_SHOT_LEFT: "FootShotLeft(L)",
+        BA_RIGHT_FOOT_SHOT_FWD: "FootShot(R)",
+        BA_RIGHT_FOOT_SHOT_BACK: "FootShotBack(R)",
+        BA_RIGHT_FOOT_SHOT_RIGHT: "FootShotRight(R)",
+        BA_RIGHT_FOOT_SHOT_LEFT: "FootShotLeft(R)",
+        BA_LEFT_FOOT_PASS_FWD: "FootPass(L)",
+        BA_LEFT_FOOT_PASS_BACK: "FootPassBack(L)",
+        BA_LEFT_FOOT_PASS_RIGHT: "FootPassRight(L)",
+        BA_LEFT_FOOT_PASS_LEFT: "FootPassLeft(L)",
+        BA_RIGHT_FOOT_PASS_FWD: "FootPass(R)",
+        BA_RIGHT_FOOT_PASS_BACK: "FootPassBack(R)",
+        BA_RIGHT_FOOT_PASS_RIGHT: "FootPassRight(R)",
+        BA_RIGHT_FOOT_PASS_LEFT: "FootPassLeft(R)",
+        BA_PICK_UP_BALL: "PickUpBall",
+        BA_DROP_BALL: "DropBall",
+        BA_HEADER: "Header",
+        BA_TRIP: "Trip",
+        BA_CELEBRATE: "Celebrate",
+        BA_GK_READY: "GkReady",
+        BA_GK_ACRO_LEFT: "GkAcroLeft",
+        BA_GK_ACRO_LEFT_HOLD: "GkAcroLeftHold",
+        BA_GK_ACRO_RIGHT: "GkAcroRight",
+        BA_GK_ACRO_RIGHT_HOLD: "GkAcroRightHold",
+        BA_GK_SIDESTEP_LEFT: "GkSidestepLeft",
+        BA_GK_SIDESTEP_RIGHT: "GkSidestepRight",
+        BA_GK_KICK: "GkKick",
+        BA_GK_THROW_BALL: "GkThrowBall",
+        BA_GK_STRETCH_LEFT: "GkStretchLeft",
+        BA_GK_STRETCH_LEFT_HOLD: "GkStretchLeftHold",
+        BA_GK_STRETCH_RIGHT: "GkStretchRight",
+        BA_GK_STRETCH_RIGHT_HOLD: "GkStretchRightHold",
+        BA_BALL_OWNER: "BallOwner",
+        BA_TACKLE: "Tackle",
+        BA_SLIDING_TACKLE: "SlidingTackle",
+        BA_SLIDING_TACKLE_STAND: "SlidingTackleStand",
+        BA_MAX: "Max",
+        BA_MY_1001: "HeadGoal(L)",
+        BA_MY_1002: "HeadGoal(R)",
+        BA_MY_1003: "StopTheBall",
+        BA_MY_1011: "Tackle(Success)",
+        BA_MY_1012: "Tackle(Fail)",
+        Unknown: "Unknown"
+
+
+
+        ,
+        training_pos: "No coach",
+        training_camp: "CAMP",
+        training_coach: "Coach",
+        training_ycc: "ycc",
+        training_itc: "itc",
+        training_neg: "neg",
+        training_unit: "B",
+        training_unknown: "Unknown training",
+        training_ball_day: "Next ball days",
+        training_part: "Training efficiency",
+        training_percent: "percent",
+        training_avg: "avg",
+        training_now: "now",
+        SkillsAnalysisTitle: "Colorable Skill and Analysis of Training Efficiency Shortcut key :ALT + S",
+        SkillsAnalysis: "Skills analysis"
+    }
+};
+var now_language = gm_mzlanguage.cn;
 
 function playerTrainingBySkill() {
     //涨球时间
@@ -70,22 +244,22 @@ function trainingStat() {
     this.getTnText = function () {
         let str = "";
         if (this.pos) {
-            str += " 无教练" + this.pos.getTnText();
+            str += " " + now_language.training_pos + this.pos.getTnText();
         }
         if (this.camp) {
-            str += " 进营" + this.camp.getTnText();
+            str += " " + now_language.training_camp + this.camp.getTnText();
         }
         if (this.coach) {
-            str += " 有教练" + this.coach.getTnText();
+            str += " " + now_language.training_coach + this.coach.getTnText();
         }
         if (this.ycc) {
-            str += " 调整" + this.ycc.getTnText();
+            str += " " + now_language.training_ycc + this.ycc.getTnText();
         }
         if (this.itc) {
-            str += " 强化" + this.itc.getTnText();
+            str += " " + now_language.training_itc + this.itc.getTnText();
         }
         if (this.neg) {
-            str += " 掉球" + this.neg.getTnText();
+            str += " " + now_language.training_neg + this.neg.getTnText();
         }
         return str;
     };
@@ -157,34 +331,34 @@ function trainingDay() {
     this.getTnText = function () {
         let str = "";
         if (this.t1 > 0) {
-            str += " 1格(" + this.t1 + ")";
+            str += " 1" + now_language.training_unit + "(" + this.t1 + ")";
         }
         if (this.t2 > 0) {
-            str += " 2格(" + this.t2 + ")";
+            str += " 2" + now_language.training_unit + "(" + this.t2 + ")";
         }
         if (this.t3 > 0) {
-            str += " 3格(" + this.t3 + ")";
+            str += " 3" + now_language.training_unit + "(" + this.t3 + ")";
         }
         if (this.t4 > 0) {
-            str += " 4格(" + this.t4 + ")";
+            str += " 4" + now_language.training_unit + "(" + this.t4 + ")";
         }
         if (this.t5 > 0) {
-            str += " 5格(" + this.t5 + ")";
+            str += " 5" + now_language.training_unit + "(" + this.t5 + ")";
         }
         if (this.t6 > 0) {
-            str += " 6格(" + this.t6 + ")";
+            str += " 6" + now_language.training_unit + "(" + this.t6 + ")";
         }
         if (this.t7 > 0) {
-            str += " 7格(" + this.t7 + ")";
+            str += " 7" + now_language.training_unit + "(" + this.t7 + ")";
         }
         if (this.t8 > 0) {
-            str += " 8格(" + this.t8 + ")";
+            str += " 8" + now_language.training_unit + "(" + this.t8 + ")";
         }
         if (this.t9 > 0) {
-            str += " 9格(" + this.t9 + ")";
+            str += " 9" + now_language.training_unit + "(" + this.t9 + ")";
         }
         if (this.t10 > 0) {
-            str += " 10格(" + this.t10 + ")";
+            str += " 10" + now_language.training_unit + "(" + this.t10 + ")";
         }
         return str;
     };
@@ -342,7 +516,7 @@ function getMax(callback) {
         function (data) {
             var result = data.match(mzreg.playerMax);
             pmax = JSON.parse(result[1]);
-            callback();
+            callback(pmax);
 
         });
     return false;
@@ -352,7 +526,7 @@ function setSrc(transfer, img, skill, maxed, skillBallDay, pid, k) {
         if (transfer && skillBallDay) {
             if (new Date().getTime() - skillBallDay < 345600000) {
                 $(img).parent().find("span").remove();
-                $(img).parent().append("<span class=\"help_button_placeholder\"><a class=\"help_button\" href=\"#\" onclick=\"showHelpLayer('挂牌后属性可能有变动，不确定转会市场显示是否是真实属性，请自行甄别。<br/>属性变动时间" + new Date(skillBallDay).toLocaleString() + "', '属性不确定', true); return false\"><span class=\"help_button_wrapper\"><span class=\"help_button_text\">?</span></span></a></span>");
+                $(img).parent().append("<span class=\"help_button_placeholder\"><a class=\"help_button\" href=\"#\" onclick=\"showHelpLayer('" + now_language.NotSureEx + new Date(skillBallDay).toLocaleString() + "', '" + now_language.NotSure + "', true); return false\"><span class=\"help_button_wrapper\"><span class=\"help_button_text\">?</span></span></a></span>");
             }
         }
         if (pid && trainingInfo[pid][k]) {
@@ -471,7 +645,7 @@ function drawPlayerByTrainingGraphs(pid, data, imgs, skills) {
                                     break;
                                 default:
                                     //未知
-                                    console.log("未知训练类型:" + result[1]);
+                                    console.log(now_language.training_unknown + ":" + result[1]);
                                     break;
                             }
                         }
@@ -549,32 +723,32 @@ function showPop(parent) {
     if (playTS[tmpArr[2]]) {
         let training = playTS[tmpArr[2]].stat;
         //let training = new trainingStat();
-        str = "平均 " + training.getAvg() + "%" + training.getTnText() + "<br/><br/>离下一次涨球训练天数:<br/>";
+        str = now_language.training_avg + " " + training.getAvg() + "%" + training.getTnText() + "<br/><br/>" + now_language.training_ball_day + ":<br/>";
         if (training.camp) {
-            str += training.getDayByAvg(training.camp.getAvg()) + "(进营) ";
+            str += training.getDayByAvg(training.camp.getAvg()) + "(" + now_language.training_camp + ") ";
         }
         if (training.coach) {
-            str += training.getDayByAvg(training.coach.getAvg()) + "(有教练) ";
+            str += training.getDayByAvg(training.coach.getAvg()) + "(" + now_language.training_coach + ") ";
         }
         if (training.pos) {
-            str += training.getDayByAvg(training.pos.getAvg()) + "(无教练)";
+            str += training.getDayByAvg(training.pos.getAvg()) + "(" + now_language.training_pos + ")";
         }
         str += "<br/><br/>";
 
         sum = training.getSum();
     }
     let flag = false;
-    str += "分段训练效率:";
+    str += now_language.training_part + ":";
     for (var i = 0; i < 10; i++) {
         if (playTS[i]) {
             flag = true;
-            str += "<br/>" + i + "-" + (i + 1) + " 进度"
+            str += "<br/>" + i + "-" + (i + 1) + " " + now_language.training_percent
                 + playTS[i].stat.getSum(true) + "%"
-                + " 平均" + playTS[i].stat.getAvg() + "%<br/>" + playTS[i].stat.getTnText();
+                + " " + now_language.training_avg + playTS[i].stat.getAvg() + "%<br/>" + playTS[i].stat.getTnText();
         }
     }
 
-    let content = "<div class='clearfix'><h3 style='margin: 0; padding: 0'>当前训练进度"
+    let content = "<div class='clearfix'><h3 style='margin: 0; padding: 0'>" + now_language.training_now
         + sum
         + "%</h3><div class='skill_exact big'><div class='skill_exact_wrapper clearfix'><div class='skill_exact_bar' style='width: "
         + sum * 2
@@ -589,16 +763,73 @@ function showPop(parent) {
         bubble.remove();
     });
 }
+function setLanguage(language) {
+    if (language) {
+        let new_language = gm_mzlanguage[language];
+        if (now_language != new_language) {
+            GM_setValue("mylanguage", language);
+        }
+        now_language = new_language;
+    } else {
+        if (now_language == gm_mzlanguage.en) {
+            now_language = gm_mzlanguage.cn;
+            GM_setValue("mylanguage", "cn");
+        } else {
+            now_language = gm_mzlanguage.en;
+            GM_setValue("mylanguage", "en");
+        }
+    }
+
+
+}
 function initgw() {
+    let tmplanguage = GM_getValue("mylanguage", false);
+    if (tmplanguage == false) {
+        let lang = $("meta[name='language']");
+        if (lang.length > 0 &&
+            $("meta[name='language']")[0].content == "en") {
+            setLanguage("en");
+        }
+    } else {
+        now_language = gm_mzlanguage[tmplanguage];
+    }
+
     var css = document.createElement('style');
     css.type = 'text/css';
-    css.innerHTML = ".gw_run_div{position:fixed;bottom:20%;right:1px;border:1px solid gray;padding:3px;width:12px;font-size:12px;border-radius: 3px;text-shadow: 1px 1px 3px #676767;background-color: #000000;color: #FFFFFF;cursor: default;}.gw_run{cursor:pointer;}.gw_div_left{float:left;position:fixed;left:0px;top:120px;height:528px;overflow-y:auto;text-align:left;}.gw_div_right{float:right;position:fixed;right:0px;top:120px;height:528px;overflow-y:auto;text-align:left;}";
+    css.innerHTML = ".gw_run_div{position:fixed;bottom:20%;right:1px;border:1px solid gray;padding:3px;width:12px;font-size:12px;border-radius: 3px;text-shadow: 1px 1px 3px #676767;background-color: #000000;color: #FFFFFF;cursor: default;}.gw_run{cursor:pointer;}.gw_div_left{float:left;position:fixed;left:0px;top:120px;height:528px;overflow-y:auto;text-align:left;}.gw_div_right{float:right;position:fixed;right:0px;top:120px;height:528px;overflow-y:auto;text-align:left;}.shupai{writing-mode:tb-rl;-webkit-writing-mode:vertical-rl;}";
+
+
     document.getElementsByTagName('head')[0].appendChild(css);
 
-    $(document.body).append("<div class='gw_run_div'><div id='gw_run' class='gw_run' title='点击可手动着色 快捷键:ALT + A'><b>手动着色</b></div><div>---</div><div id='gw_run2' class='gw_run' title='点击可手动着色和分析训练效率 快捷键:ALT + S'><b>训练效率分析</b></div><div>---</div><div id='gw_run3' class='gw_run' title='点击可清理缓存，可在运行变慢的时候点击'><b>清理缓存</b></div></div>");
+    $(document.body).append("<div class='gw_run_div'>"
+        + "<div id='gw_run' class='gw_run shupai' title='" + now_language.ManualColorTitle + "'><b>" + now_language.ManualColor + "</b></div>"
+        + "<div>---</div>"
+        + "<div id='gw_run2' class='gw_run shupai' title='" + now_language.SkillsAnalysisTitle + "'><b>" + now_language.SkillsAnalysis + "</b></div>"
+        + "<div>---</div>"
+        + "<div id='gw_run3' class='gw_run shupai' title='" + now_language.ChangeLanguageTitle + "'><b>" + now_language.ChangeLanguage + "</b></div>"
+        + "</div>");
     $('#gw_run')[0].addEventListener('click', function () { gw_start(0); });
     $('#gw_run2')[0].addEventListener('click', function () { gw_start(1); });
-    $('#gw_run3')[0].addEventListener('click', function () { clearCache(); });
+    $('#gw_run3')[0].addEventListener('click', function () {
+        setLanguage();
+        $('#gw_run')[0].title = now_language.ManualColorTitle;
+        $('#gw_run').html("<b>" + now_language.ManualColor + "</b>");
+
+
+        $('#gw_run2')[0].title = now_language.SkillsAnalysisTitle;
+        $('#gw_run2').html("<b>" + now_language.SkillsAnalysis + "</b>");
+
+        this.title = now_language.ChangeLanguageTitle;
+        $(this).html("<b>" + now_language.ChangeLanguage + "</b>");
+
+
+
+        $('#gw_jijing').html(now_language.Jijing);
+        $('#gw_dongzuo').html(now_language.dongzuo);
+        $('#gw_copyxml1').html(now_language.Copyxml1);
+        $('#gw_copyxml2').html(now_language.Copyxml2);
+    });
+
 
 
     document.onkeydown = function () {
@@ -637,6 +868,8 @@ function gw_start(GraphsType) {
         showMax(GraphsType);
     }
 }
+
+
 
 //以下为2D比赛辅助
 function MatchEvent() {
@@ -1044,7 +1277,7 @@ function Advanced2D() {
                 if ($('.gw_div_left').length == 0) {
                     $('#canvas').parent().append('<div class="gw_div_left"></div>');
                     $('#canvas').parent().append('<div class="gw_div_right"></div>');
-                    $('#canvas').parent().append('<div><b id="gw_jijing" class="gw_run" style="color: red;">比赛集锦</b>    <b id="gw_dongzuo" class="gw_run" style="color: red;">球员动作</b>    <b id="gw_copyxml1" class="gw_run" style="color: red;">复制主队战术</b>    <b id="gw_copyxml2" class="gw_run" style="color: red;">复制客队战术</b></div>');
+                    $('#canvas').parent().append('<div><b id="gw_jijing" class="gw_run" style="color: red;">' + now_language.Jijing + '</b>    <b id="gw_dongzuo" class="gw_run" style="color: red;">' + now_language.dongzuo + '</b>    <b id="gw_copyxml1" class="gw_run" style="color: red;">' + now_language.Copyxml1 + '</b>    <b id="gw_copyxml2" class="gw_run" style="color: red;">' + now_language.Copyxml2 + '</b></div>');
 
                     $('#gw_jijing')[0].addEventListener('click', function () {
                         ShowDiv(0);
@@ -1170,112 +1403,114 @@ function ShowDiv(type) {
     }
 }
 
+
 function getMatchStatusName(status) {
     switch (status) {
         case MatchStatus.BA_NORMAL:
-            return "BA_NORMAL";
+            return now_language.BA_NORMAL;
         case MatchStatus.BA_WALL:
-            return "站人墙";
+            return now_language.BA_WALL;
         case MatchStatus.BA_HOLD:
-            return "抱着球";
+            return now_language.BA_HOLD;
         case MatchStatus.BA_DOWN:
-            return "倒地";
+            return now_language.BA_DOWN;
         case MatchStatus.BA_HOLD_THROWIN:
-            return "界外球准备";
+            return now_language.BA_HOLD_THROWIN;
         case MatchStatus.BA_THROWIN:
-            return "界外球";
+            return now_language.BA_THROWIN;
         case MatchStatus.BA_LEFT_FOOT_SHOT_FWD:
-            return "左脚射门/长传";
+            return now_language.BA_LEFT_FOOT_SHOT_FWD;
         case MatchStatus.BA_LEFT_FOOT_SHOT_BACK:
-            return "BA_LEFT_FOOT_SHOT_BACK";
+            return now_language.BA_LEFT_FOOT_SHOT_BACK;
         case MatchStatus.BA_LEFT_FOOT_SHOT_RIGHT:
-            return "BA_LEFT_FOOT_SHOT_RIGHT";
+            return now_language.BA_LEFT_FOOT_SHOT_RIGHT;
         case MatchStatus.BA_LEFT_FOOT_SHOT_LEFT:
-            return "BA_LEFT_FOOT_SHOT_LEFT";
+            return now_language.BA_LEFT_FOOT_SHOT_LEFT;
         case MatchStatus.BA_RIGHT_FOOT_SHOT_FWD:
-            return "右脚射门/长传";
+            return now_language.BA_RIGHT_FOOT_SHOT_FWD;
         case MatchStatus.BA_RIGHT_FOOT_SHOT_BACK:
-            return "BA_RIGHT_FOOT_SHOT_BACK";
+            return now_language.BA_RIGHT_FOOT_SHOT_BACK;
         case MatchStatus.BA_RIGHT_FOOT_SHOT_RIGHT:
-            return "BA_RIGHT_FOOT_SHOT_RIGHT";
+            return now_language.BA_RIGHT_FOOT_SHOT_RIGHT;
         case MatchStatus.BA_RIGHT_FOOT_SHOT_LEFT:
-            return "BA_RIGHT_FOOT_SHOT_LEFT";
+            return now_language.BA_RIGHT_FOOT_SHOT_LEFT;
         case MatchStatus.BA_LEFT_FOOT_PASS_FWD:
-            return "左脚短传";
+            return now_language.BA_LEFT_FOOT_PASS_FWD;
         case MatchStatus.BA_LEFT_FOOT_PASS_BACK:
-            return "BA_LEFT_FOOT_PASS_BACK";
+            return now_language.BA_LEFT_FOOT_PASS_BACK;
         case MatchStatus.BA_LEFT_FOOT_PASS_RIGHT:
-            return "BA_LEFT_FOOT_PASS_RIGHT";
+            return now_language.BA_LEFT_FOOT_PASS_RIGHT;
         case MatchStatus.BA_LEFT_FOOT_PASS_LEFT:
-            return "BA_LEFT_FOOT_PASS_LEFT";
+            return now_language.BA_LEFT_FOOT_PASS_LEFT;
         case MatchStatus.BA_RIGHT_FOOT_PASS_FWD:
-            return "右脚短传";
+            return now_language.BA_RIGHT_FOOT_PASS_FWD;
         case MatchStatus.BA_RIGHT_FOOT_PASS_BACK:
-            return "BA_RIGHT_FOOT_PASS_BACK";
+            return now_language.BA_RIGHT_FOOT_PASS_BACK;
         case MatchStatus.BA_RIGHT_FOOT_PASS_RIGHT:
-            return "BA_RIGHT_FOOT_PASS_RIGHT";
+            return now_language.BA_RIGHT_FOOT_PASS_RIGHT;
         case MatchStatus.BA_RIGHT_FOOT_PASS_LEFT:
-            return "BA_RIGHT_FOOT_PASS_LEFT";
+            return now_language.BA_RIGHT_FOOT_PASS_LEFT;
         case MatchStatus.BA_PICK_UP_BALL:
-            return "捡起球";
+            return now_language.BA_PICK_UP_BALL;
         case MatchStatus.BA_DROP_BALL:
-            return "放下球";
+            return now_language.BA_DROP_BALL;
         case MatchStatus.BA_HEADER:
-            return "争顶";
+            return now_language.BA_HEADER;
         case MatchStatus.BA_TRIP:
-            return "失误/被抢断?";
+            return now_language.BA_TRIP;
         case MatchStatus.BA_CELEBRATE:
-            return "庆祝进球";
+            return now_language.BA_CELEBRATE;
         case MatchStatus.BA_GK_READY:
-            return "准备扑救?";
+            return now_language.BA_GK_READY;
         case MatchStatus.BA_GK_ACRO_LEFT:
-            return "左ACRO";
+            return now_language.BA_GK_ACRO_LEFT;
         case MatchStatus.BA_GK_ACRO_LEFT_HOLD:
-            return "左ACRO_HOLD";
+            return now_language.BA_GK_ACRO_LEFT_HOLD;
         case MatchStatus.BA_GK_ACRO_RIGHT:
-            return "右ACRO";
+            return now_language.BA_GK_ACRO_RIGHT;
         case MatchStatus.BA_GK_ACRO_RIGHT_HOLD:
-            return "右ACRO_HOLD";
+            return now_language.BA_GK_ACRO_RIGHT_HOLD;
         case MatchStatus.BA_GK_SIDESTEP_LEFT:
-            return "左移";
+            return now_language.BA_GK_SIDESTEP_LEFT;
         case MatchStatus.BA_GK_SIDESTEP_RIGHT:
-            return "右移";
+            return now_language.BA_GK_SIDESTEP_RIGHT;
         case MatchStatus.BA_GK_KICK:
-            return "BA_GK_KICK";
+            return now_language.BA_GK_KICK;
         case MatchStatus.BA_GK_THROW_BALL:
-            return "BA_GK_THROW_BALL";
+            return now_language.BA_GK_THROW_BALL;
         case MatchStatus.BA_GK_STRETCH_LEFT:
-            return "BA_GK_STRETCH_LEFT";
+            return now_language.BA_GK_STRETCH_LEFT;
         case MatchStatus.BA_GK_STRETCH_LEFT_HOLD:
-            return "BA_GK_STRETCH_LEFT_HOLD";
+            return now_language.BA_GK_STRETCH_LEFT_HOLD;
         case MatchStatus.BA_GK_STRETCH_RIGHT:
-            return "BA_GK_STRETCH_RIGHT";
+            return now_language.BA_GK_STRETCH_RIGHT;
         case MatchStatus.BA_GK_STRETCH_RIGHT_HOLD:
-            return "BA_GK_STRETCH_RIGHT_HOLD";
+            return now_language.BA_GK_STRETCH_RIGHT_HOLD;
         case MatchStatus.BA_BALL_OWNER:
-            return "持球/带球?";
+            return now_language.BA_BALL_OWNER;
         case MatchStatus.BA_TACKLE:
-            return "上抢(失败?)";
+            return now_language.BA_TACKLE;
         case MatchStatus.BA_SLIDING_TACKLE:
-            return "BA_SLIDING_TACKLE";
+            return now_language.BA_SLIDING_TACKLE;
         case MatchStatus.BA_SLIDING_TACKLE_STAND:
-            return "BA_SLIDING_TACKLE_STAND";
+            return now_language.BA_SLIDING_TACKLE_STAND;
         case MatchStatus.BA_MAX:
-            return "BA_MAX";
+            return now_language.BA_MAX;
         case 1001:
-            return "头球攻门(左)";
+            return now_language.BA_MY_1001;
         case 1002:
-            return "头球攻门(右)";
+            return now_language.BA_MY_1002;
         case 1003:
-            return "胸部/头部停球";
+            return now_language.BA_MY_1003;
         case 1011:
-            return "上抢(成功)";
+            return now_language.BA_MY_1011;
         case 1012:
-            return "上抢(失败)";
+            return now_language.BA_MY_1012;
         default:
-            return "未知";
+            return now_language.Unknown;
     }
 }
+
 function StatsToPos_X(i, IsLocal) {
     var ret = IsLocal ? Math.round(-.255800462 * i + 199.8228530689) : Math.round(.2555000556 * i + 8.3741302936);
     return ret;
@@ -1313,7 +1548,7 @@ function Stats2XML(team, ishome, players) {
     }
     tmpXML += "</SoccerTactics>\r\n";
     GM_setClipboard(tmpXML);
-    alert("战术已复制到剪切板");
+    alert(now_language.CopyXmlMsg);
     return tmpXML;
 }
 
