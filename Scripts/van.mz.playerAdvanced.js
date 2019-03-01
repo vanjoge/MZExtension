@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      2.6
+// @version      2.7
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -151,7 +151,47 @@ var gm_mzlanguage = {
     }
 };
 var now_language = gm_mzlanguage.cn;
-
+function mzcamp() {
+    this.data = {};
+    this.name = null;
+    this.keys = new Array();
+    this.index = 0;
+    this.add = function (begin, end) {
+        if (this.data[begin] == undefined) {
+            this.keys.push(begin);
+            this.keys.sort(function (a, b) {
+                return a - b;
+            });
+        }
+        this.data[begin] = {
+            begin: begin,
+            end: end
+        };
+    };
+    this.getItem = function (begin) {
+        return this.data[begin];
+    };
+    this.resetIndex = function () {
+        this.index = 0;
+    };
+    this.notin = function (x, name) {
+        while (this.index < this.keys.length) {
+            let item = this.data[this.keys[this.index]];
+            if (x < item.begin) {
+                return true;
+            } else if (x <= item.end) {
+                if (name == item.name) {
+                    return false;
+                }
+                return true;
+            }
+            if (x > item.end) {
+                this.index++;
+            }
+        }
+        return true;
+    };
+};
 var mzreg = {
     playerMax: /trainingField.players\s*=\s*({.+})/,
     playerId: /player_id_(\d+)/,
@@ -326,6 +366,9 @@ function setSrc(img, skill, maxed, skillBallDay) {
                 img.src = mzImg.green_skill[skill];
             }
         }
+        if (img.isYtc) {
+            $(img).parent().parent().children()[0].className = "gm_ytc";
+        }
     }
 }
 function showMax() {
@@ -358,6 +401,7 @@ function drawPlayerByTrainingGraphs(data, imgs, skills) {
     eval(data);
     let maxeds = ["green", "green", "green", "green", "green", "green", "green", "green", "green", "green", "green"];
     let skillBallDays = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    let camp = new mzcamp();
     for (var i = 0; i < series.length; i++) {
         if ((series[i].type == "line" && series[i].color == "rgba(255,0,0,0.7)")) {
             if (series[i].data.length > 0) {
@@ -367,15 +411,38 @@ function drawPlayerByTrainingGraphs(data, imgs, skills) {
                     maxeds[index] = "red";
                 }
             }
-        } else {
+        } else if ((series[i].type == "line" && series[i].color == "rgba(255,88,0,0.6)")) {
+            //训练营线
+            if (series[i].data && series[i].data.length == 2) {
+                camp.add(series[i].data[0].x, series[i].data[1].x);
+            }
+        }
+
+        else {
             for (var j = 0; j < series[i].data.length; j++) {
                 let g = series[i].data[j];
+
+                if (g.y == "-3") {
+                    let itemcamp = camp.getItem(g.x);
+                    if (itemcamp) {
+                        itemcamp.name = g.name;
+                    }
+                }
+
                 let index = g.y - 1;
                 if (index >= 0 && g.y <= 11) {
                     if (g.name == "Maxed") {
                         maxeds[index] = "red";
                     }
                     if (g.marker && g.marker.symbol) {
+
+                        if (/training_camp/.test(g.marker.symbol)) {
+                            //训练营 判断是否是ytc
+                            if (!camp.notin(g.x, "Youth Package")) {
+                                imgs[index].isYtc = true;
+                            }
+
+                        }
                         if (/_ball/.test(g.marker.symbol)) {
                             if (skillBallDays[index] < g.x) {
                                 skillBallDays[index] = g.x;
@@ -433,7 +500,7 @@ function initgw() {
 
     var css = document.createElement('style');
     css.type = 'text/css';
-    css.innerHTML = ".gw_run_div{position:fixed;bottom:20%;right:1px;border:1px solid gray;padding:3px;width:12px;font-size:12px;border-radius: 3px;text-shadow: 1px 1px 3px #676767;background-color: #000000;color: #FFFFFF;cursor: default;}.gw_run{cursor:pointer;}.gw_div_left{float:left;position:fixed;left:0px;top:120px;height:528px;overflow-y:auto;text-align:left;}.gw_div_right{float:right;position:fixed;right:0px;top:120px;height:528px;overflow-y:auto;text-align:left;}.shupai{writing-mode:tb-rl;-webkit-writing-mode:vertical-rl;}";
+    css.innerHTML = ".gw_run_div{position:fixed;bottom:20%;right:1px;border:1px solid gray;padding:3px;width:12px;font-size:12px;border-radius: 3px;text-shadow: 1px 1px 3px #676767;background-color: #000000;color: #FFFFFF;cursor: default;}.gw_run{cursor:pointer;}.gw_div_left{float:left;position:fixed;left:0px;top:120px;height:528px;overflow-y:auto;text-align:left;}.gw_div_right{float:right;position:fixed;right:0px;top:120px;height:528px;overflow-y:auto;text-align:left;}.shupai{writing-mode:tb-rl;-webkit-writing-mode:vertical-rl;}.gm_ytc{color:blue;}";
 
 
     document.getElementsByTagName('head')[0].appendChild(css);
