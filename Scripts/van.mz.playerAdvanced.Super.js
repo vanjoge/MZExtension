@@ -183,7 +183,7 @@ var gm_mzlanguage = {
         training_avg: "avg",
         training_now: "now",
         SkillsAnalysisTitle: "Colorable Skill and Analysis of Training Efficiency Shortcut key :ALT + S",
-        SkillsAnalysis: "Skills analysis"
+        SkillsAnalysis: "Colorable By Graphs"
     }
 };
 var now_language = gm_mzlanguage.cn;
