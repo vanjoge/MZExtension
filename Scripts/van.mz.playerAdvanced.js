@@ -307,7 +307,7 @@ function setSrc(img, skill, maxed, skillBallDay) {
         if (skillBallDay) {
             if (new Date().getTime() - skillBallDay < 345600000) {
                 $(img).parent().find("span").remove();
-                $(img).parent().append("<span class=\"help_button_placeholder\"><a class=\"help_button gm_lang1\" href=\"#\" onclick=\"showHelpLayer('" + now_language.NotSureEx + new Date(skillBallDay).toLocaleString() + "', '" + now_language.NotSure + "', true); return false\"><span class=\"help_button_wrapper\"><span class=\"help_button_text\">?</span></span></a></span>");
+                $(img).parent().append("<span class=\"help_button_placeholder\"><a class=\"help_button\" href=\"#\" onclick=\"showHelpLayer('" + now_language.NotSureEx + new Date(skillBallDay).toLocaleString() + "', '" + now_language.NotSure + "', true); return false\"><span class=\"help_button_wrapper\"><span class=\"help_button_text\">?</span></span></a></span>");
             }
         }
         if (maxed === "red") {
