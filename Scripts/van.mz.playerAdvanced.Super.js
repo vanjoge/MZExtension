@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      2.7
+// @version      2.8
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -210,13 +210,13 @@ function mzcamp() {
     this.resetIndex = function () {
         this.index = 0;
     };
-    this.notin = function (x, name) {
+    this.inYTC = function (x) {
         while (this.index < this.keys.length) {
             let item = this.data[this.keys[this.index]];
             if (x < item.begin) {
-                return true;
+                return false;
             } else if (x <= item.end) {
-                if (name == item.name) {
+                if (/\d/.test(item.name)) {
                     return false;
                 }
                 return true;
@@ -225,7 +225,7 @@ function mzcamp() {
                 this.index++;
             }
         }
-        return true;
+        return false;
     };
 };
 function playerTrainingBySkill() {
@@ -672,7 +672,7 @@ function drawPlayerByTrainingGraphs(pid, data, imgs, skills) {
                         let playerTS = allSkillTraining_tmp[index][allSkillTraining_tmp[index].length - 1];
                         if (/training_camp/.test(g.marker.symbol)) {
                             //训练营 判断是否是ytc
-                            if (!camp.notin(g.x, "Youth Package")) {
+                            if (camp.inYTC(g.x)) {
                                 imgs[index].isYtc = true;
                             }
 

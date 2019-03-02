@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      2.7
+// @version      2.8
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -174,13 +174,13 @@ function mzcamp() {
     this.resetIndex = function () {
         this.index = 0;
     };
-    this.notin = function (x, name) {
+    this.inYTC = function (x) {
         while (this.index < this.keys.length) {
             let item = this.data[this.keys[this.index]];
             if (x < item.begin) {
-                return true;
+                return false;
             } else if (x <= item.end) {
-                if (name == item.name) {
+                if (/\d/.test(item.name)) {
                     return false;
                 }
                 return true;
@@ -189,7 +189,7 @@ function mzcamp() {
                 this.index++;
             }
         }
-        return true;
+        return false;
     };
 };
 var mzreg = {
@@ -438,7 +438,7 @@ function drawPlayerByTrainingGraphs(data, imgs, skills) {
 
                         if (/training_camp/.test(g.marker.symbol)) {
                             //训练营 判断是否是ytc
-                            if (!camp.notin(g.x, "Youth Package")) {
+                            if (camp.inYTC(g.x)) {
                                 imgs[index].isYtc = true;
                             }
 
