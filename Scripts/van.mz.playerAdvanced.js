@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      2.8
+// @version      2.9
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -157,6 +157,9 @@ function mzcamp() {
     this.keys = new Array();
     this.index = 0;
     this.add = function (begin, end) {
+        if (end > begin + 2937600000) {
+            end = begin + 2937600000;
+        }
         if (this.data[begin] == undefined) {
             this.keys.push(begin);
             this.keys.sort(function (a, b) {

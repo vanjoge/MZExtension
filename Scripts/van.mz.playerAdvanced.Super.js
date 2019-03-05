@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      2.8
+// @version      2.9
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -193,6 +193,9 @@ function mzcamp() {
     this.keys = new Array();
     this.index = 0;
     this.add = function (begin, end) {
+        if (end > begin + 2937600000) {
+            end = begin + 2937600000;
+        }
         if (this.data[begin] == undefined) {
             this.keys.push(begin);
             this.keys.sort(function (a, b) {
@@ -807,9 +810,9 @@ function showPop(parent) {
     for (var i = 0; i < 10; i++) {
         if (playTS[i]) {
             flag = true;
-            str += "<br/>" + i + "-" + (i + 1) + " " + now_language.training_total+":"
+            str += "<br/>" + i + "-" + (i + 1) + " " + now_language.training_total + ":"
                 + playTS[i].stat.getSum(true) + "%"
-                + " " + now_language.training_avg+":" + playTS[i].stat.getAvg() + "%<br/>" + playTS[i].stat.getTnText();
+                + " " + now_language.training_avg + ":" + playTS[i].stat.getAvg() + "%<br/>" + playTS[i].stat.getTnText();
         }
     }
 
