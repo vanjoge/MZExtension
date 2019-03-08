@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      2.9
+// @version      2.10
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -16,6 +16,8 @@
 
 var gm_mzlanguage = {
     cn: {
+        Setting: "设置",
+        SettingTitle: "点击可对XML导出相关进行设置",
         ChangeLanguage: "English",
         ChangeLanguageTitle: "Click to Change to English",
         NotSureEx: "挂牌后属性可能有变动，不确定转会市场显示是否是真实属性，请自行甄别。<br/>属性变动时间",
@@ -27,6 +29,7 @@ var gm_mzlanguage = {
         Copyxml1: "复制主队战术",
         Copyxml2: "复制客队战术",
         CopyXmlMsg: "战术已复制到剪切板",
+        CopyXmlMsgError: "战术复制失败",
         BA_NORMAL: "BA_NORMAL",
         BA_WALL: "站人墙",
         BA_HOLD: "抱着球",
@@ -84,6 +87,8 @@ var gm_mzlanguage = {
     ,
 
     en: {
+        Setting: "setting",
+        SettingTitle: "Click setting CopyXML",
         ChangeLanguage: "中文",
         ChangeLanguageTitle: "点击可改变成中文",
         NotSureEx: "Skills may change after entering the transfer market.<br/>Change time ",
@@ -95,6 +100,7 @@ var gm_mzlanguage = {
         Copyxml1: "CopyXML(home)",
         Copyxml2: "CopyXML(away)",
         CopyXmlMsg: "The tactic was copied to the Clipboard!",
+        CopyXmlMsgError: "Copy error!",
         BA_NORMAL: "Normal",
         BA_WALL: "Wall",
         BA_HOLD: "Hold",
@@ -279,10 +285,24 @@ function clearCache() {
         GM_deleteValue(lists[i]);
     }
 }
-function myAjax(url, callback, noCache) {
+function myAjax(url, callback, noCache, Cjson) {
     if (!noCache) {
-        let tdata = getLocValue(url);
-        if (tdata) {
+        let b64 = getLocValue(url);
+        if (b64) {
+            let tdata;
+            if (b64.startsWith("H4sIAA")) {
+                if (Cjson) {
+                    tdata = "9" + b64;
+                } else {
+                    tdata = pako.ungzip(base64js.toByteArray(b64), { to: 'string' });
+                }
+            } else {
+                if (Cjson) {
+                    tdata = "9" + base64js.fromByteArray(pako.gzip(b64));
+                } else {
+                    tdata = b64;
+                }
+            }
             callback(tdata, true);
             return;
         }
@@ -292,8 +312,13 @@ function myAjax(url, callback, noCache) {
         url: url,
         dataType: "html",
         success: function (data) {
-            setLocValue(url, data);
-            callback(data, false);
+            let b64 = base64js.fromByteArray(pako.gzip(data));
+            setLocValue(url, b64);
+            if (Cjson) {
+                callback("9" + b64, false);
+            } else {
+                callback(data, false);
+            }
             isAjaxing = false;
         }
     });
@@ -306,23 +331,19 @@ function getLocValue(key) {
         let dt = new Date(ts);
         let now = new Date();
         //let d = now.getTime() - dt.getTime();
-        if (now.toLocaleDateString() == dt.toLocaleDateString()) {
-            if (now.getHours() >= 6 && now.getHours() <= 9 && now.getHours() != dt.getHours()) {
+        if (now.getUTCFullYear() == dt.getUTCFullYear() && now.getUTCMonth() == dt.getUTCMonth() && now.getUTCDate() == dt.getUTCDate()) {
+            if (now.getUTCHours() >= 1 && now.getUTCHours() <= 22) {
+                //取缓存
+            } else if (now.getUTCHours() != dt.getUTCHours()) {
+                //每小时更新一次缓存
                 return false;
             }
         } else {
-            if (now.getHours() >= 6) {
-                return false;
-            }
+            return false;
         }
         let b64 = GM_getValue(key, false);
         if (b64) {
-            if (b64.startsWith("H4sIAA")) {
-                return pako.ungzip(base64js.toByteArray(b64), { to: 'string' });
-            } else {
-                return b64;
-            }
-
+            return b64;
         }
         return false;
 
@@ -332,8 +353,7 @@ function getLocValue(key) {
 }
 function setLocValue(key, val) {
     GM_setValue("Dt_" + key, new Date().getTime());
-    let b64 = base64js.fromByteArray(pako.gzip(val));
-    GM_setValue(key, b64);
+    GM_setValue(key, val);
 }
 function getMax(callback) {
     myAjax(
