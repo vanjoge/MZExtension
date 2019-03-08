@@ -517,7 +517,11 @@ function myAjax(url, callback, noCache, Cjson) {
                     tdata = pako.ungzip(base64js.toByteArray(b64), { to: 'string' });
                 }
             } else {
-                tdata = "9" + base64js.fromByteArray(pako.gzip(b64));
+                if (Cjson) {
+                    tdata = "9" + base64js.fromByteArray(pako.gzip(b64));
+                } else {
+                    tdata = b64;
+                }
             }
             callback(tdata, true);
             return;
@@ -547,14 +551,15 @@ function getLocValue(key) {
         let dt = new Date(ts);
         let now = new Date();
         //let d = now.getTime() - dt.getTime();
-        if (now.toLocaleDateString() == dt.toLocaleDateString()) {
-            if (now.getHours() >= 6 && now.getHours() <= 9 && now.getHours() != dt.getHours()) {
+        if (now.getUTCFullYear() == dt.getUTCFullYear() && now.getUTCMonth() == dt.getUTCMonth() && now.getUTCDate() == dt.getUTCDate()) {
+            if (now.getUTCHours() >= 1 && now.getUTCHours() <= 22) {
+                //取缓存
+            } else if (now.getUTCHours() != dt.getUTCHours()) {
+                //每小时更新一次缓存
                 return false;
             }
         } else {
-            if (now.getHours() >= 6) {
-                return false;
-            }
+            return false;
         }
         let b64 = GM_getValue(key, false);
         if (b64) {
