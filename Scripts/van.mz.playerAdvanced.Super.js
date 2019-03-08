@@ -505,10 +505,20 @@ function clearCache() {
         GM_deleteValue(lists[i]);
     }
 }
-function myAjax(url, callback, noCache) {
+function myAjax(url, callback, noCache, Cjson) {
     if (!noCache) {
-        let tdata = getLocValue(url);
-        if (tdata) {
+        let b64 = getLocValue(url);
+        if (b64) {
+            let tdata;
+            if (b64.startsWith("H4sIAA")) {
+                if (Cjson) {
+                    tdata = "9" + b64;
+                } else {
+                    tdata = pako.ungzip(base64js.toByteArray(b64), { to: 'string' });
+                }
+            } else {
+                tdata = "9" + base64js.fromByteArray(pako.gzip(b64));
+            }
             callback(tdata, true);
             return;
         }
@@ -518,8 +528,13 @@ function myAjax(url, callback, noCache) {
         url: url,
         dataType: "html",
         success: function (data) {
-            setLocValue(url, data);
-            callback(data, false);
+            let b64 = base64js.fromByteArray(pako.gzip(data));
+            setLocValue(url, b64);
+            if (Cjson) {
+                callback("9" + b64, false);
+            } else {
+                callback(data, false);
+            }
             isAjaxing = false;
         }
     });
@@ -543,12 +558,7 @@ function getLocValue(key) {
         }
         let b64 = GM_getValue(key, false);
         if (b64) {
-            if (b64.startsWith("H4sIAA")) {
-                return pako.ungzip(base64js.toByteArray(b64), { to: 'string' });
-            } else {
-                return b64;
-            }
-
+            return b64;
         }
         return false;
 
@@ -558,8 +568,7 @@ function getLocValue(key) {
 }
 function setLocValue(key, val) {
     GM_setValue("Dt_" + key, new Date().getTime());
-    let b64 = base64js.fromByteArray(pako.gzip(val));
-    GM_setValue(key, b64);
+    GM_setValue(key, val);
 }
 function getMax(callback) {
     myAjax(
@@ -1644,7 +1653,7 @@ function CopyXML(ishome) {
                 // 
                 var myData = new FormData();
                 myData.append("xml", "9" + base64js.fromByteArray(pako.gzip(tmpXML)));
-                myData.append("html", "9" + base64js.fromByteArray(pako.gzip(data2)));
+                myData.append("html", data2);
                 myData.append("tacConf", GM_getValue("TacConf", ""));
                 GM_xmlhttpRequest({
                     method: "POST",
@@ -1664,7 +1673,7 @@ function CopyXML(ishome) {
                         alert(now_language.CopyXmlMsgError);
                     }
                 });
-            });
+            }, false, true);
     }
 }
 function Stats2XML(ishome, players) {
