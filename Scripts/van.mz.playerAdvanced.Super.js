@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      2.9
+// @version      2.10
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -10,6 +10,8 @@
 // @grant        GM_listValues
 // @grant        GM_deleteValue
 // @grant        GM_setClipboard
+// @grant        GM_xmlhttpRequest
+// @connect      www.budeng.win
 // @require      https://cdn.jsdelivr.net/pako/1.0.5/pako.min.js
 // @require      https://greasyfork.org/scripts/376535-base64js/code/base64js.js?version=661147
 // ==/UserScript==
@@ -17,6 +19,8 @@
 
 var gm_mzlanguage = {
     cn: {
+        Setting: "设置",
+        SettingTitle: "点击可对XML导出相关进行设置",
         ChangeLanguage: "English",
         ChangeLanguageTitle: "Click to Change to English",
         NotSureEx: "挂牌后属性可能有变动，不确定转会市场显示是否是真实属性，请自行甄别。<br/>属性变动时间",
@@ -28,6 +32,7 @@ var gm_mzlanguage = {
         Copyxml1: "复制主队战术",
         Copyxml2: "复制客队战术",
         CopyXmlMsg: "战术已复制到剪切板",
+        CopyXmlMsgError: "战术复制失败",
         BA_NORMAL: "BA_NORMAL",
         BA_WALL: "站人墙",
         BA_HOLD: "抱着球",
@@ -103,6 +108,8 @@ var gm_mzlanguage = {
     ,
 
     en: {
+        Setting: "setting",
+        SettingTitle: "Click setting CopyXML",
         ChangeLanguage: "中文",
         ChangeLanguageTitle: "点击可改变成中文",
         NotSureEx: "Skills may change after entering the transfer market.<br/>Change time ",
@@ -114,6 +121,7 @@ var gm_mzlanguage = {
         Copyxml1: "CopyXML(home)",
         Copyxml2: "CopyXML(away)",
         CopyXmlMsg: "The tactic was copied to the Clipboard!",
+        CopyXmlMsgError: "Copy error!",
         BA_NORMAL: "Normal",
         BA_WALL: "Wall",
         BA_HOLD: "Hold",
@@ -872,20 +880,22 @@ function initgw() {
     $(document.body).append("<div class='gw_run_div'>"
         + "<div id='gw_run' class='gw_run shupai' title='" + now_language.ManualColorTitle + "'><b>" + now_language.ManualColor + "</b></div>"
         + "<div>---</div>"
-        + "<div id='gw_run2' class='gw_run shupai' title='" + now_language.SkillsAnalysisTitle + "'><b>" + now_language.SkillsAnalysis + "</b></div>"
+        + "<div id='gw_run2' class='gw_run shupai' title='" + now_language.SettingTitle + "'><b>" + now_language.Setting + "</b></div>"
         + "<div>---</div>"
         + "<div id='gw_run3' class='gw_run shupai' title='" + now_language.ChangeLanguageTitle + "'><b>" + now_language.ChangeLanguage + "</b></div>"
         + "</div>");
     $('#gw_run')[0].addEventListener('click', function () { gw_start(0); });
-    $('#gw_run2')[0].addEventListener('click', function () { gw_start(1); });
+    $('#gw_run2')[0].addEventListener('click', function () {
+        OpenSetting();
+    });
     $('#gw_run3')[0].addEventListener('click', function () {
         setLanguage();
         $('#gw_run')[0].title = now_language.ManualColorTitle;
         $('#gw_run').html("<b>" + now_language.ManualColor + "</b>");
 
 
-        $('#gw_run2')[0].title = now_language.SkillsAnalysisTitle;
-        $('#gw_run2').html("<b>" + now_language.SkillsAnalysis + "</b>");
+        $('#gw_run2')[0].title = now_language.SettingTitle;
+        $('#gw_run2').html("<b>" + now_language.Setting + "</b>");
 
         this.title = now_language.ChangeLanguageTitle;
         $(this).html("<b>" + now_language.ChangeLanguage + "</b>");
@@ -896,6 +906,7 @@ function initgw() {
         $('#gw_dongzuo').html(now_language.dongzuo);
         $('#gw_copyxml1').html(now_language.Copyxml1);
         $('#gw_copyxml2').html(now_language.Copyxml2);
+        $('#gw_opensetting').html(now_language.Setting);
     });
 
 
@@ -937,7 +948,32 @@ function gw_start(GraphsType) {
     }
 }
 
-
+function OpenSetting() {
+    let xml_mode = GM_getValue("xml_mode", 0);
+    let tmphtml;
+    tmphtml = '\
+<div><b>战术导出模式:</b></div>\
+<div><select id="gm_xml_mode">\
+<option value="0"'+ (xml_mode == 0 ? ' selected="selected" ' : '') + '>顺序选择球员</option>\
+<option value="1"'+ (xml_mode == 1 ? ' selected="selected" ' : '') + '>根据位置选择球员(需提交数据到后台)</option>\
+</select>\
+</div>\
+<div><b>位置系数设置:</b></div>\
+<div><textarea style="width: 380px;height:200px;" id="txtTacConf" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>\
+</div>\
+<div>\
+<a href="#" class="mzbtn buttondiv button_account" id="gm_setting_save">\
+<span class="buttonClassMiddle"><span style="white-space: nowrap">保存</span></span><span class="buttonClassRight">&nbsp;</span>\
+</a>\
+</div>';
+    showHelpLayer(tmphtml, '设置', true);
+    $("#txtTacConf").val(GM_getValue("TacConf", ""));
+    $("#gm_setting_save")[0].addEventListener('click', function () {
+        GM_setValue("xml_mode", $("#gm_xml_mode").val());
+        GM_setValue("TacConf", $("#txtTacConf").val());
+        powerboxCloseAll();
+    });
+}
 
 //以下为2D比赛辅助
 function MatchEvent() {
@@ -1345,7 +1381,13 @@ function Advanced2D() {
                 if ($('.gw_div_left').length == 0) {
                     $('#canvas').parent().append('<div class="gw_div_left"></div>');
                     $('#canvas').parent().append('<div class="gw_div_right"></div>');
-                    $('#canvas').parent().append('<div><b id="gw_jijing" class="gw_run" style="color: red;">' + now_language.Jijing + '</b>    <b id="gw_dongzuo" class="gw_run" style="color: red;">' + now_language.dongzuo + '</b>    <b id="gw_copyxml1" class="gw_run" style="color: red;">' + now_language.Copyxml1 + '</b>    <b id="gw_copyxml2" class="gw_run" style="color: red;">' + now_language.Copyxml2 + '</b></div>');
+                    $('#canvas').parent().append(
+                        '<div><b id="gw_jijing" class="gw_run" style="color: red;">' + now_language.Jijing + '</b>'
+                        + '    <b id="gw_dongzuo" class="gw_run" style="color: red;">' + now_language.dongzuo + '</b>'
+                        + '    <b id="gw_copyxml1" class="gw_run" style="color: red;">' + now_language.Copyxml1 + '</b>'
+                        + '    <b id="gw_copyxml2" class="gw_run" style="color: red;">' + now_language.Copyxml2 + '</b>'
+                        + '    <b id="gw_opensetting" class="gw_run" style="color: red;">' + now_language.Setting + '</b>'
+                        + '</div>');
 
                     $('#gw_jijing')[0].addEventListener('click', function () {
                         ShowDiv(0);
@@ -1356,17 +1398,15 @@ function Advanced2D() {
                     });
 
                     $('#gw_copyxml1')[0].addEventListener('click', function () {
-                        getMax(function () {
-                            Stats2XML(MyGame.prototype.mzlive.m_match.getHomeTeam(), true, pmax);
-                        });
+                        CopyXML(true);
 
                     });
                     $('#gw_copyxml2')[0].addEventListener('click', function () {
-                        getMax(function () {
-                            Stats2XML(MyGame.prototype.mzlive.m_match.getAwayTeam(), false, pmax);
-                        });
+                        CopyXML(false);
                     });
-
+                    $('#gw_opensetting')[0].addEventListener('click', function () {
+                        OpenSetting();
+                    });
 
                 } else {
                     $('.gw_div_left').empty();
@@ -1587,12 +1627,63 @@ function StatsToPos_Y(i, IsLocal) {
     var ret = IsLocal ? Math.round(-.3073207154 * i + 315.9278777381) : Math.round(.3070644902 * i + 9.2794889414);
     return ret;
 }
-function Stats2XML(team, ishome, players) {
+function CopyXML(ishome) {
 
+    let xml_mode = GM_getValue("xml_mode", 0);
+    if (xml_mode == 0) {
+        getMax(function () {
+            let tmpXML = Stats2XML(ishome, pmax);
+            GM_setClipboard(tmpXML);
+            alert(now_language.CopyXmlMsg);
+        });
+    } else {
+        let tmpXML = Stats2XML(ishome);
+        myAjax(
+            "/?p=players",
+            function (data2) {
+                // 
+                var myData = new FormData();
+                myData.append("xml", "9" + base64js.fromByteArray(pako.gzip(tmpXML)));
+                myData.append("html", "9" + base64js.fromByteArray(pako.gzip(data2)));
+                myData.append("tacConf", GM_getValue("TacConf", ""));
+                GM_xmlhttpRequest({
+                    method: "POST",
+                    url: "http://www.budeng.win:852/MZ/TuneXMLByHtml",
+                    data: myData,
+                    responseType: "json",
+                    onload: function (result) {
+                        var dxml = JSON.parse(result.responseText);
+                        if (dxml.ErrorCode == 0) {
+                            GM_setClipboard(dxml.data);
+                            alert(now_language.CopyXmlMsg);
+                        } else {
+                            alert(now_language.CopyXmlMsgError);
+                        }
+                    },
+                    onerror: function (result) {
+                        alert(now_language.CopyXmlMsgError);
+                    }
+                });
+            });
+    }
+}
+function Stats2XML(ishome, players) {
+
+    let team;
+    if (ishome) {
+        team = MyGame.prototype.mzlive.m_match.getHomeTeam();
+    } else {
+        team = MyGame.prototype.mzlive.m_match.getAwayTeam();
+    }
 
     let pidArr = new Array();
-    for (let pid in players) {
-        pidArr.push(pid);
+    if (players) {
+        for (let pid in players) {
+            pidArr.push(pid);
+        }
+    }
+    while (pidArr.length < 11) {
+        pidArr.push(0);
     }
 
     let pl;
@@ -1615,8 +1706,6 @@ function Stats2XML(team, ishome, players) {
         }
     }
     tmpXML += "</SoccerTactics>\r\n";
-    GM_setClipboard(tmpXML);
-    alert(now_language.CopyXmlMsg);
     return tmpXML;
 }
 
