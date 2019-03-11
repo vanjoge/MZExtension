@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      2.10
+// @version      2.11
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -18,11 +18,17 @@
 
 
 var gm_mzlanguage = {
-    cn: {
+    zh: {
+        Name: "中文",
+        Save: "保存",
         Setting: "设置",
-        SettingTitle: "点击可对XML导出相关进行设置",
-        ChangeLanguage: "English",
-        ChangeLanguageTitle: "Click to Change to English",
+        SettingTitle: "点击可对语言和XML导出进行设置",
+        Language: "语言",
+        XmlMode: "战术导出模式",
+        XmlMode1: "顺序选择球员",
+        XmlMode2: "根据位置选择球员(需提交数据到后台)",
+        TacConf: "位置系数设置",
+
         NotSureEx: "挂牌后属性可能有变动，不确定转会市场显示是否是真实属性，请自行甄别。<br/>属性变动时间",
         NotSure: "属性不确定",
         ManualColorTitle: "点击可手动着色 快捷键:ALT + A",
@@ -108,10 +114,16 @@ var gm_mzlanguage = {
     ,
 
     en: {
-        Setting: "setting",
-        SettingTitle: "Click setting CopyXML",
-        ChangeLanguage: "中文",
-        ChangeLanguageTitle: "点击可改变成中文",
+        Name: "English",
+        Save: "Save",
+        Setting: "Setting",
+        SettingTitle: "Click setting language",
+        Language: "Language",
+        XmlMode: "Tactical Export Model",
+        XmlMode1: "Sequential selection",
+        XmlMode2: "Choose by location(need submit data to server)",
+        TacConf: "Tactical Coefficient Setting",
+
         NotSureEx: "Skills may change after entering the transfer market.<br/>Change time ",
         NotSure: "Uncertain skill",
         ManualColorTitle: "Click the Colorable Skill. Shortcut key : ALT + A",
@@ -193,8 +205,102 @@ var gm_mzlanguage = {
         SkillsAnalysisTitle: "Colorable Skill and Analysis of Training Efficiency Shortcut key :ALT + S",
         SkillsAnalysis: "Colorable By Graphs"
     }
+
+    ,
+    es: {
+        Name: "Español",
+        Save: "Grabar",
+        Setting: "Ajustes",
+        SettingTitle: "Haga clic en configuración Idioma",
+        Language: "Idioma",
+
+        XmlMode: "Tactical Export Model",
+        XmlMode1: "Sequential selection",
+        XmlMode2: "Choose by location(need submit data to server)",
+        TacConf: "Tactical Coefficient Setting",
+
+        NotSureEx: "Las skills pueden cambiar después de ingresar al mercado. <br/> Cambiar hora ",
+        NotSure: "Skill incierta",
+        ManualColorTitle: "Haga clic en la skill para colorear. Acceso directo: ALT + A",
+        ManualColor: "Color de la skill",
+        Jijing: "Eventos",
+        dongzuo: "PlayerStatus",
+        Copyxml1: "CopiarXML(local)",
+        Copyxml2: "CopiarXML(visi)",
+        CopyXmlMsg: "La táctica fue copiada al portapapeles",
+        CopyXmlMsgError: "¡Error al copiar!",
+        BA_NORMAL: "Normal",
+        BA_WALL: "Wall",
+        BA_HOLD: "Hold",
+        BA_DOWN: "Down",
+        BA_HOLD_THROWIN: "HoldThrowin",
+        BA_THROWIN: "Throwin",
+        BA_LEFT_FOOT_SHOT_FWD: "FootShot(L)",
+        BA_LEFT_FOOT_SHOT_BACK: "FootShotBack(L)",
+        BA_LEFT_FOOT_SHOT_RIGHT: "FootShotRight(L)",
+        BA_LEFT_FOOT_SHOT_LEFT: "FootShotLeft(L)",
+        BA_RIGHT_FOOT_SHOT_FWD: "FootShot(R)",
+        BA_RIGHT_FOOT_SHOT_BACK: "FootShotBack(R)",
+        BA_RIGHT_FOOT_SHOT_RIGHT: "FootShotRight(R)",
+        BA_RIGHT_FOOT_SHOT_LEFT: "FootShotLeft(R)",
+        BA_LEFT_FOOT_PASS_FWD: "FootPass(L)",
+        BA_LEFT_FOOT_PASS_BACK: "FootPassBack(L)",
+        BA_LEFT_FOOT_PASS_RIGHT: "FootPassRight(L)",
+        BA_LEFT_FOOT_PASS_LEFT: "FootPassLeft(L)",
+        BA_RIGHT_FOOT_PASS_FWD: "FootPass(R)",
+        BA_RIGHT_FOOT_PASS_BACK: "FootPassBack(R)",
+        BA_RIGHT_FOOT_PASS_RIGHT: "FootPassRight(R)",
+        BA_RIGHT_FOOT_PASS_LEFT: "FootPassLeft(R)",
+        BA_PICK_UP_BALL: "PickUpBall",
+        BA_DROP_BALL: "DropBall",
+        BA_HEADER: "Header",
+        BA_TRIP: "Trip",
+        BA_CELEBRATE: "Celebrate",
+        BA_GK_READY: "GkReady",
+        BA_GK_ACRO_LEFT: "GkAcroLeft",
+        BA_GK_ACRO_LEFT_HOLD: "GkAcroLeftHold",
+        BA_GK_ACRO_RIGHT: "GkAcroRight",
+        BA_GK_ACRO_RIGHT_HOLD: "GkAcroRightHold",
+        BA_GK_SIDESTEP_LEFT: "GkSidestepLeft",
+        BA_GK_SIDESTEP_RIGHT: "GkSidestepRight",
+        BA_GK_KICK: "GkKick",
+        BA_GK_THROW_BALL: "GkThrowBall",
+        BA_GK_STRETCH_LEFT: "GkStretchLeft",
+        BA_GK_STRETCH_LEFT_HOLD: "GkStretchLeftHold",
+        BA_GK_STRETCH_RIGHT: "GkStretchRight",
+        BA_GK_STRETCH_RIGHT_HOLD: "GkStretchRightHold",
+        BA_BALL_OWNER: "BallOwner",
+        BA_TACKLE: "Tackle",
+        BA_SLIDING_TACKLE: "SlidingTackle",
+        BA_SLIDING_TACKLE_STAND: "SlidingTackleStand",
+        BA_MAX: "Max",
+        BA_MY_1001: "HeadGoal(L)",
+        BA_MY_1002: "HeadGoal(R)",
+        BA_MY_1003: "StopTheBall",
+        BA_MY_1011: "Tackle(Success)",
+        BA_MY_1012: "Tackle(Fail)",
+        Unknown: "Desconocido"
+
+
+        ,
+        training_pos: "No coach",
+        training_camp: "CAMP",
+        training_coach: "Coach",
+        training_ycc: "Ycc",
+        training_itc: "Itc",
+        training_neg: "Neg",
+        training_unit: "↑",
+        training_unknown: "Unknown training",
+        training_ball_day: "Next ball days",
+        training_part: "Training efficiency",
+        training_total: "Total",
+        training_avg: "Avg",
+        training_now: "Now",
+        SkillsAnalysisTitle: "Colorable Skill and Analysis of Training Efficiency Shortcut key :ALT + S",
+        SkillsAnalysis: "Colorable By Graphs"
+    }
 };
-var now_language = gm_mzlanguage.cn;
+var now_language = gm_mzlanguage.en;
 function mzcamp() {
     this.data = {};
     this.name = null;
@@ -856,6 +962,9 @@ function showPop(parent) {
 function setLanguage(language) {
     if (language) {
         let new_language = gm_mzlanguage[language];
+        if (new_language == undefined) {
+            new_language = gm_mzlanguage.en;
+        }
         if (now_language != new_language) {
             GM_setValue("mylanguage", language);
         }
@@ -869,17 +978,19 @@ function setLanguage(language) {
             GM_setValue("mylanguage", "en");
         }
     }
-
-
 }
 function initgw() {
     let tmplanguage = GM_getValue("mylanguage", false);
-    if (tmplanguage == false) {
+    if (tmplanguage == "cn") {
+        tmplanguage = "zh";
+        setLanguage(tmplanguage);
+    }
+    if (gm_mzlanguage[tmplanguage] == undefined) {
         let lang = $("meta[name='language']");
-        if (lang.length > 0 &&
-            $("meta[name='language']")[0].content == "en") {
-            setLanguage("en");
+        if (lang.length > 0) {
+            setLanguage($("meta[name='language']")[0].content);
         }
+
     } else {
         now_language = gm_mzlanguage[tmplanguage];
     }
@@ -895,35 +1006,11 @@ function initgw() {
         + "<div id='gw_run' class='gw_run shupai' title='" + now_language.ManualColorTitle + "'><b>" + now_language.ManualColor + "</b></div>"
         + "<div>---</div>"
         + "<div id='gw_run2' class='gw_run shupai' title='" + now_language.SettingTitle + "'><b>" + now_language.Setting + "</b></div>"
-        + "<div>---</div>"
-        + "<div id='gw_run3' class='gw_run shupai' title='" + now_language.ChangeLanguageTitle + "'><b>" + now_language.ChangeLanguage + "</b></div>"
         + "</div>");
     $('#gw_run')[0].addEventListener('click', function () { gw_start(0); });
     $('#gw_run2')[0].addEventListener('click', function () {
         OpenSetting();
     });
-    $('#gw_run3')[0].addEventListener('click', function () {
-        setLanguage();
-        $('#gw_run')[0].title = now_language.ManualColorTitle;
-        $('#gw_run').html("<b>" + now_language.ManualColor + "</b>");
-
-
-        $('#gw_run2')[0].title = now_language.SettingTitle;
-        $('#gw_run2').html("<b>" + now_language.Setting + "</b>");
-
-        this.title = now_language.ChangeLanguageTitle;
-        $(this).html("<b>" + now_language.ChangeLanguage + "</b>");
-
-
-
-        $('#gw_jijing').html(now_language.Jijing);
-        $('#gw_dongzuo').html(now_language.dongzuo);
-        $('#gw_copyxml1').html(now_language.Copyxml1);
-        $('#gw_copyxml2').html(now_language.Copyxml2);
-        $('#gw_opensetting').html(now_language.Setting);
-    });
-
-
 
     document.onkeydown = function () {
         if (event.altKey) {
@@ -961,30 +1048,53 @@ function gw_start(GraphsType) {
         showMax(GraphsType);
     }
 }
-
 function OpenSetting() {
+
+    let lang = GM_getValue("mylanguage", "en");
     let xml_mode = GM_getValue("xml_mode", 0);
     let tmphtml;
     tmphtml = '\
-<div><b>战术导出模式:</b></div>\
-<div><select id="gm_xml_mode">\
-<option value="0"'+ (xml_mode == 0 ? ' selected="selected" ' : '') + '>顺序选择球员</option>\
-<option value="1"'+ (xml_mode == 1 ? ' selected="selected" ' : '') + '>根据位置选择球员(需提交数据到后台)</option>\
+<div><b>'+ now_language.Language + ':</b></div>\
+<div><select id="gm_language">\
+<option value="en"'+ (lang == "en" ? ' selected="selected" ' : '') + '>' + gm_mzlanguage.en.Name + '</option>\
+<option value="zh"'+ (lang == "zh" ? ' selected="selected" ' : '') + '>' + gm_mzlanguage.zh.Name + '</option>\
+<option value="es"'+ (lang == "es" ? ' selected="selected" ' : '') + '>' + gm_mzlanguage.es.Name + '</option>\
 </select>\
 </div>\
-<div><b>位置系数设置:</b></div>\
+<div><b>'+ now_language.XmlMode + ':</b></div>\
+<div><select id="gm_xml_mode">\
+<option value="0"'+ (xml_mode == 0 ? ' selected="selected" ' : '') + '>' + now_language.XmlMode1 + '</option>\
+<option value="1"'+ (xml_mode == 1 ? ' selected="selected" ' : '') + '>' + now_language.XmlMode2 + '</option>\
+</select>\
+</div>\
+<div><b>'+ now_language.TacConf + ':</b></div>\
 <div><textarea style="width: 380px;height:200px;" id="txtTacConf" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>\
 </div>\
 <div>\
 <a href="#" class="mzbtn buttondiv button_account" id="gm_setting_save">\
-<span class="buttonClassMiddle"><span style="white-space: nowrap">保存</span></span><span class="buttonClassRight">&nbsp;</span>\
+<span class="buttonClassMiddle"><span style="white-space: nowrap">'+ now_language.Save + '</span></span><span class="buttonClassRight">&nbsp;</span>\
 </a>\
 </div>';
-    showHelpLayer(tmphtml, '设置', true);
+
+    showHelpLayer(tmphtml, now_language.Setting, true);
     $("#txtTacConf").val(GM_getValue("TacConf", ""));
     $("#gm_setting_save")[0].addEventListener('click', function () {
+        setLanguage($("#gm_language").val());
         GM_setValue("xml_mode", $("#gm_xml_mode").val());
         GM_setValue("TacConf", $("#txtTacConf").val());
+
+        $('#gw_run')[0].title = now_language.ManualColorTitle;
+        $('#gw_run').html("<b>" + now_language.ManualColor + "</b>");
+        $('#gw_run2')[0].title = now_language.SettingTitle;
+        $('#gw_run2').html("<b>" + now_language.Setting + "</b>");
+
+        $('#gw_jijing').html(now_language.Jijing);
+        $('#gw_dongzuo').html(now_language.dongzuo);
+        $('#gw_copyxml1').html(now_language.Copyxml1);
+        $('#gw_copyxml2').html(now_language.Copyxml2);
+        $('#gw_opensetting').html(now_language.Setting);
+
+
         powerboxCloseAll();
     });
 }
