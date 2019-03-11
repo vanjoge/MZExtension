@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      2.10
+// @version      2.11
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -15,11 +15,12 @@
 // ==/UserScript==
 
 var gm_mzlanguage = {
-    cn: {
+    zh: {
+        Name: "中文",
+        Save: "保存",
         Setting: "设置",
-        SettingTitle: "点击可对XML导出相关进行设置",
-        ChangeLanguage: "English",
-        ChangeLanguageTitle: "Click to Change to English",
+        SettingTitle: "点击可对语言进行设置",
+        Language: "语言",
         NotSureEx: "挂牌后属性可能有变动，不确定转会市场显示是否是真实属性，请自行甄别。<br/>属性变动时间",
         NotSure: "属性不确定",
         ManualColorTitle: "点击可手动着色 快捷键:ALT + A",
@@ -87,10 +88,11 @@ var gm_mzlanguage = {
     ,
 
     en: {
+        Name: "English",
+        Save: "Save",
         Setting: "setting",
-        SettingTitle: "Click setting CopyXML",
-        ChangeLanguage: "中文",
-        ChangeLanguageTitle: "点击可改变成中文",
+        SettingTitle: "Click setting language",
+        Language: "Language",
         NotSureEx: "Skills may change after entering the transfer market.<br/>Change time ",
         NotSure: "Uncertain skill",
         ManualColorTitle: "Click the Colorable Skill. Shortcut key : ALT + A",
@@ -155,8 +157,78 @@ var gm_mzlanguage = {
 
 
     }
+
+    ,
+    es: {
+        Name: "Español",
+        Save: "Grabar",
+        Setting: "Ajustes",
+        SettingTitle: "Haga clic en configuración Idioma",
+        Language: "Idioma",
+        NotSureEx: "Las skills pueden cambiar después de ingresar al mercado. <br/> Cambiar hora ",
+        NotSure: "Skill incierta",
+        ManualColorTitle: "Haga clic en la skill para colorear. Acceso directo: ALT + A",
+        ManualColor: "Color de la skill",
+        Jijing: "Eventos",
+        dongzuo: "PlayerStatus",
+        Copyxml1: "CopiarXML(local)",
+        Copyxml2: "CopiarXML(visi)",
+        CopyXmlMsg: "La táctica fue copiada al portapapeles",
+        CopyXmlMsgError: "¡Error al copiar!",
+        BA_NORMAL: "Normal",
+        BA_WALL: "Wall",
+        BA_HOLD: "Hold",
+        BA_DOWN: "Down",
+        BA_HOLD_THROWIN: "HoldThrowin",
+        BA_THROWIN: "Throwin",
+        BA_LEFT_FOOT_SHOT_FWD: "FootShot(L)",
+        BA_LEFT_FOOT_SHOT_BACK: "FootShotBack(L)",
+        BA_LEFT_FOOT_SHOT_RIGHT: "FootShotRight(L)",
+        BA_LEFT_FOOT_SHOT_LEFT: "FootShotLeft(L)",
+        BA_RIGHT_FOOT_SHOT_FWD: "FootShot(R)",
+        BA_RIGHT_FOOT_SHOT_BACK: "FootShotBack(R)",
+        BA_RIGHT_FOOT_SHOT_RIGHT: "FootShotRight(R)",
+        BA_RIGHT_FOOT_SHOT_LEFT: "FootShotLeft(R)",
+        BA_LEFT_FOOT_PASS_FWD: "FootPass(L)",
+        BA_LEFT_FOOT_PASS_BACK: "FootPassBack(L)",
+        BA_LEFT_FOOT_PASS_RIGHT: "FootPassRight(L)",
+        BA_LEFT_FOOT_PASS_LEFT: "FootPassLeft(L)",
+        BA_RIGHT_FOOT_PASS_FWD: "FootPass(R)",
+        BA_RIGHT_FOOT_PASS_BACK: "FootPassBack(R)",
+        BA_RIGHT_FOOT_PASS_RIGHT: "FootPassRight(R)",
+        BA_RIGHT_FOOT_PASS_LEFT: "FootPassLeft(R)",
+        BA_PICK_UP_BALL: "PickUpBall",
+        BA_DROP_BALL: "DropBall",
+        BA_HEADER: "Header",
+        BA_TRIP: "Trip",
+        BA_CELEBRATE: "Celebrate",
+        BA_GK_READY: "GkReady",
+        BA_GK_ACRO_LEFT: "GkAcroLeft",
+        BA_GK_ACRO_LEFT_HOLD: "GkAcroLeftHold",
+        BA_GK_ACRO_RIGHT: "GkAcroRight",
+        BA_GK_ACRO_RIGHT_HOLD: "GkAcroRightHold",
+        BA_GK_SIDESTEP_LEFT: "GkSidestepLeft",
+        BA_GK_SIDESTEP_RIGHT: "GkSidestepRight",
+        BA_GK_KICK: "GkKick",
+        BA_GK_THROW_BALL: "GkThrowBall",
+        BA_GK_STRETCH_LEFT: "GkStretchLeft",
+        BA_GK_STRETCH_LEFT_HOLD: "GkStretchLeftHold",
+        BA_GK_STRETCH_RIGHT: "GkStretchRight",
+        BA_GK_STRETCH_RIGHT_HOLD: "GkStretchRightHold",
+        BA_BALL_OWNER: "BallOwner",
+        BA_TACKLE: "Tackle",
+        BA_SLIDING_TACKLE: "SlidingTackle",
+        BA_SLIDING_TACKLE_STAND: "SlidingTackleStand",
+        BA_MAX: "Max",
+        BA_MY_1001: "HeadGoal(L)",
+        BA_MY_1002: "HeadGoal(R)",
+        BA_MY_1003: "StopTheBall",
+        BA_MY_1011: "Tackle(Success)",
+        BA_MY_1012: "Tackle(Fail)",
+        Unknown: "Desconocido"
+    }
 };
-var now_language = gm_mzlanguage.cn;
+var now_language = gm_mzlanguage.en;
 function mzcamp() {
     this.data = {};
     this.name = null;
@@ -490,6 +562,9 @@ function getTrainingGraphs(pid, imgs, skills) {
 function setLanguage(language) {
     if (language) {
         let new_language = gm_mzlanguage[language];
+        if (new_language == undefined) {
+            new_language = gm_mzlanguage.en;
+        }
         if (now_language != new_language) {
             GM_setValue("mylanguage", language);
         }
@@ -503,18 +578,20 @@ function setLanguage(language) {
             GM_setValue("mylanguage", "en");
         }
     }
-
-
 }
 function initgw() {
 
     let tmplanguage = GM_getValue("mylanguage", false);
-    if (tmplanguage == false) {
+    if (tmplanguage == "cn") {
+        tmplanguage = "zh";
+        setLanguage(tmplanguage);
+    }
+    if (gm_mzlanguage[tmplanguage] == undefined) {
         let lang = $("meta[name='language']");
-        if (lang.length > 0 &&
-            $("meta[name='language']")[0].content == "en") {
-            setLanguage("en");
+        if (lang.length > 0) {
+            setLanguage($("meta[name='language']")[0].content);
         }
+
     } else {
         now_language = gm_mzlanguage[tmplanguage];
     }
@@ -531,22 +608,11 @@ function initgw() {
     $(document.body).append("<div class='gw_run_div'>"
         + "<div id='gw_run' class='gw_run shupai' title='" + now_language.ManualColorTitle + "'><b>" + now_language.ManualColor + "</b></div>"
         + "<div>---</div>"
-        + "<div id='gw_run3' class='gw_run shupai' title='" + now_language.ChangeLanguageTitle + "'><b>" + now_language.ChangeLanguage + "</b></div>"
+        + "<div id='gw_run2' class='gw_run shupai' title='" + now_language.SettingTitle + "'><b>" + now_language.Setting + "</b></div>"
         + "</div>");
     $('#gw_run')[0].addEventListener('click', function () { gw_start(0); });
-    $('#gw_run3')[0].addEventListener('click', function () {
-        setLanguage();
-        $('#gw_run')[0].title = now_language.ManualColorTitle;
-        $('#gw_run').html("<b>" + now_language.ManualColor + "</b>");
-        this.title = now_language.ChangeLanguageTitle;
-        $(this).html("<b>" + now_language.ChangeLanguage + "</b>");
-
-
-
-        $('#gw_jijing').html(now_language.Jijing);
-        $('#gw_dongzuo').html(now_language.dongzuo);
-        $('#gw_copyxml1').html(now_language.Copyxml1);
-        $('#gw_copyxml2').html(now_language.Copyxml2);
+    $('#gw_run2')[0].addEventListener('click', function () {
+        OpenSetting();
     });
     document.onkeydown = function () {
         if (event.altKey) {
@@ -571,6 +637,39 @@ function gw_start() {
     }
 }
 
+function OpenSetting() {
+    let lang = GM_getValue("mylanguage", "en");
+    let tmphtml;
+    tmphtml = '\
+<div><b>'+ now_language.Language + ':</b></div>\
+<div><select id="gm_language">\
+<option value="en"'+ (lang == "en" ? ' selected="selected" ' : '') + '>' + gm_mzlanguage.en.Name + '</option>\
+<option value="zh"'+ (lang == "zh" ? ' selected="selected" ' : '') + '>' + gm_mzlanguage.zh.Name + '</option>\
+<option value="es"'+ (lang == "es" ? ' selected="selected" ' : '') + '>' + gm_mzlanguage.es.Name + '</option>\
+</select>\
+</div>\
+<a href="#" class="mzbtn buttondiv button_account" id="gm_setting_save">\
+<span class="buttonClassMiddle"><span style="white-space: nowrap">'+ now_language.Save + '</span></span><span class="buttonClassRight">&nbsp;</span>\
+</a>\
+</div>';
+    showHelpLayer(tmphtml, now_language.Setting, true);
+    $("#gm_setting_save")[0].addEventListener('click', function () {
+        setLanguage($("#gm_language").val());
+
+        $('#gw_run')[0].title = now_language.ManualColorTitle;
+        $('#gw_run').html("<b>" + now_language.ManualColor + "</b>");
+        $('#gw_run2')[0].title = now_language.SettingTitle;
+        $('#gw_run2').html("<b>" + now_language.Setting + "</b>");
+
+
+
+        $('#gw_jijing').html(now_language.Jijing);
+        $('#gw_dongzuo').html(now_language.dongzuo);
+        $('#gw_copyxml1').html(now_language.Copyxml1);
+        $('#gw_copyxml2').html(now_language.Copyxml2);
+        powerboxCloseAll();
+    });
+}
 
 
 //以下为2D比赛辅助
