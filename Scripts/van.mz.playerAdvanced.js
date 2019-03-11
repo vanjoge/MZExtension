@@ -90,7 +90,7 @@ var gm_mzlanguage = {
     en: {
         Name: "English",
         Save: "Save",
-        Setting: "setting",
+        Setting: "Setting",
         SettingTitle: "Click setting language",
         Language: "Language",
         NotSureEx: "Skills may change after entering the transfer market.<br/>Change time ",
