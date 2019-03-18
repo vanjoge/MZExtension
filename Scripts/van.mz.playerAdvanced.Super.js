@@ -1102,8 +1102,12 @@ function OpenSetting() {
 //以下为2D比赛辅助
 function MatchEvent() {
     this.data = new Array();
-    this.setAllPlayerEvent = function (team) {
-        for (var i = 0; i < team.m_players.length; i++) {
+    this.setAllPlayerEvent = function (team, tc) {
+        for (let i = 0; i < tc.length; i++) {
+            this.data.push(tc[i]);
+        }
+
+        for (let i = 0; i < team.m_players.length; i++) {
             let len = team.m_players[i].m_events.getLength();
             for (var j = 0; j < len; j++) {
                 this.data.push(team.m_players[i].m_events.at(j));
@@ -1426,6 +1430,167 @@ function MatchEvent2() {
 
     };
 }
+function PlayerPos() {
+    this.data = {};
+    this.stat = new Array();
+
+    this.setData = function (match, pids) {
+        //构建临时数据(不合并连续帧)
+        let matchBuffer = match.matchBuffer;
+        let tmpP = {
+        };
+        for (let i = 0; i < pids.length; i++) {
+            tmpP[pids[i]] = {};
+        }
+        let dl = 10;
+        let nowItem;
+        let lastKey = false;
+        let tmpdata = {};
+        for (let i = 0; i < matchBuffer.length; i++) {
+
+            let players = matchBuffer[i].players;
+
+            for (var j = 0; j < players.length; j++) {
+                if (players[j].status != undefined) {
+
+                    //移动判断
+                    if (tmpP[players[j].id] != undefined) {
+                        tmpP[players[j].id] = players[j];
+                    }
+                }
+            }
+            let key = "";
+            for (let k = 1; k < pids.length; k++) {
+                let p1 = tmpP[pids[k - 1]];
+                let p2 = tmpP[pids[k]];
+                if (p1.position == undefined || p2.position == undefined) {
+                    key = false;
+                    break;
+                }
+                let dx = p2.position.x - p1.position.x
+                let dy = p2.position.y - p1.position.y;
+                let dz = p2.position.z - p1.position.z;
+                key += dx + "_" + dy + "_";//+ "_" + dz;
+                tmpP[pids[k - 1]] = {};
+            }
+            tmpP[pids[pids.length - 1]] = {};
+            if (key) {
+
+                if (tmpdata[key] == undefined) {
+                    tmpdata[key] = new Array();
+                }
+                tmpdata[key].push(i);
+
+                if (key != lastKey) {
+                    //结束
+                    if (nowItem) {
+                        let dframe = nowItem.end - nowItem.start;
+                        if (dframe > 1) {
+                            this.stat.push(nowItem);
+                        }
+                        nowItem = false;
+                    }
+                } else {
+
+                    if (nowItem) {
+                        nowItem.end = i;
+                    } else {
+                        nowItem = {
+                            start: i - 1, end: i, key: key
+                        };
+                    }
+                }
+            }
+            lastKey = key;
+
+        }
+        for (let kk in tmpdata) {
+            if (tmpdata[kk].length > dl) {
+                this.data[kk] = tmpdata[kk];
+            }
+        }
+    };
+
+    //this.setData = function (match, pids) {
+    //    //构建临时数据(不合并连续帧)
+    //    let matchBuffer = match.matchBuffer;
+    //    let tmpPos = {
+    //        last: {}
+    //    };
+    //    let nowItem;
+    //    for (var i = 0; i < matchBuffer.length; i++) {
+
+    //        let nowkey = false;
+    //        let players = matchBuffer[i].players;
+
+    //        let flag = true;
+    //        let len = pids.length;
+    //        for (var j = 0; j < players.length; j++) {
+    //            if (players[j].status != undefined) {
+
+    //                //移动判断
+    //                if (pids[players[j].id] != undefined) {
+    //                    let pos = tmpPos.last[players[j].id];
+    //                    tmpPos.last[players[j].id] = players[j];
+    //                    if (pos != undefined) {
+
+    //                        let dx = players[j].position.x - pos.position.x;
+    //                        let dy = players[j].position.y - pos.position.y;
+    //                        let dz = players[j].position.z - pos.position.z;
+
+    //                        let key = dx + "_" + dy;//+ "_" + dz;
+    //                        //已不符合 不需要再判断
+    //                        if (flag) {
+    //                            if (nowkey) {
+    //                                //直接判断
+    //                                if (nowkey == key) {
+    //                                    len--;
+    //                                }
+    //                                else {
+    //                                    //结束
+    //                                    flag = false;
+    //                                    //不能break; 否则最后位置不更新
+    //                                }
+    //                            } else {
+    //                                //第一次直接符合
+    //                                len--;
+    //                            }
+    //                        }
+    //                        nowkey = key;
+    //                    }
+    //                }
+    //            }
+    //        }
+    //        if (flag && len <= 0) {
+    //            if (nowItem) {
+    //                nowItem.end = i;
+    //            } else {
+    //                nowItem = {
+    //                    start: i, end: i, keys: {}
+    //                };
+    //            }
+    //            if (nowItem.keys[nowkey] == undefined) {
+    //                nowItem.keys[nowkey] = 1;
+    //            }
+    //            else {
+    //                nowItem.keys[nowkey] += 1;
+    //            }
+
+
+    //        } else {
+    //            //结束
+    //            if (nowItem) {
+
+    //                let dframe = nowItem.end - nowItem.start;
+    //                if (dframe > 1) {
+    //                    this.data.push(nowItem);
+    //                }
+    //            }
+    //            nowItem = false;
+    //        }
+    //    }
+    //};
+}
 function OutOfPlay() {
     this.data = new Array();
     this.add = function (begin, end) {
@@ -1470,27 +1635,117 @@ function Advanced2D() {
             let away = MyGame.prototype.mzlive.m_match.getAwayTeam();
 
             if (home != null && away != null) {
+
+                let players = matchLoader.matchXml.documentElement.evaluate('Player');
+                let re1;
+                let dit_internalId = {};
+                while (re1 = players.iterateNext()) {
+                    dit_internalId[re1.getAttribute('id')] = re1.getAttribute('internalId');
+                }
+
                 let events = matchLoader.matchXml.documentElement.evaluate('Events/*');
+
                 let re, begin, end;
+
+                let homeTc = new Array();
+                let awayTc = new Array();
+
+
                 out_of_play = new OutOfPlay();
                 out_of_play.add(0, MyGame.prototype.mzlive.m_match.m_koFrame);
                 out_of_play.add(MyGame.prototype.mzlive.m_match.m_htFrame, MyGame.prototype.mzlive.m_match.m_ko2Frame);
                 while (re = events.iterateNext()) {
                     begin = re.getAttribute('intervalendframe');
                     end = re.getAttribute('startframe');
-                    //re.tagName
                     if (begin != undefined && end != undefined) {
                         out_of_play.add(begin, end);
+                    }
+
+                    //战术变动
+                    if (re.tagName == 'Tactic') {
+                        let t_teamid = re.getAttribute('teamId');
+                        let t_time = re.getAttribute('time');
+                        let t_type = re.getAttribute('type');
+                        let t_new_setting = re.getAttribute('new_setting');
+                        if (t_teamid == home.m_teamId) {
+                            homeTc.push({
+                                tag: 'Tactic',
+                                m_frame: MyGame.prototype.mzlive.m_match.timeToFrame(t_time),
+                                type: t_type,
+                                new_setting: t_new_setting,
+                                m_team: home
+                            });
+                        } else {
+                            awayTc.push({
+                                tag: 'Tactic',
+                                m_frame: MyGame.prototype.mzlive.m_match.timeToFrame(t_time),
+                                type: t_type,
+                                new_setting: t_new_setting,
+                                m_team: away
+                            });
+                        }
+                    }
+                    //换人
+                    else if (re.tagName == 'Substitution') {
+                        let t_time = re.getAttribute('time');
+                        let t_clock = re.getAttribute('clock');
+                        let t_frame = re.getAttribute('frame');
+                        let t_playerId = re.getAttribute('playerId');
+                        let t_teamId = re.getAttribute('teamId');
+                        let t_substitutedId = re.getAttribute('substitutedId');
+                        let t_reason = re.getAttribute('reason');
+                        let t_minute = re.getAttribute('minute');
+                        let t_scorecondition = re.getAttribute('scorecondition');
+                        let t_score = re.getAttribute('score');
+
+                        let t_player, t_sub_player;
+                        let internalId = dit_internalId[t_playerId];
+                        if (internalId) {
+                            t_player = MyGame.prototype.mzlive.m_match.getHomeTeam().getPlayerByPlayerId(internalId);
+                        }
+                        internalId = dit_internalId[t_substitutedId];
+                        if (internalId) {
+                            t_sub_player = MyGame.prototype.mzlive.m_match.getHomeTeam().getPlayerByPlayerId(internalId);
+                        }
+
+                        if (t_teamId == home.m_teamId) {
+                            homeTc.push({
+                                tag: 'Sub',
+                                m_frame: t_frame,
+                                clock: t_clock,
+                                player: t_player,
+                                sub_player: t_sub_player,
+                                reason: t_reason,
+                                minute: t_minute,
+                                scorecondition: t_scorecondition,
+                                score: t_score,
+                                m_team: home
+                            });
+                        } else {
+                            awayTc.push({
+                                tag: 'Sub',
+                                m_frame: t_frame,
+                                clock: t_clock,
+                                player: t_player,
+                                sub_player: t_sub_player,
+                                reason: t_reason,
+                                minute: t_minute,
+                                scorecondition: t_scorecondition,
+                                score: t_score,
+                                m_team: away
+                            });
+                        }
                     }
                 }
                 out_of_play.Sort();
 
 
 
+
                 let lstEventHome = new MatchEvent();
                 let lstEventAway = new MatchEvent();
-                lstEventHome.setAllPlayerEvent(home);
-                lstEventAway.setAllPlayerEvent(away);
+                lstEventHome.setAllPlayerEvent(home, homeTc);
+                lstEventAway.setAllPlayerEvent(away, awayTc);
 
                 lstEventHome.Sort();
                 lstEventAway.Sort();
@@ -1529,7 +1784,13 @@ function Advanced2D() {
                         CopyXML(false);
                     });
                     $('#gw_opensetting')[0].addEventListener('click', function () {
-                        OpenSetting();
+                        let pp = new PlayerPos();
+                        //let pids = {
+                        //    18: {}, 19: {}, 21: {}, length: 3
+                        //};
+                        let arr2 = [18, 19, 21];
+                        pp.setData(MyGame.prototype.mzlive.m_match, arr2);
+
                     });
 
                 } else {
@@ -1559,11 +1820,27 @@ function ShowDiv(type) {
         let lstEventHome = mStaticEventHome;
         let lstEventAway = mStaticEventAway;
 
-        for (var i = 0; i < lstEventHome.data.length; i++) {
-            $('.gw_div_left').append('<div><b id="gw_eventH' + i + '" class="gw_run">'
-                + MyGame.prototype.mzlive.m_match.frameToMatchMinute(lstEventHome.data[i].m_frame) + "′ "
-                + lstEventHome.data[i].m_owner.m_name + "(" + lstEventHome.data[i].m_owner.m_shirtNo + ") "
-                + lstEventHome.data[i].m_description + '</b></div>');
+        for (let i = 0; i < lstEventHome.data.length; i++) {
+            if (lstEventHome.data[i].tag == "Tactic") {
+                $('.gw_div_left').append('<div><b id="gw_eventH' + i + '" class="gw_run">'
+                    + MyGame.prototype.mzlive.m_match.frameToMatchMinute(lstEventHome.data[i].m_frame) + "′ "
+                    + lstEventHome.data[i].type + " -> "
+                    + lstEventHome.data[i].new_setting + '</b></div>');
+            } else if (lstEventHome.data[i].tag == "Sub") {
+                $('.gw_div_left').append('<div><b id="gw_eventH' + i + '" class="gw_run">'
+                    + MyGame.prototype.mzlive.m_match.frameToMatchMinute(lstEventHome.data[i].m_frame) + "′ "
+                    + lstEventHome.data[i].player.m_name + "(" + lstEventHome.data[i].player.m_shirtNo + ")↑ "
+                    + lstEventHome.data[i].sub_player.m_name + "(" + lstEventHome.data[i].sub_player.m_shirtNo + ")↓<br/>"
+                    + lstEventHome.data[i].reason + lstEventHome.data[i].minute + "′[" + lstEventHome.data[i].scorecondition + " " + lstEventHome.data[i].score + "]"
+                    + '</b></div>');
+
+            } else {
+                $('.gw_div_left').append('<div><b id="gw_eventH' + i + '" class="gw_run">'
+                    + MyGame.prototype.mzlive.m_match.frameToMatchMinute(lstEventHome.data[i].m_frame) + "′ "
+                    + lstEventHome.data[i].m_owner.m_name + "(" + lstEventHome.data[i].m_owner.m_shirtNo + ") "
+                    + lstEventHome.data[i].m_description + '</b></div>');
+            }
+
             let dom = $('#gw_eventH' + i)[0];
             dom.m_frame = lstEventHome.data[i].m_frame;
             dom.m_frame -= 45;
@@ -1573,13 +1850,27 @@ function ShowDiv(type) {
             dom.addEventListener('click', function () { MyGame.prototype.mzlive.m_match.setCurrentFrame(this.m_frame); });
         }
 
-        for (var ii = 0; ii < lstEventAway.data.length; ii++) {
-            $('.gw_div_right').append('<div><b id="gw_eventA' + ii + '" class="gw_run">'
-                + MyGame.prototype.mzlive.m_match.frameToMatchMinute(lstEventAway.data[ii].m_frame) + "′ "
-                + " " + lstEventAway.data[ii].m_owner.m_name + "(" + lstEventAway.data[ii].m_owner.m_shirtNo + ") "
-                + lstEventAway.data[ii].m_description + '</b></div>');
-            let dom = $('#gw_eventA' + ii)[0];
-            dom.m_frame = lstEventAway.data[ii].m_frame;
+        for (let i = 0; i < lstEventAway.data.length; i++) {
+            if (lstEventAway.data[i].tag == "Tactic") {
+                $('.gw_div_right').append('<div><b id="gw_eventA' + i + '" class="gw_run">'
+                    + MyGame.prototype.mzlive.m_match.frameToMatchMinute(lstEventAway.data[i].m_frame) + "′ "
+                    + lstEventAway.data[i].type + " -> "
+                    + lstEventAway.data[i].new_setting + '</b></div>');
+            } else if (lstEventAway.data[i].tag == "Sub") {
+                $('.gw_div_right').append('<div><b id="gw_eventA' + i + '" class="gw_run">'
+                    + MyGame.prototype.mzlive.m_match.frameToMatchMinute(lstEventAway.data[i].m_frame) + "′ "
+                    + lstEventAway.data[i].player.m_name + "(" + lstEventAway.data[i].player.m_shirtNo + ")↑ "
+                    + lstEventAway.data[i].sub_player.m_name + "(" + lstEventAway.data[i].sub_player.m_shirtNo + ")↓<br/>"
+                    + lstEventAway.data[i].reason + lstEventAway.data[i].minute + "′[" + lstEventAway.data[i].scorecondition + " " + lstEventAway.data[i].score + "]"
+                    + '</b></div>');
+            } else {
+                $('.gw_div_right').append('<div><b id="gw_eventA' + i + '" class="gw_run">'
+                    + MyGame.prototype.mzlive.m_match.frameToMatchMinute(lstEventAway.data[i].m_frame) + "′ "
+                    + lstEventAway.data[i].m_owner.m_name + "(" + lstEventAway.data[i].m_owner.m_shirtNo + ") "
+                    + lstEventAway.data[i].m_description + '</b></div>');
+            }
+            let dom = $('#gw_eventA' + i)[0];
+            dom.m_frame = lstEventAway.data[i].m_frame;
             dom.m_frame -= 45;
             if (dom.m_frame < 0) {
                 dom.m_frame = 0;
