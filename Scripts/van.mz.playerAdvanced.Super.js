@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.0
+// @version      3.1
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -301,6 +301,40 @@ var gm_mzlanguage = {
     }
 };
 var now_language = gm_mzlanguage.en;
+
+function CTable() {
+    //key value
+    this.data = {};
+    //keys
+    this.keys = new Array();
+    this.addData = function (key, value) {
+        if (this.data[key] == undefined) {
+            this.keys.push(key);
+            this.keys.sort(function (a, b) {
+                return a - b;
+            });
+        }
+        this.data[key] = value;
+    };
+    this.getVal = function (i) {
+        if (this.data[i] == undefined) {
+            //
+        } else {
+            return this.data[i];
+        }
+    };
+    this.GetX = function (i) {
+        var rv = this.getVal(i);
+        rv = Math.floor(rv * 214 / 1000) - 3;
+        return rv;
+    };
+    this.GetY = function (i) {
+        var rv = GetVal(i);
+        rv = Math.floor(rv * 328 / 1000) - 1;
+        return rv;
+    };
+}
+
 function mzcamp() {
     this.data = {};
     this.name = null;
@@ -1625,6 +1659,7 @@ function OutOfPlay() {
 
 let mEvent, mStaticEventHome, mStaticEventAway;
 let out_of_play;
+let dit_internalId = {};
 
 function Advanced2D() {
 
@@ -1638,7 +1673,7 @@ function Advanced2D() {
 
                 let players = matchLoader.matchXml.documentElement.evaluate('Player');
                 let re1;
-                let dit_internalId = {};
+                dit_internalId = {};
                 while (re1 = players.iterateNext()) {
                     dit_internalId[re1.getAttribute('id')] = re1.getAttribute('internalId');
                 }
@@ -1701,11 +1736,19 @@ function Advanced2D() {
                         let t_player, t_sub_player;
                         let internalId = dit_internalId[t_playerId];
                         if (internalId) {
-                            t_player = MyGame.prototype.mzlive.m_match.getHomeTeam().getPlayerByPlayerId(internalId);
+                            if (t_teamId == home.m_teamId) {
+                                t_player = home.getPlayerByPlayerId(internalId);
+                            } else {
+                                t_player = away.getPlayerByPlayerId(internalId);
+                            }
                         }
                         internalId = dit_internalId[t_substitutedId];
                         if (internalId) {
-                            t_sub_player = MyGame.prototype.mzlive.m_match.getHomeTeam().getPlayerByPlayerId(internalId);
+                            if (t_teamId == home.m_teamId) {
+                                t_sub_player = home.getPlayerByPlayerId(internalId);
+                            } else {
+                                t_sub_player = away.getPlayerByPlayerId(internalId);
+                            }
                         }
 
                         if (t_teamId == home.m_teamId) {
@@ -1788,7 +1831,7 @@ function Advanced2D() {
                         //let pids = {
                         //    18: {}, 19: {}, 21: {}, length: 3
                         //};
-                        let arr2 = [18, 19, 21];
+                        let arr2 = [dit_internalId["199889186"], dit_internalId["200235263"], dit_internalId["199916602"]];
                         pp.setData(MyGame.prototype.mzlive.m_match, arr2);
 
                     });
