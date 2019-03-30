@@ -1162,6 +1162,8 @@ function MatchEvent2() {
     //格式player->{frame_count,[{start,end}]}
     this.playerFool = {};
 
+    this.longPass = {};
+
     this.setData = function (match) {
         //构建临时数据(不合并连续帧)
         let matchBuffer = match.matchBuffer;
@@ -1174,8 +1176,17 @@ function MatchEvent2() {
         let playerFool = {};
         out_of_play.resetIndex();
         let ball_move;
+        let ballz = 0;
+        longPass = {};
+        let LPtmp = {
+            flag: false,
+            data: {},
+            begindown: false,
+            state: 0//0 初始 1开始上升 2开始下降
+        };
         for (var i = 0; i < matchBuffer.length; i++) {
             ball_move = false;
+            ballz = 0;
             if (i - 1 >= 0) {
                 if (matchBuffer[i].ball.x == matchBuffer[i - 1].ball.x
                     &&
@@ -1187,6 +1198,8 @@ function MatchEvent2() {
                 }
                 else {
                     ball_move = true;
+
+                    ballz = matchBuffer[i].ball.z - matchBuffer[i - 1].ball.z;
                 }
             }
 
@@ -1233,6 +1246,45 @@ function MatchEvent2() {
                         tmpLastPosition[players[j].id].z = players[j].position.z;
                     }
 
+
+                    if (LPtmp.flag && LPtmp.data.owner.m_id == players[j].id) {
+
+                        if (ballz < 0) {
+                            LPtmp.begindown = true;
+                            LPtmp.data.data.push(matchBuffer[i].ball);
+                            LPtmp.data.end = i;
+                        } else if (
+                            (ballz == 0 && matchBuffer[i].ball.z < 22) ||
+                            (LPtmp.begindown && (ballz > 0 || matchBuffer[i].ball.z < 22))) {
+                            //球平移且小于22
+                            //开始下落后又上升或小于22说明落点结束了
+                            LPtmp.flag = false;
+
+                            if (i >= MyGame.prototype.mzlive.m_match.m_ko2Frame) {
+                                LPtmp.data.h =
+                                    (matchBuffer[LPtmp.data.end].ball.x - matchBuffer[LPtmp.data.start].ball.x) + "," +
+                                    (matchBuffer[LPtmp.data.end].ball.y - matchBuffer[LPtmp.data.start].ball.y) + "," +
+                                    (matchBuffer[LPtmp.data.start].ball.z - matchBuffer[LPtmp.data.end].ball.z);
+
+
+                                LPtmp.data.b = (750 - matchBuffer[LPtmp.data.end].ball.x) + "," + (1000 - matchBuffer[LPtmp.data.end].ball.y) + "," + matchBuffer[LPtmp.data.end].ball.z;
+                            } else {
+                                LPtmp.data.h =
+                                    (matchBuffer[LPtmp.data.start].ball.x - matchBuffer[LPtmp.data.end].ball.x) + "," +
+                                    (matchBuffer[LPtmp.data.start].ball.y - matchBuffer[LPtmp.data.end].ball.y) + "," +
+                                    (matchBuffer[LPtmp.data.start].ball.z - matchBuffer[LPtmp.data.end].ball.z);
+
+
+                                LPtmp.data.b = matchBuffer[LPtmp.data.end].ball.x + "," + matchBuffer[LPtmp.data.end].ball.y + "," + matchBuffer[LPtmp.data.end].ball.z;
+                            }
+
+                        }
+                        else {
+                            LPtmp.data.data.push(matchBuffer[i].ball);
+                            LPtmp.data.end = i;
+                        }
+                    }
+
                     if (players[j].status != MatchStatus.BA_NORMAL) {
 
                         let isHome = true;
@@ -1242,6 +1294,34 @@ function MatchEvent2() {
                             isHome = false;
 
                         }
+                        if (LPtmp.flag == false) {
+                            if (players[j].status == MatchStatus.BA_LEFT_FOOT_SHOT_FWD || players[j].status == MatchStatus.BA_RIGHT_FOOT_SHOT_FWD) {
+                                //开始统计新的长传
+                                if (i >= MyGame.prototype.mzlive.m_match.m_ko2Frame) {
+                                    LPtmp.data = {
+                                        h: "",
+                                        a: (750 - matchBuffer[i].ball.x) + "," + (1000 - matchBuffer[i].ball.y) + "," + matchBuffer[i].ball.z,
+                                        b: (750 - matchBuffer[i].ball.x) + "," + (1000 - matchBuffer[i].ball.y) + "," + matchBuffer[i].ball.z,
+                                        start: i, end: i, owner: p, data: [matchBuffer[i].ball]
+                                    };
+                                } else {
+                                    LPtmp.data = {
+                                        h: "",
+                                        a: matchBuffer[i].ball.x + "," + matchBuffer[i].ball.y + "," + matchBuffer[i].ball.z,
+                                        b: matchBuffer[i].ball.x + "," + matchBuffer[i].ball.y + "," + matchBuffer[i].ball.z,
+                                        start: i, end: i, owner: p, data: [matchBuffer[i].ball]
+                                    };
+                                }
+                                LPtmp.state = 0;
+                                LPtmp.begindown = false;
+                                LPtmp.flag = true;
+                                if (longPass[players[j].id] == undefined) {
+                                    longPass[players[j].id] = new Array();
+                                }
+                                longPass[players[j].id].push(LPtmp.data);
+                            }
+                        }
+
 
                         let arr;
                         if (tmp[players[j].status] == undefined) {
@@ -1462,6 +1542,7 @@ function MatchEvent2() {
             }
         }
 
+        this.longPass = longPass;
     };
 }
 function PlayerPos() {
@@ -1799,6 +1880,9 @@ function Advanced2D() {
                 let lstEvent2 = new MatchEvent2();
                 lstEvent2.setData(MyGame.prototype.mzlive.m_match);
                 mEvent = lstEvent2;
+
+                console.log(dit_internalId);
+                console.log(lstEvent2.longPass);
 
                 if ($('.gw_div_left').length == 0) {
                     $('#canvas').parent().append('<div class="gw_div_left"></div>');
