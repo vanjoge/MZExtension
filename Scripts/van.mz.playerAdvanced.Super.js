@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.1
+// @version      3.2
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -22,6 +22,7 @@ var gm_mzlanguage = {
         Name: "中文",
         Save: "保存",
         Setting: "设置",
+        Test: "测试",
         SettingTitle: "点击可对语言和XML导出进行设置",
         Language: "语言",
         XmlMode: "战术导出模式",
@@ -64,9 +65,9 @@ var gm_mzlanguage = {
         BA_PICK_UP_BALL: "捡起球",
         BA_DROP_BALL: "放下球",
         BA_HEADER: "争顶",
-        BA_TRIP: "失误/被抢断?",
+        BA_TRIP: "丢失球权",
         BA_CELEBRATE: "庆祝进球",
-        BA_GK_READY: "准备扑救?",
+        BA_GK_READY: "准备扑救",
         BA_GK_ACRO_LEFT: "ACRO(L)",
         BA_GK_ACRO_LEFT_HOLD: "ACRO_HOLD(L)",
         BA_GK_ACRO_RIGHT: "ACRO(R)",
@@ -79,14 +80,14 @@ var gm_mzlanguage = {
         BA_GK_STRETCH_LEFT_HOLD: "BA_GK_STRETCH_LEFT_HOLD",
         BA_GK_STRETCH_RIGHT: "BA_GK_STRETCH_RIGHT",
         BA_GK_STRETCH_RIGHT_HOLD: "BA_GK_STRETCH_RIGHT_HOLD",
-        BA_BALL_OWNER: "持球/带球?",
-        BA_TACKLE: "上抢(失败?)",
+        BA_BALL_OWNER: "控球",
+        BA_TACKLE: "上抢",
         BA_SLIDING_TACKLE: "BA_SLIDING_TACKLE",
         BA_SLIDING_TACKLE_STAND: "BA_SLIDING_TACKLE_STAND",
         BA_MAX: "BA_MAX",
         BA_MY_1001: "头球攻门(L)",
         BA_MY_1002: "头球攻门(R)",
-        BA_MY_1003: "胸部/头部停球",
+        BA_MY_1003: "卸下球",
         BA_MY_1011: "上抢(成功)",
         BA_MY_1012: "上抢(失败)",
         Unknown: "未知"
@@ -117,6 +118,7 @@ var gm_mzlanguage = {
         Name: "English",
         Save: "Save",
         Setting: "Setting",
+        Test: "Test",
         SettingTitle: "Click setting language",
         Language: "Language",
         XmlMode: "Tactical Export Model",
@@ -211,6 +213,7 @@ var gm_mzlanguage = {
         Name: "Español",
         Save: "Grabar",
         Setting: "Ajustes",
+        Test: "Test",
         SettingTitle: "Haga clic en configuración Idioma",
         Language: "Idioma",
 
@@ -1126,7 +1129,7 @@ function OpenSetting() {
         $('#gw_dongzuo').html(now_language.dongzuo);
         $('#gw_copyxml1').html(now_language.Copyxml1);
         $('#gw_copyxml2').html(now_language.Copyxml2);
-        $('#gw_opensetting').html(now_language.Setting);
+        $('#gw_test').html(now_language.Test);
 
 
         powerboxCloseAll();
@@ -2008,7 +2011,7 @@ function Advanced2D() {
                         + '    <b id="gw_dongzuo" class="gw_run" style="color: red;">' + now_language.dongzuo + '</b>'
                         + '    <b id="gw_copyxml1" class="gw_run" style="color: red;">' + now_language.Copyxml1 + '</b>'
                         + '    <b id="gw_copyxml2" class="gw_run" style="color: red;">' + now_language.Copyxml2 + '</b>'
-                        + '    <b id="gw_opensetting" class="gw_run" style="color: red;">' + now_language.Setting + '</b>'
+                        + '    <b id="gw_test" class="gw_run" style="color: red;">' + now_language.Test + '</b>'
                         + '</div>');
 
                     $('#gw_jijing')[0].addEventListener('click', function () {
@@ -2026,7 +2029,7 @@ function Advanced2D() {
                     $('#gw_copyxml2')[0].addEventListener('click', function () {
                         CopyXML(false);
                     });
-                    $('#gw_opensetting')[0].addEventListener('click', function () {
+                    $('#gw_test')[0].addEventListener('click', function () {
                         let pp = new PlayerPos();
                         //let pids = {
                         //    18: {}, 19: {}, 21: {}, length: 3
@@ -2063,6 +2066,10 @@ function ShowDiv(type) {
         let lstEventHome = mStaticEventHome;
         let lstEventAway = mStaticEventAway;
 
+        let team = MyGame.prototype.mzlive.m_match.getHomeTeam();
+        $('.gw_div_left').append("<div><b>" +
+            team.getTactics() + " " + team.getPlayStyle() + " " + team.getAggression()
+            + "</b></div>");
         for (let i = 0; i < lstEventHome.data.length; i++) {
             if (lstEventHome.data[i].tag == "Tactic") {
                 $('.gw_div_left').append('<div><b id="gw_eventH' + i + '" class="gw_run">'
@@ -2093,6 +2100,10 @@ function ShowDiv(type) {
             dom.addEventListener('click', function () { MyGame.prototype.mzlive.m_match.setCurrentFrame(this.m_frame); });
         }
 
+        team = MyGame.prototype.mzlive.m_match.getAwayTeam();
+        $('.gw_div_right').append("<div><b>" +
+            team.getTactics() + " " + team.getPlayStyle() + " " + team.getAggression()
+            + "</b></div>");
         for (let i = 0; i < lstEventAway.data.length; i++) {
             if (lstEventAway.data[i].tag == "Tactic") {
                 $('.gw_div_right').append('<div><b id="gw_eventA' + i + '" class="gw_run">'
