@@ -1164,7 +1164,9 @@ function MatchEvent2() {
 
     this.longPass = {};
 
+
     this.setData = function (match) {
+        this.match = match;
         //构建临时数据(不合并连续帧)
         let matchBuffer = match.matchBuffer;
         //player->frame->{}
@@ -1266,7 +1268,7 @@ function MatchEvent2() {
                             let gball = matchBuffer[LPtmp.data.end].ball;
                             //找落点附近最近的球员
                             let distance1 = 20000, distance2 = 20000;
-                            LPtmp.ball_player = LPtmp.defender_player = false;
+                            LPtmp.data.team = LPtmp.data.other = false;
                             for (let g = 0; g < matchBuffer[LPtmp.data.end].players.length; g++) {
                                 let gp = matchBuffer[LPtmp.data.end].players[g];
                                 if (gp.position) {
@@ -1283,7 +1285,8 @@ function MatchEvent2() {
                                             distance1 = distance;
                                             LPtmp.data.team = {
                                                 player: dit_player[gp.id],
-                                                gp: gp
+                                                gp: gp,
+                                                distance: distance
                                             };
                                         }
                                     } else {
@@ -1291,7 +1294,8 @@ function MatchEvent2() {
                                             distance2 = distance;
                                             LPtmp.data.other = {
                                                 player: dit_player[gp.id],
-                                                gp: gp
+                                                gp: gp,
+                                                distance: distance
                                             }
                                         }
                                     }
@@ -1299,23 +1303,9 @@ function MatchEvent2() {
                             }
 
                             if (LPtmp.data.end >= MyGame.prototype.mzlive.m_match.m_ko2Frame) {
-                                LPtmp.data.h =
-                                    distance1.toFixed(2) + "," + (LPtmp.data.team.gp.position.x - gball.x /*- 5*/) + "," + (LPtmp.data.team.gp.position.y - gball.y) + "," + LPtmp.data.team.gp.status + ";"
-                                    + distance2.toFixed(2) + "," + (LPtmp.data.other.gp.position.x - gball.x /*- 5*/) + "," + (LPtmp.data.other.gp.position.y - gball.y) + "," + LPtmp.data.other.gp.status + ";"
-                                    + (matchBuffer[LPtmp.data.end].ball.x - matchBuffer[LPtmp.data.start].ball.x) + ","
-                                    + (matchBuffer[LPtmp.data.end].ball.y - matchBuffer[LPtmp.data.start].ball.y) + ","
-                                    + (matchBuffer[LPtmp.data.start].ball.z - matchBuffer[LPtmp.data.end].ball.z);
-
 
                                 LPtmp.data.b = (750 - matchBuffer[LPtmp.data.end].ball.x) + "," + (1000 - matchBuffer[LPtmp.data.end].ball.y) + "," + matchBuffer[LPtmp.data.end].ball.z;
                             } else {
-                                LPtmp.data.h =
-                                    distance1.toFixed(2) + "," + (gball.x - LPtmp.data.team.gp.position.x/* - 5*/) + "," + (gball.y - LPtmp.data.team.gp.position.y) + "," + LPtmp.data.team.gp.status + ";"
-                                    + distance2.toFixed(2) + "," + (gball.x - LPtmp.data.other.gp.position.x /*- 5*/) + "," + (gball.y - LPtmp.data.other.gp.position.y) + "," + LPtmp.data.other.gp.status + ";"
-                                    + (matchBuffer[LPtmp.data.start].ball.x - matchBuffer[LPtmp.data.end].ball.x) + ","
-                                    + (matchBuffer[LPtmp.data.start].ball.y - matchBuffer[LPtmp.data.end].ball.y) + ","
-                                    + (matchBuffer[LPtmp.data.start].ball.z - matchBuffer[LPtmp.data.end].ball.z);
-
 
                                 LPtmp.data.b = matchBuffer[LPtmp.data.end].ball.x + "," + matchBuffer[LPtmp.data.end].ball.y + "," + matchBuffer[LPtmp.data.end].ball.z;
                             }
@@ -1592,7 +1582,78 @@ function MatchEvent2() {
 
         this.longPass = longPass;
     };
-}
+
+    this.tolog = function () {
+        for (let pid in this.longPass) {
+            for (let i = 0; i < this.longPass[pid].length; i++) {
+
+                let data = this.longPass[pid][i];
+                if (data.team) {
+                    data.h = "[";
+                    data.team.events = this.getPlayerEventById(data.team.player.m_id, data.start, data.end);
+                    for (let k = 0; k < data.team.events.length; k++) {
+                        if (k > 0) {
+                            data.h += ",";
+                        }
+                        data.h += getMatchStatusName(data.team.events[k].status);
+                    }
+
+                    data.h += "|";
+                    data.other.events = this.getPlayerEventById(data.other.player.m_id, data.start, data.end);
+                    for (let k = 0; k < data.other.events.length; k++) {
+                        if (k > 0) {
+                            data.h += ",";
+                        }
+                        data.h += getMatchStatusName(data.other.events[k].status);
+                    }
+                    data.h += "][";
+
+                    let gball = this.match.matchBuffer[data.end].ball;
+                    let sball = this.match.matchBuffer[data.start].ball;
+                    if (data.end >= MyGame.prototype.mzlive.m_match.m_ko2Frame) {
+                        data.h +=
+                            (-gball.x + data.team.gp.position.x) + "," + (-gball.y + data.team.gp.position.y) + "," + data.team.distance.toFixed(2) + ";"
+                            + (-gball.x + data.other.gp.position.x) + "," + (-gball.y + data.other.gp.position.y) + "," + data.other.distance.toFixed(2) + "]"
+                            + (-sball.x + gball.x) + ","
+                            + (-sball.y + gball.y) + ","
+                            + (sball.z - gball.z);
+                    } else {
+
+                        data.h +=
+                            (gball.x - data.team.gp.position.x) + "," + (gball.y - data.team.gp.position.y) + "," + data.team.distance.toFixed(2) + ";"
+                            + (gball.x - data.other.gp.position.x) + "," + (gball.y - data.other.gp.position.y) + "," + data.other.distance.toFixed(2) + "]"
+                            + (sball.x - gball.x) + ","
+                            + (sball.y - gball.y) + ","
+                            + (sball.z - gball.z);
+                    }
+
+
+                }
+
+            }
+        }
+
+        console.log(this.longPass);
+    }
+    this.getPlayerEventById = function (pid, start, end) {
+
+        let arr = new Array();
+        //找关联球员的动作
+        if (this.dataByPlayer[pid]) {
+            for (let j = 0; j < this.dataByPlayer[pid].data.length; j++) {
+                let dz = this.dataByPlayer[pid].data[j];
+
+                if (start <= dz.m_frame_start && dz.m_frame_start <= end) {
+                    arr.push(dz);
+                }
+                if (end < dz.m_frame_start) {
+                    return arr;
+                }
+            }
+        }
+        return arr;
+    };
+};
 function PlayerPos() {
     this.data = {};
     this.stat = new Array();
@@ -1936,7 +1997,8 @@ function Advanced2D() {
                 mEvent = lstEvent2;
 
                 console.log(dit_bypid);
-                console.log(lstEvent2.longPass);
+
+                lstEvent2.tolog(MyGame.prototype.mzlive.m_match);
 
                 if ($('.gw_div_left').length == 0) {
                     $('#canvas').parent().append('<div class="gw_div_left"></div>');
