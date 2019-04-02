@@ -1182,7 +1182,8 @@ function MatchEvent2() {
             flag: false,
             data: {},
             begindown: false,
-            state: 0//0 初始 1开始上升 2开始下降
+            state: 0,//0 初始 1开始上升 2开始下降,
+            owner: false
         };
         for (var i = 0; i < matchBuffer.length; i++) {
             ball_move = false;
@@ -1247,7 +1248,7 @@ function MatchEvent2() {
                     }
 
 
-                    if (LPtmp.flag && LPtmp.data.owner.m_id == players[j].id) {
+                    if (LPtmp.flag && LPtmp.owner.m_id == players[j].id) {
 
                         if (ballz < 0) {
                             LPtmp.begindown = true;
@@ -1255,24 +1256,65 @@ function MatchEvent2() {
                             LPtmp.data.end = i;
                         } else if (
                             (ballz == 0 && matchBuffer[i].ball.z < 22) ||
-                            (LPtmp.begindown && (ballz > 0 || matchBuffer[i].ball.z < 22))) {
+                            (LPtmp.begindown && (ballz > 0 || matchBuffer[i].ball.z < 22))
+                        ) {
                             //球平移且小于22
                             //开始下落后又上升或小于22说明落点结束了
                             LPtmp.flag = false;
 
-                            if (i >= MyGame.prototype.mzlive.m_match.m_ko2Frame) {
+
+                            let gball = matchBuffer[LPtmp.data.end].ball;
+                            //找落点附近最近的球员
+                            let distance1 = 20000, distance2 = 20000;
+                            LPtmp.ball_player = LPtmp.defender_player = false;
+                            for (let g = 0; g < matchBuffer[LPtmp.data.end].players.length; g++) {
+                                let gp = matchBuffer[LPtmp.data.end].players[g];
+                                if (gp.position) {
+                                    let xd;
+                                    if (LPtmp.data.end >= MyGame.prototype.mzlive.m_match.m_ko2Frame) {
+                                        xd = gball.x - gp.position.x;//+ 5;
+                                    } else {
+                                        xd = gball.x - gp.position.x;// - 5;
+                                    }
+                                    let yd = gball.y - gp.position.y;
+                                    let distance = Math.sqrt(xd * xd + yd * yd);
+                                    if (dit_player[gp.id].m_side == LPtmp.owner.m_side) {
+                                        if (distance < distance1) {
+                                            distance1 = distance;
+                                            LPtmp.data.team = {
+                                                player: dit_player[gp.id],
+                                                gp: gp
+                                            };
+                                        }
+                                    } else {
+                                        if (distance < distance2) {
+                                            distance2 = distance;
+                                            LPtmp.data.other = {
+                                                player: dit_player[gp.id],
+                                                gp: gp
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (LPtmp.data.end >= MyGame.prototype.mzlive.m_match.m_ko2Frame) {
                                 LPtmp.data.h =
-                                    (matchBuffer[LPtmp.data.end].ball.x - matchBuffer[LPtmp.data.start].ball.x) + "," +
-                                    (matchBuffer[LPtmp.data.end].ball.y - matchBuffer[LPtmp.data.start].ball.y) + "," +
-                                    (matchBuffer[LPtmp.data.start].ball.z - matchBuffer[LPtmp.data.end].ball.z);
+                                    distance1.toFixed(2) + "," + (LPtmp.data.team.gp.position.x - gball.x /*- 5*/) + "," + (LPtmp.data.team.gp.position.y - gball.y) + "," + LPtmp.data.team.gp.status + ";"
+                                    + distance2.toFixed(2) + "," + (LPtmp.data.other.gp.position.x - gball.x /*- 5*/) + "," + (LPtmp.data.other.gp.position.y - gball.y) + "," + LPtmp.data.other.gp.status + ";"
+                                    + (matchBuffer[LPtmp.data.end].ball.x - matchBuffer[LPtmp.data.start].ball.x) + ","
+                                    + (matchBuffer[LPtmp.data.end].ball.y - matchBuffer[LPtmp.data.start].ball.y) + ","
+                                    + (matchBuffer[LPtmp.data.start].ball.z - matchBuffer[LPtmp.data.end].ball.z);
 
 
                                 LPtmp.data.b = (750 - matchBuffer[LPtmp.data.end].ball.x) + "," + (1000 - matchBuffer[LPtmp.data.end].ball.y) + "," + matchBuffer[LPtmp.data.end].ball.z;
                             } else {
                                 LPtmp.data.h =
-                                    (matchBuffer[LPtmp.data.start].ball.x - matchBuffer[LPtmp.data.end].ball.x) + "," +
-                                    (matchBuffer[LPtmp.data.start].ball.y - matchBuffer[LPtmp.data.end].ball.y) + "," +
-                                    (matchBuffer[LPtmp.data.start].ball.z - matchBuffer[LPtmp.data.end].ball.z);
+                                    distance1.toFixed(2) + "," + (gball.x - LPtmp.data.team.gp.position.x/* - 5*/) + "," + (gball.y - LPtmp.data.team.gp.position.y) + "," + LPtmp.data.team.gp.status + ";"
+                                    + distance2.toFixed(2) + "," + (gball.x - LPtmp.data.other.gp.position.x /*- 5*/) + "," + (gball.y - LPtmp.data.other.gp.position.y) + "," + LPtmp.data.other.gp.status + ";"
+                                    + (matchBuffer[LPtmp.data.start].ball.x - matchBuffer[LPtmp.data.end].ball.x) + ","
+                                    + (matchBuffer[LPtmp.data.start].ball.y - matchBuffer[LPtmp.data.end].ball.y) + ","
+                                    + (matchBuffer[LPtmp.data.start].ball.z - matchBuffer[LPtmp.data.end].ball.z);
 
 
                                 LPtmp.data.b = matchBuffer[LPtmp.data.end].ball.x + "," + matchBuffer[LPtmp.data.end].ball.y + "," + matchBuffer[LPtmp.data.end].ball.z;
@@ -1287,38 +1329,44 @@ function MatchEvent2() {
 
                     if (players[j].status != MatchStatus.BA_NORMAL) {
 
-                        let isHome = true;
-                        var p = match.getHomeTeam().getPlayerByPlayerId(players[j].id);
-                        if (p == null) {
-                            p = match.getAwayTeam().getPlayerByPlayerId(players[j].id);
-                            isHome = false;
-
-                        }
+                        var p = dit_player[players[j].id];
+                        let isHome = p.m_side == "home" ? true : false;
                         if (LPtmp.flag == false) {
                             if (players[j].status == MatchStatus.BA_LEFT_FOOT_SHOT_FWD || players[j].status == MatchStatus.BA_RIGHT_FOOT_SHOT_FWD) {
-                                //开始统计新的长传
-                                if (i >= MyGame.prototype.mzlive.m_match.m_ko2Frame) {
-                                    LPtmp.data = {
-                                        h: "",
-                                        a: (750 - matchBuffer[i].ball.x) + "," + (1000 - matchBuffer[i].ball.y) + "," + matchBuffer[i].ball.z,
-                                        b: (750 - matchBuffer[i].ball.x) + "," + (1000 - matchBuffer[i].ball.y) + "," + matchBuffer[i].ball.z,
-                                        start: i, end: i, owner: p, data: [matchBuffer[i].ball]
-                                    };
+                                //判断与上一个是否连续，
+                                if (LPtmp.data.end == i - 1 && LPtmp.owner == p) {
+                                    //如果连续则合并
+                                    LPtmp.flag = true;
+                                    LPtmp.data.data.push(matchBuffer[i].ball);
+                                    LPtmp.data.end = i;
                                 } else {
-                                    LPtmp.data = {
-                                        h: "",
-                                        a: matchBuffer[i].ball.x + "," + matchBuffer[i].ball.y + "," + matchBuffer[i].ball.z,
-                                        b: matchBuffer[i].ball.x + "," + matchBuffer[i].ball.y + "," + matchBuffer[i].ball.z,
-                                        start: i, end: i, owner: p, data: [matchBuffer[i].ball]
-                                    };
+
+                                    //开始统计新的长传
+                                    if (i >= MyGame.prototype.mzlive.m_match.m_ko2Frame) {
+                                        LPtmp.data = {
+                                            h: "",
+                                            a: (750 - matchBuffer[i].ball.x) + "," + (1000 - matchBuffer[i].ball.y) + "," + matchBuffer[i].ball.z,
+                                            b: (750 - matchBuffer[i].ball.x) + "," + (1000 - matchBuffer[i].ball.y) + "," + matchBuffer[i].ball.z,
+                                            start: i, end: i, data: [matchBuffer[i].ball]
+                                        };
+                                    } else {
+                                        LPtmp.data = {
+                                            h: "",
+                                            a: matchBuffer[i].ball.x + "," + matchBuffer[i].ball.y + "," + matchBuffer[i].ball.z,
+                                            b: matchBuffer[i].ball.x + "," + matchBuffer[i].ball.y + "," + matchBuffer[i].ball.z,
+                                            start: i, end: i, data: [matchBuffer[i].ball]
+                                        };
+                                    }
+                                    LPtmp.state = 0;
+                                    LPtmp.begindown = false;
+                                    LPtmp.flag = true;
+                                    LPtmp.owner = p;
+                                    if (longPass[players[j].id] == undefined) {
+                                        longPass[players[j].id] = new Array();
+                                    }
+                                    longPass[players[j].id].push(LPtmp.data);
+                                    longPass[players[j].id].owner = p;
                                 }
-                                LPtmp.state = 0;
-                                LPtmp.begindown = false;
-                                LPtmp.flag = true;
-                                if (longPass[players[j].id] == undefined) {
-                                    longPass[players[j].id] = new Array();
-                                }
-                                longPass[players[j].id].push(LPtmp.data);
                             }
                         }
 
@@ -1740,7 +1788,8 @@ function OutOfPlay() {
 
 let mEvent, mStaticEventHome, mStaticEventAway;
 let out_of_play;
-let dit_internalId = {};
+let dit_bypid = {};
+let dit_player = {};
 
 function Advanced2D() {
 
@@ -1754,9 +1803,22 @@ function Advanced2D() {
 
                 let players = matchLoader.matchXml.documentElement.evaluate('Player');
                 let re1;
-                dit_internalId = {};
+                dit_bypid = {};
+                dit_player = {};
                 while (re1 = players.iterateNext()) {
-                    dit_internalId[re1.getAttribute('id')] = re1.getAttribute('internalId');
+                    let ttt = {
+                        internalId: re1.getAttribute('internalId'),
+                        name: re1.getAttribute('name'),
+                        shirtno: re1.getAttribute('shirtno'),
+                        teamId: re1.getAttribute('teamId'),
+                        origin: re1.getAttribute('origin')
+                    };
+                    dit_bypid[re1.getAttribute('id')] = ttt;
+                    if (ttt.teamId == home.m_teamId) {
+                        dit_player[ttt.internalId] = home.getPlayerByPlayerId(ttt.internalId);
+                    } else {
+                        dit_player[ttt.internalId] = away.getPlayerByPlayerId(ttt.internalId);
+                    }
                 }
 
                 let events = matchLoader.matchXml.documentElement.evaluate('Events/*');
@@ -1815,21 +1877,13 @@ function Advanced2D() {
                         let t_score = re.getAttribute('score');
 
                         let t_player, t_sub_player;
-                        let internalId = dit_internalId[t_playerId];
-                        if (internalId) {
-                            if (t_teamId == home.m_teamId) {
-                                t_player = home.getPlayerByPlayerId(internalId);
-                            } else {
-                                t_player = away.getPlayerByPlayerId(internalId);
-                            }
+                        let p5 = dit_bypid[t_playerId];
+                        if (p5) {
+                            t_player = dit_player[p5.internalId];
                         }
-                        internalId = dit_internalId[t_substitutedId];
-                        if (internalId) {
-                            if (t_teamId == home.m_teamId) {
-                                t_sub_player = home.getPlayerByPlayerId(internalId);
-                            } else {
-                                t_sub_player = away.getPlayerByPlayerId(internalId);
-                            }
+                        p5 = dit_bypid[t_substitutedId];
+                        if (p5) {
+                            t_sub_player = dit_player[p5.internalId];
                         }
 
                         if (t_teamId == home.m_teamId) {
@@ -1881,7 +1935,7 @@ function Advanced2D() {
                 lstEvent2.setData(MyGame.prototype.mzlive.m_match);
                 mEvent = lstEvent2;
 
-                console.log(dit_internalId);
+                console.log(dit_bypid);
                 console.log(lstEvent2.longPass);
 
                 if ($('.gw_div_left').length == 0) {
@@ -1915,7 +1969,7 @@ function Advanced2D() {
                         //let pids = {
                         //    18: {}, 19: {}, 21: {}, length: 3
                         //};
-                        let arr2 = [dit_internalId["199889186"], dit_internalId["200235263"], dit_internalId["199916602"]];
+                        let arr2 = [dit_bypid["199889186"].internalId, dit_bypid["200235263"].internalId, dit_bypid["199916602"].internalId];
                         pp.setData(MyGame.prototype.mzlive.m_match, arr2);
 
                     });
