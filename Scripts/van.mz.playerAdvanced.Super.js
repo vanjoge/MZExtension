@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.3
+// @version      3.4
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -2568,13 +2568,16 @@ let OK_2D = false;
     if ($.fn.ajaxSubmit != undefined) {
         _ajaxSubmit = $.fn.ajaxSubmit;
         $.fn.ajaxSubmit = function (options) {
-            options.gm_success = options.success;
-            options.success = function () {
-                options.gm_success.apply(this, arguments);
-                if (GM_getValue("autoRun", 0) == 1) {
-                    gw_start(0);
-                }
-            };
+            if (options.gm_success_is == undefined) {
+                options.gm_success_is = true;
+                options.gm_success = options.success;
+                options.success = function () {
+                    options.gm_success.apply(this, arguments);
+                    if (GM_getValue("autoRun", 0) == 1) {
+                        gw_start(0);
+                    }
+                };
+            }
             _ajaxSubmit.apply(this, arguments);
         };
     }
