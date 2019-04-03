@@ -1113,7 +1113,7 @@ function OpenSetting() {
 <div><b>'+ now_language.AutoRun + ':</b></div>\
 <div><select id="gm_autorun">\
 <option value="0"'+ (autoRun == 0 ? ' selected="selected" ' : '') + '>' + now_language.AutoRun0 + '</option>\
-<option value="1"'+ (lang == 1 ? ' selected="selected" ' : '') + '>' + now_language.AutoRun1 + '</option>\
+<option value="1"'+ (autoRun == 1 ? ' selected="selected" ' : '') + '>' + now_language.AutoRun1 + '</option>\
 </select>\
 </div>\
 \
