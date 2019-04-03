@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.2
+// @version      3.3
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -29,6 +29,10 @@ var gm_mzlanguage = {
         XmlMode1: "顺序选择球员",
         XmlMode2: "根据位置选择球员(需提交数据到后台)",
         TacConf: "位置系数设置",
+        AutoRun: "自动着色",
+        AutoRun0: "仅打开页面时自动执行一次",
+        AutoRun1: "随系统刷新自动着色(如果浏览器变卡请关闭此选项)",
+
 
         NotSureEx: "挂牌后属性可能有变动，不确定转会市场显示是否是真实属性，请自行甄别。<br/>属性变动时间",
         NotSure: "属性不确定",
@@ -125,6 +129,9 @@ var gm_mzlanguage = {
         XmlMode1: "Sequential selection",
         XmlMode2: "Choose by location(need submit data to server)",
         TacConf: "Tactical Coefficient Setting",
+        AutoRun: "Auto Colorable",
+        AutoRun0: "By page loaded(Once)",
+        AutoRun1: "By MZ Refresh",
 
         NotSureEx: "Skills may change after entering the transfer market.<br/>Change time ",
         NotSure: "Uncertain skill",
@@ -221,6 +228,9 @@ var gm_mzlanguage = {
         XmlMode1: "Sequential selection",
         XmlMode2: "Choose by location(need submit data to server)",
         TacConf: "Tactical Coefficient Setting",
+        AutoRun: "Auto Colorable",
+        AutoRun0: "By page loaded(Once)",
+        AutoRun1: "By MZ Refresh",
 
         NotSureEx: "Las skills pueden cambiar después de ingresar al mercado. <br/> Cambiar hora ",
         NotSure: "Skill incierta",
@@ -1089,6 +1099,7 @@ function OpenSetting() {
 
     let lang = GM_getValue("mylanguage", "en");
     let xml_mode = GM_getValue("xml_mode", 0);
+    let autoRun = GM_getValue("autoRun", 0);
     let tmphtml;
     tmphtml = '\
 <div><b>'+ now_language.Language + ':</b></div>\
@@ -1098,6 +1109,14 @@ function OpenSetting() {
 <option value="es"'+ (lang == "es" ? ' selected="selected" ' : '') + '>' + gm_mzlanguage.es.Name + '</option>\
 </select>\
 </div>\
+\
+<div><b>'+ now_language.AutoRun + ':</b></div>\
+<div><select id="gm_autorun">\
+<option value="0"'+ (autoRun == 0 ? ' selected="selected" ' : '') + '>' + now_language.AutoRun0 + '</option>\
+<option value="1"'+ (lang == 1 ? ' selected="selected" ' : '') + '>' + now_language.AutoRun1 + '</option>\
+</select>\
+</div>\
+\
 <div><b>'+ now_language.XmlMode + ':</b></div>\
 <div><select id="gm_xml_mode">\
 <option value="0"'+ (xml_mode == 0 ? ' selected="selected" ' : '') + '>' + now_language.XmlMode1 + '</option>\
@@ -1111,13 +1130,15 @@ function OpenSetting() {
 <a href="#" class="mzbtn buttondiv button_account" id="gm_setting_save">\
 <span class="buttonClassMiddle"><span style="white-space: nowrap">'+ now_language.Save + '</span></span><span class="buttonClassRight">&nbsp;</span>\
 </a>\
-</div>';
+</div>\
+';
 
     showHelpLayer(tmphtml, now_language.Setting, true);
     $("#txtTacConf").val(GM_getValue("TacConf", ""));
     $("#gm_setting_save")[0].addEventListener('click', function () {
         setLanguage($("#gm_language").val());
         GM_setValue("xml_mode", $("#gm_xml_mode").val());
+        GM_setValue("autoRun", $("#gm_autorun").val());
         GM_setValue("TacConf", $("#txtTacConf").val());
 
         $('#gw_run')[0].title = now_language.ManualColorTitle;
@@ -1276,7 +1297,7 @@ function MatchEvent2() {
                                 let gp = matchBuffer[LPtmp.data.end].players[g];
                                 if (gp.position) {
                                     let xd;
-                                    if (LPtmp.data.end >= MyGame.prototype.mzlive.m_match.m_ko2Frame) {
+                                    if (LPtmp.data.end >= m_ko2Frame) {
                                         xd = gball.x - gp.position.x;//+ 5;
                                     } else {
                                         xd = gball.x - gp.position.x;// - 5;
@@ -1305,7 +1326,7 @@ function MatchEvent2() {
                                 }
                             }
 
-                            if (LPtmp.data.end >= MyGame.prototype.mzlive.m_match.m_ko2Frame) {
+                            if (LPtmp.data.end >= m_ko2Frame) {
 
                                 LPtmp.data.b = (750 - matchBuffer[LPtmp.data.end].ball.x) + "," + (1000 - matchBuffer[LPtmp.data.end].ball.y) + "," + matchBuffer[LPtmp.data.end].ball.z;
                             } else {
@@ -1335,7 +1356,7 @@ function MatchEvent2() {
                                 } else {
 
                                     //开始统计新的长传
-                                    if (i >= MyGame.prototype.mzlive.m_match.m_ko2Frame) {
+                                    if (i >= m_ko2Frame) {
                                         LPtmp.data = {
                                             h: "",
                                             a: (750 - matchBuffer[i].ball.x) + "," + (1000 - matchBuffer[i].ball.y) + "," + matchBuffer[i].ball.z,
@@ -1587,7 +1608,10 @@ function MatchEvent2() {
     };
 
     this.tolog = function () {
+
+        let headArr = new Array();
         for (let pid in this.longPass) {
+            this.longPass[pid].mstat = {};
             for (let i = 0; i < this.longPass[pid].length; i++) {
 
                 let data = this.longPass[pid][i];
@@ -1599,6 +1623,25 @@ function MatchEvent2() {
                             data.h += ",";
                         }
                         data.h += getMatchStatusName(data.team.events[k].status);
+                        if (data.team.events[k].status == 1001 || data.team.events[k].status == 1002) {
+                            let d = 0;
+                            if (data.end <= m_htFrame) {
+                                d = 1;
+                            } else if (data.end >= m_ko2Frame && data.end <= m_ht2Frame) {
+                                d = 2;
+                            } else if (data.end >= m_ko3Frame && data.end <= m_ht3Frame) {
+                                d = 3;
+                            } else if (data.end >= m_ko4Frame && data.end <= m_ht4Frame) {
+                                d = 4;
+                            }
+                            headArr.push({
+                                h: data.team.player.m_side,
+                                d: d,
+                                s: data.team.events[k].status,
+                                b: this.match.matchBuffer[data.end].ball,
+                                p: data.team.gp.position
+                            });
+                        }
                     }
 
                     data.h += "|";
@@ -1613,30 +1656,53 @@ function MatchEvent2() {
 
                     let gball = this.match.matchBuffer[data.end].ball;
                     let sball = this.match.matchBuffer[data.start].ball;
-                    if (data.end >= MyGame.prototype.mzlive.m_match.m_ko2Frame) {
-                        data.h +=
-                            (-gball.x + data.team.gp.position.x) + "," + (-gball.y + data.team.gp.position.y) + "," + data.team.distance.toFixed(2) + ";"
-                            + (-gball.x + data.other.gp.position.x) + "," + (-gball.y + data.other.gp.position.y) + "," + data.other.distance.toFixed(2) + "]"
-                            + (-sball.x + gball.x) + ","
-                            + (-sball.y + gball.y) + ","
-                            + (sball.z - gball.z);
+                    let dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
+                    if (data.end >= m_ko2Frame) {
+                        dx1 = data.team.gp.position.x - gball.x;
+                        dy1 = data.team.gp.position.y - gball.y;
+
+                        dx2 = data.other.gp.position.x - gball.x;
+                        dy2 = data.other.gp.position.y - gball.y;
                     } else {
+                        dx1 = gball.x - data.team.gp.position.x;
+                        dy1 = gball.y - data.team.gp.position.y;
 
-                        data.h +=
-                            (gball.x - data.team.gp.position.x) + "," + (gball.y - data.team.gp.position.y) + "," + data.team.distance.toFixed(2) + ";"
-                            + (gball.x - data.other.gp.position.x) + "," + (gball.y - data.other.gp.position.y) + "," + data.other.distance.toFixed(2) + "]"
-                            + (sball.x - gball.x) + ","
-                            + (sball.y - gball.y) + ","
-                            + (sball.z - gball.z);
+                        dx2 = gball.x - data.other.gp.position.x;
+                        dy2 = gball.y - data.other.gp.position.y;
+
                     }
+                    data.h +=
+                        dx1 + "," + dy1 + "," + data.team.distance.toFixed(2) + ";"
+                        + dx2 + "," + dy2 + "," + data.other.distance.toFixed(2) + "]"
+                        + (sball.x - gball.x) + ","
+                        + (sball.y - gball.y) + ","
+                        + (sball.z - gball.z);
 
-
+                    if (this.longPass[pid].mstat[data.team.player.m_id] == undefined) {
+                        this.longPass[pid].mstat[data.team.player.m_id] = {
+                            X: new MyMathArr(),
+                            Y: new MyMathArr()
+                        };
+                    }
+                    this.longPass[pid].mstat[data.team.player.m_id].X.data.push(dx1);
+                    this.longPass[pid].mstat[data.team.player.m_id].Y.data.push(dy1);
                 }
 
+            }
+            for (let pp in this.longPass[pid].mstat) {
+
+                this.longPass[pid].mstat[pp].X.cal();
+                this.longPass[pid].mstat[pp].Y.cal();
             }
         }
 
         console.log(this.longPass);
+
+        let str = "";
+        for (let f = 0; f < headArr.length; f++) {
+            str += headArr[f].h + "\t" + headArr[f].d + "\t" + headArr[f].s + "\t" + headArr[f].b.x + "\t" + headArr[f].b.y + "\t" + headArr[f].b.z + "\t" + headArr[f].p.x + "\t" + headArr[f].p.y + "\t" + headArr[f].p.z + "\n";
+        }
+        console.log(str);
     }
     this.getPlayerEventById = function (pid, start, end) {
 
@@ -1657,6 +1723,29 @@ function MatchEvent2() {
         return arr;
     };
 };
+
+function MyMathArr() {
+    this.data = new Array();
+
+    let sum = function (x, y) { return x + y; };　　//求和函数
+    let square = function (x) { return x * x; };　　//数组中每个元素求它的平方
+
+    this.cal = function () {
+
+        var avg = this.data.reduce(sum) / this.data.length;
+        this.avg = avg;
+        ///偏差
+        this.deviations = this.data.map(function (x) { return x - avg; });
+
+        ///标准差
+        this.stddev = Math.sqrt(this.deviations.map(square).reduce(sum) / (this.data.length - 1));
+        this.max = Math.max.apply(null, this.data);
+        this.min = Math.min.apply(null, this.data);
+        //变异系数
+        this.CV = this.stddev / this.avg;
+    };
+
+}
 function PlayerPos() {
     this.data = {};
     this.stat = new Array();
@@ -1854,6 +1943,7 @@ let mEvent, mStaticEventHome, mStaticEventAway;
 let out_of_play;
 let dit_bypid = {};
 let dit_player = {};
+let m_koFrame = 0, m_htFrame = 0, m_ko2Frame = 0, m_ht2Frame = 0, m_ko3Frame = 0, m_ht3Frame = 0, m_ko4Frame = 0, m_ht4Frame = 0;
 
 function Advanced2D() {
 
@@ -1864,6 +1954,27 @@ function Advanced2D() {
             let away = MyGame.prototype.mzlive.m_match.getAwayTeam();
 
             if (home != null && away != null) {
+
+                let nl = matchLoader.matchXml.documentElement.evaluate('Periods/*');
+                let p;
+                while (p = nl.iterateNext()) {
+                    if (p.getAttribute('name') == 'half1') {
+                        m_koFrame = MyGame.prototype.mzlive.m_match.timeToFrame(p.getAttribute('start'));
+                        m_htFrame = MyGame.prototype.mzlive.m_match.timeToFrame(p.getAttribute('end'));
+                    }
+                    else if (p.getAttribute('name') == 'half2') {
+                        m_ko2Frame = MyGame.prototype.mzlive.m_match.timeToFrame(p.getAttribute('start'));
+                        m_ht2Frame = MyGame.prototype.mzlive.m_match.timeToFrame(p.getAttribute('end'));
+                    }
+                    else if (p.getAttribute('name') == 'extra1') {
+                        m_ko3Frame = MyGame.prototype.mzlive.m_match.timeToFrame(p.getAttribute('start'));
+                        m_ht3Frame = MyGame.prototype.mzlive.m_match.timeToFrame(p.getAttribute('end'));
+                    }
+                    else if (p.getAttribute('name') == 'extra2') {
+                        m_ko4Frame = MyGame.prototype.mzlive.m_match.timeToFrame(p.getAttribute('start'));
+                        m_ht4Frame = MyGame.prototype.mzlive.m_match.timeToFrame(p.getAttribute('end'));
+                    }
+                }
 
                 let players = matchLoader.matchXml.documentElement.evaluate('Player');
                 let re1;
@@ -1894,8 +2005,14 @@ function Advanced2D() {
 
 
                 out_of_play = new OutOfPlay();
-                out_of_play.add(0, MyGame.prototype.mzlive.m_match.m_koFrame);
-                out_of_play.add(MyGame.prototype.mzlive.m_match.m_htFrame, MyGame.prototype.mzlive.m_match.m_ko2Frame);
+                out_of_play.add(0, m_koFrame);
+                out_of_play.add(m_htFrame, m_ko2Frame);
+                if (m_ko3Frame > 0) {
+                    out_of_play.add(m_ht2Frame, m_ko3Frame);
+                }
+                if (m_ko4Frame > 0) {
+                    out_of_play.add(m_ht3Frame, m_ko4Frame);
+                }
                 while (re = events.iterateNext()) {
                     begin = re.getAttribute('intervalendframe');
                     end = re.getAttribute('startframe');
@@ -2379,8 +2496,8 @@ function Stats2XML(ishome, players) {
 }
 
 
-let _open;
-let finalInitAfterLoading, processButtonPresses, Load010SetupMainSceneInstance;
+var _open, _prepareTransferData, _centerPowerbox, _ajaxSubmit;
+var finalInitAfterLoading, processButtonPresses, Load010SetupMainSceneInstance;
 let OK_2D = false;
 (function () {
     'use strict';
@@ -2423,6 +2540,45 @@ let OK_2D = false;
         }
         return _open.apply(this, arguments);
     };
+
+    if (unsafeWindow.prepareTransferData != undefined) {
+        _prepareTransferData = unsafeWindow.prepareTransferData;
+        unsafeWindow.prepareTransferData = function (readyState, response, responseParameter) {
+
+            _prepareTransferData.apply(this, arguments);
+            if (GM_getValue("autoRun", 0) == 1) {
+                if (typeof (responseParameter) === "undefined" || !responseParameter) {
+                    gw_start(0);
+                }
+            }
+        };
+    }
+
+    if (unsafeWindow.centerPowerbox != undefined) {
+        _centerPowerbox = unsafeWindow.centerPowerbox;
+        unsafeWindow.centerPowerbox = function () {
+
+            _centerPowerbox.apply(this, arguments);
+            if (GM_getValue("autoRun", 0) == 1) {
+                gw_start(0);
+            }
+        };
+    }
+
+    if ($.fn.ajaxSubmit != undefined) {
+        _ajaxSubmit = $.fn.ajaxSubmit;
+        $.fn.ajaxSubmit = function (options) {
+            options.gm_success = options.success;
+            options.success = function () {
+                options.gm_success.apply(this, arguments);
+                if (GM_getValue("autoRun", 0) == 1) {
+                    gw_start(0);
+                }
+            };
+            _ajaxSubmit.apply(this, arguments);
+        };
+    }
+
 
     gw_start(0);
 })();
