@@ -741,11 +741,24 @@ function getMax(callback) {
 }
 function setSrc(transfer, img, skill, maxed, skillBallDay, pid, k) {
     if (skill > 0) {
+        let flag_exit = false;
         if (transfer && skillBallDay) {
             if (new Date().getTime() - skillBallDay < 345600000) {
-                $(img).parent().find("span").remove();
-                $(img).parent().append("<span class=\"help_button_placeholder\"><a class=\"help_button\" href=\"#\" onclick=\"showHelpLayer('" + now_language.NotSureEx + new Date(skillBallDay).toLocaleString() + "', '" + now_language.NotSure + "', true); return false\"><span class=\"help_button_wrapper\"><span class=\"help_button_text\">?</span></span></a></span>");
+
+                getTrainingGraphsBySkill_id(pid, k, function (data) {
+                    let result = data.match(new RegExp('{"x":' + skillBallDay + ',"y":(\\d+),"marker"'));
+                    if (result && result.length) {
+                        $(img).parent().parent().find("td.skillval").html("(" + result[1] + ")");
+                        setSrc(false, img, result[1], maxed, false, pid, k);
+                        flag_exit = true;
+                    }
+                });
+                //$(img).parent().find("span").remove();
+                //$(img).parent().append("<span class=\"help_button_placeholder\"><a class=\"help_button\" href=\"#\" onclick=\"showHelpLayer('" + now_language.NotSureEx + new Date(skillBallDay).toLocaleString() + "', '" + now_language.NotSure + "', true); return false\"><span class=\"help_button_wrapper\"><span class=\"help_button_text\">?</span></span></a></span>");
             }
+        }
+        if (flag_exit) {
+            return;
         }
         if (pid && trainingInfo[pid][k]) {
             let extmp = $(img).parent().parent().find(".skill_exact2");
@@ -952,6 +965,13 @@ function getTrainingGraphs(pid, imgs, skills) {
         "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=soccer&player_id=" + pid,
         function (data) {
             drawPlayerByTrainingGraphs(pid, data, imgs, skills);
+        });
+}
+function getTrainingGraphsBySkill_id(pid, skill_id, callback) {
+    myAjax(
+        "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=soccer&player_id=" + pid + "&skill_id=" + (skill_id + 2),
+        function (data) {
+            callback(data);
         });
 }
 function showPop(parent) {
