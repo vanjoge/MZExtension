@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      2.11
+// @version      2.12
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -437,13 +437,27 @@ function getMax(callback) {
         });
     return false;
 }
-function setSrc(img, skill, maxed, skillBallDay) {
+function setSrc(img, skill, maxed, skillBallDay, pid, k) {
     if (skill > 0) {
+        let flag_exit = false;
         if (skillBallDay) {
             if (new Date().getTime() - skillBallDay < 345600000) {
-                $(img).parent().find("span").remove();
-                $(img).parent().append("<span class=\"help_button_placeholder\"><a class=\"help_button\" href=\"#\" onclick=\"showHelpLayer('" + now_language.NotSureEx + new Date(skillBallDay).toLocaleString() + "', '" + now_language.NotSure + "', true); return false\"><span class=\"help_button_wrapper\"><span class=\"help_button_text\">?</span></span></a></span>");
+
+                getTrainingGraphsBySkill_id(pid, k, function (data) {
+                    let result = data.match(new RegExp('{"x":' + skillBallDay + ',"y":(\\d+),"marker"'));
+                    if (result && result.length) {
+                        $(img).parent().parent().find("td.skillval").html("(" + result[1] + ")");
+                        setSrc(img, result[1], maxed, false, pid, k);
+                        flag_exit = true;
+                    }
+                });
+
+                //$(img).parent().find("span").remove();
+                //$(img).parent().append("<span class=\"help_button_placeholder\"><a class=\"help_button\" href=\"#\" onclick=\"showHelpLayer('" + now_language.NotSureEx + new Date(skillBallDay).toLocaleString() + "', '" + now_language.NotSure + "', true); return false\"><span class=\"help_button_wrapper\"><span class=\"help_button_text\">?</span></span></a></span>");
             }
+        }
+        if (flag_exit) {
+            return;
         }
         if (maxed === "red") {
             if (/blevel_/.test(img.src) || img.blevel == 1) {
@@ -492,7 +506,7 @@ function showMax() {
     }
     return false;
 }
-function drawPlayerByTrainingGraphs(data, imgs, skills) {
+function drawPlayerByTrainingGraphs(pid, data, imgs, skills) {
     eval(data);
     let maxeds = ["green", "green", "green", "green", "green", "green", "green", "green", "green", "green", "green"];
     let skillBallDays = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -549,14 +563,21 @@ function drawPlayerByTrainingGraphs(data, imgs, skills) {
         }
     }
     for (var k = 0; k < maxeds.length; k++) {
-        setSrc(imgs[k], skills.eq(k).html().replace("(", "").replace(")", ""), maxeds[k], skillBallDays[k]);
+        setSrc(imgs[k], skills.eq(k).html().replace("(", "").replace(")", ""), maxeds[k], skillBallDays[k], pid, k);
     }
 }
 function getTrainingGraphs(pid, imgs, skills) {
     myAjax(
         "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=soccer&player_id=" + pid,
         function (data) {
-            drawPlayerByTrainingGraphs(data, imgs, skills);
+            drawPlayerByTrainingGraphs(pid, data, imgs, skills);
+        });
+}
+function getTrainingGraphsBySkill_id(pid, skill_id, callback) {
+    myAjax(
+        "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=soccer&player_id=" + pid + "&skill_id=" + (skill_id + 2),
+        function (data) {
+            callback(data);
         });
 }
 function setLanguage(language) {
