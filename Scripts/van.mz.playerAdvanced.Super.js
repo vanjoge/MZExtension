@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.5
+// @version      3.6
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -650,9 +650,9 @@ function clearCache(maxcount) {
     for (var i = 0; i < lists.length; i++) {
         let ts;
         if (lists[i].startsWith("Dt_")) {
-            ts = GM_getValue(lists[i], false);
+            ts = GM_getValue(lists[i], -1);
             let key = lists[i].substring(3);
-            if (ts) {
+            if (ts != -1) {
                 let dt = new Date(ts);
                 let now = new Date();
                 if (now.getUTCFullYear() == dt.getUTCFullYear() && now.getUTCMonth() == dt.getUTCMonth() && now.getUTCDate() == dt.getUTCDate()) {
@@ -721,9 +721,9 @@ function myAjax(url, callback, noCache, Cjson) {
 
 }
 function getLocValue(key) {
-    let ts = GM_getValue("Dt_" + key, false);
+    let ts = GM_getValue("Dt_" + key, -1);
 
-    if (ts) {
+    if (ts != -1) {
         let dt = new Date(ts);
         let now = new Date();
         //let d = now.getTime() - dt.getTime();
