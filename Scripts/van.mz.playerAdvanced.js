@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      2.12
+// @version      2.13
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -338,23 +338,47 @@ var mzImg = {
 };
 var pmax = {};
 var isAjaxing = false;
-function clearCache() {
-    var lists = GM_listValues();
+
+function clearCache(maxcount) {
+    let lists = GM_listValues();
+    let max = lists.length;
+    if (maxcount) {
+        max = maxcount;
+    } else if (lists.length > 100) {
+        max = 100;
+    }
     for (var i = 0; i < lists.length; i++) {
         let ts;
         if (lists[i].startsWith("Dt_")) {
-            ts = GM_getValue(lists[i], false);
-        } else {
-            ts = GM_getValue("Dt_" + lists[i], false);
-        }
-        if (ts) {
-            let dt = new Date(ts);
-            let now = new Date();
-            if (now.toLocaleDateString() == dt.toLocaleDateString()) {
-                continue;
+            ts = GM_getValue(lists[i], -1);
+            let key = lists[i].substring(3);
+            if (ts != -1) {
+                let dt = new Date(ts);
+                let now = new Date();
+                if (now.getUTCFullYear() == dt.getUTCFullYear() && now.getUTCMonth() == dt.getUTCMonth() && now.getUTCDate() == dt.getUTCDate()) {
+                    continue;
+                }
+                GM_deleteValue(lists[i]);
+                GM_deleteValue(key);
+                max--;
+                if (max <= 0) {
+                    break;
+                }
             }
         }
-        GM_deleteValue(lists[i]);
+    }
+}
+function autoclearCache() {
+    let ts = GM_getValue("last_autoclear", 0);
+    let dt = new Date(ts);
+    let now = new Date();
+
+    if (now.getUTCFullYear() == dt.getUTCFullYear() && now.getUTCMonth() == dt.getUTCMonth() && (now.getUTCDate() - dt.getUTCDate()) < 3) {
+        return false;
+    } else {
+        clearCache(100);
+        GM_setValue("last_autoclear", now.getTime());
+        return true;
     }
 }
 function myAjax(url, callback, noCache, Cjson) {
@@ -397,9 +421,9 @@ function myAjax(url, callback, noCache, Cjson) {
 
 }
 function getLocValue(key) {
-    let ts = GM_getValue("Dt_" + key, false);
+    let ts = GM_getValue("Dt_" + key, -1);
 
-    if (ts) {
+    if (ts != -1) {
         let dt = new Date(ts);
         let now = new Date();
         //let d = now.getTime() - dt.getTime();
@@ -1421,4 +1445,6 @@ let OK_2D = false;
     };
 
     gw_start(0);
+
+    autoclearCache();
 })();
