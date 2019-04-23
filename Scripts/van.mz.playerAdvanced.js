@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      2.13
+// @version      2.14
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -11,7 +11,7 @@
 // @grant        GM_deleteValue
 // @grant        GM_setClipboard
 // @require      https://cdn.jsdelivr.net/pako/1.0.5/pako.min.js
-// @require      https://greasyfork.org/scripts/376535-base64js/code/base64js.js?version=661147
+// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/base64js.min.js
 // ==/UserScript==
 
 var gm_mzlanguage = {
