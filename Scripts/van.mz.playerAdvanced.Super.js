@@ -12,7 +12,7 @@
 // @grant        GM_setClipboard
 // @grant        GM_xmlhttpRequest
 // @connect      www.budeng.win
-// @require      https://cdn.jsdelivr.net/pako/1.0.5/pako.min.js
+// @require      https://cdn.bootcss.com/pako/1.0.5/pako.min.js
 // @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/base64js.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js
 // ==/UserScript==

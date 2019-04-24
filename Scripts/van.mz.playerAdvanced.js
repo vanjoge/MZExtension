@@ -10,7 +10,7 @@
 // @grant        GM_listValues
 // @grant        GM_deleteValue
 // @grant        GM_setClipboard
-// @require      https://cdn.jsdelivr.net/pako/1.0.5/pako.min.js
+// @require      https://cdn.bootcss.com/pako/1.0.5/pako.min.js
 // @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/base64js.min.js
 // ==/UserScript==
 
