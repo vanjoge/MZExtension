@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.7
+// @version      3.8
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -770,7 +770,7 @@ function setSrc(transfer, img, skill, maxed, skillBallDay, pid, k) {
             if (new Date().getTime() - skillBallDay < 345600000) {
 
                 getTrainingGraphsBySkill_id(pid, k, function (data) {
-                    let result = data.match(new RegExp('{"x":' + skillBallDay + ',"y":(\\d+),"marker"'));
+                    let result = data.match(new RegExp('{"x":' + skillBallDay + ',"y":(\\d+),[^}]*"marker"'));
                     if (result && result.length) {
                         $(img).parent().parent().find("td.skillval").html("(" + result[1] + ")");
                         setSrc(false, img, result[1], maxed, false, pid, k);

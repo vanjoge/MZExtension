@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      2.14
+// @version      2.15
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -468,7 +468,7 @@ function setSrc(img, skill, maxed, skillBallDay, pid, k) {
             if (new Date().getTime() - skillBallDay < 345600000) {
 
                 getTrainingGraphsBySkill_id(pid, k, function (data) {
-                    let result = data.match(new RegExp('{"x":' + skillBallDay + ',"y":(\\d+),"marker"'));
+                    let result = data.match(new RegExp('{"x":' + skillBallDay + ',"y":(\\d+),[^}]*"marker"'));
                     if (result && result.length) {
                         $(img).parent().parent().find("td.skillval").html("(" + result[1] + ")");
                         setSrc(img, result[1], maxed, false, pid, k);
