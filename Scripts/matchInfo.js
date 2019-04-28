@@ -1,8 +1,10 @@
-﻿var myChart_home, myChart_away;
+﻿
+var myChart_home, myChart_away;
 var mdata;
+var mid;
 $(document).ready(function () {
 
-    $('#mdiv').html('<table><tr><td><select id="TacTeam_home_sec" onchange="TacTeamChange(this.value, true);"></select></td><td><select id="TacTeam_away_sec" onchange="TacTeamChange(this.value, false);"></select></td></tr><tr><td><div id="homeTac" class="Tac"></div></td><td><div id="awayTac" class="Tac"></div></td></tr><tr><td><div style="text-align: center;"><label>上半场</label><table border="1" style="margin: auto;"><tr style="background-color: #ffffe5;"><td id="homeName">主队</td><td>项目</td><td id="awayName">客队</td></tr><tr><td id="homePossession">-</td><td>控球率</td><td id="awayPossession">-</td></tr><tr><td id="homeGoal">-</td><td>进球(点球)</td><td id="awayGoal">-</td></tr><tr><td id="homeSaves">-</td><td>扑救</td><td id="awaySaves">-</td></tr><tr><td id="homeShots">-</td><td>射门/射正</td><td id="awayShots">-</td></tr><tr><td id="homeCards">-</td><td>红/黄牌</td><td id="awayCards">-</td></tr><tr><td id="homeFK">-</td><td>定位/角球</td><td id="awayFK">-</td></tr><tr><td id="homePass">-</td><td>传球次数(成功率)</td><td id="awayPass">-</td></tr><tr><td id="homeTackles">-</td><td>断球(成功率)</td><td id="awayTackles">-</td></tr><tr><td id="homeSubs">-</td><td>换人/受伤</td><td id="awaySubs">-</td></tr><tr><td id="homeThrowins">-</td><td>界外球/越位</td><td id="awayThrowins">-</td></tr></table></div></td><td><div style="text-align: center;"><label>全场</label><table border="1" style="margin: auto;"><tr style="background-color: #ffffe5;"><td id="a_homeName">主队</td><td>项目</td><td id="a_awayName">客队</td></tr><tr><td id="a_homePossession">-</td><td>控球率</td><td id="a_awayPossession">-</td></tr><tr><td id="a_homeGoal">-</td><td>进球(点球)</td><td id="a_awayGoal">-</td></tr><tr><td id="a_homeSaves">-</td><td>扑救</td><td id="a_awaySaves">-</td></tr><tr><td id="a_homeShots">-</td><td>射门/射正</td><td id="a_awayShots">-</td></tr><tr><td id="a_homeCards">-</td><td>红/黄牌</td><td id="a_awayCards">-</td></tr><tr><td id="a_homeFK">-</td><td>定位/角球</td><td id="a_awayFK">-</td></tr><tr><td id="a_homePass">-</td><td>传球次数(成功率)</td><td id="a_awayPass">-</td></tr><tr><td id="a_homeTackles">-</td><td>断球(成功率)</td><td id="a_awayTackles">-</td></tr><tr><td id="a_homeSubs">-</td><td>换人/受伤</td><td id="a_awaySubs">-</td></tr><tr><td id="a_homeThrowins">-</td><td>界外球/越位</td><td id="a_awayThrowins">-</td></tr></table></div></td></tr><tr><td><div id="homeGoalsDiv" style="text-align: center;"></div></td><td><div id="awayGoalsDiv" style="text-align: center;"></div></td></tr></table>');
+    $('#mdiv').html('<table width="100%" cellspacing="0" cellpadding="2" class="hitlist marker"><tbody><tr class="odd"><td id="td_home" width="44%" style="text-align: right; font-weight: bold;"></td><td width="12%" style="text-align: center; white-space: nowrap; font-weight: bold;"><a id="a_match"></a></td><td id="td_away" width="44%" style="text-align: left; font-weight: bold;"></td></tr></tbody></table><table><tr><td><select id="TacTeam_home_sec" onchange="TacTeamChange(this.value, true);"></select></td><td><select id="TacTeam_away_sec" onchange="TacTeamChange(this.value, false);"></select></td></tr><tr><td><div id="homeTac" class="Tac"></div></td><td><div id="awayTac" class="Tac"></div></td></tr><tr><td><div style="text-align: center;"><label>上半场</label><table border="1" style="margin: auto;"><tr style="background-color: #ffffe5;"><td id="homeName">主队</td><td>项目</td><td id="awayName">客队</td></tr><tr><td id="homePossession">-</td><td>控球率</td><td id="awayPossession">-</td></tr><tr><td id="homeGoal">-</td><td>进球(点球)</td><td id="awayGoal">-</td></tr><tr><td id="homeSaves">-</td><td>扑救</td><td id="awaySaves">-</td></tr><tr><td id="homeShots">-</td><td>射门/射正</td><td id="awayShots">-</td></tr><tr><td id="homeCards">-</td><td>红/黄牌</td><td id="awayCards">-</td></tr><tr><td id="homeFK">-</td><td>定位/角球</td><td id="awayFK">-</td></tr><tr><td id="homePass">-</td><td>传球次数(成功率)</td><td id="awayPass">-</td></tr><tr><td id="homeTackles">-</td><td>断球(成功率)</td><td id="awayTackles">-</td></tr><tr><td id="homeSubs">-</td><td>换人/受伤</td><td id="awaySubs">-</td></tr><tr><td id="homeThrowins">-</td><td>界外球/越位</td><td id="awayThrowins">-</td></tr></table></div></td><td><div style="text-align: center;"><label>全场</label><table border="1" style="margin: auto;"><tr style="background-color: #ffffe5;"><td id="a_homeName">主队</td><td>项目</td><td id="a_awayName">客队</td></tr><tr><td id="a_homePossession">-</td><td>控球率</td><td id="a_awayPossession">-</td></tr><tr><td id="a_homeGoal">-</td><td>进球(点球)</td><td id="a_awayGoal">-</td></tr><tr><td id="a_homeSaves">-</td><td>扑救</td><td id="a_awaySaves">-</td></tr><tr><td id="a_homeShots">-</td><td>射门/射正</td><td id="a_awayShots">-</td></tr><tr><td id="a_homeCards">-</td><td>红/黄牌</td><td id="a_awayCards">-</td></tr><tr><td id="a_homeFK">-</td><td>定位/角球</td><td id="a_awayFK">-</td></tr><tr><td id="a_homePass">-</td><td>传球次数(成功率)</td><td id="a_awayPass">-</td></tr><tr><td id="a_homeTackles">-</td><td>断球(成功率)</td><td id="a_awayTackles">-</td></tr><tr><td id="a_homeSubs">-</td><td>换人/受伤</td><td id="a_awaySubs">-</td></tr><tr><td id="a_homeThrowins">-</td><td>界外球/越位</td><td id="a_awayThrowins">-</td></tr></table></div></td></tr><tr><td><div id="homeGoalsDiv" style="text-align: center;"></div></td><td><div id="awayGoalsDiv" style="text-align: center;"></div></td></tr></table>');
     myChart_home = echarts.init(document.getElementById("homeTac"));
     myChart_away = echarts.init(document.getElementById("awayTac"));
 
@@ -21,11 +23,11 @@ function Show2Doc(data) {
 function TacTeamChange(sec, ishome) {
     if (ishome) {
         let htxt = match.data.stat.m_homeTeam.m_name + " Goal[" + match.data.stat.m_homeTeam.m_stat.goals + "]";
-        ShowTeamTac(match, match.data.stat.m_homeTeam.m_id, sec, myChart_home, htxt,'image://https://www.managerzone.com/dynimg/garment.php/n=a/set=home/pi=shirt/pa=3/b=0/c1=2BB8FF/c2=CC0044/lo=/no=/sp=soccer/img.png');
+        ShowTeamTac(match, match.data.stat.m_homeTeam.m_id, sec, myChart_home, htxt, 'image://https://www.managerzone.com/dynimg/garment.php/n=a/set=home/pi=shirt/pa=3/b=0/c1=2BB8FF/c2=CC0044/lo=/no=/sp=soccer/img.png');
     }
     else {
         let atxt = match.data.stat.m_awayTeam.m_name + " Goal[" + match.data.stat.m_awayTeam.m_stat.goals + "]";
-        ShowTeamTac(match, match.data.stat.m_awayTeam.m_id, sec, myChart_away, atxt,'image://https://www.managerzone.com/dynimg/garment.php/n=a/set=home/pi=shirt/pa=16/b=0/c1=FF0000/c2=FFFFFF/lo=/no=/sp=soccer/img.png');
+        ShowTeamTac(match, match.data.stat.m_awayTeam.m_id, sec, myChart_away, atxt, 'image://https://www.managerzone.com/dynimg/garment.php/n=a/set=home/pi=shirt/pa=16/b=0/c1=FF0000/c2=FFFFFF/lo=/no=/sp=soccer/img.png');
     }
 }
 
@@ -65,6 +67,10 @@ function AddLBStat(data) {
 
 function ShowMatchStat(stat) {
 
+    $('#td_home').html(stat.m_homeTeam.m_name);
+    $('#td_away').html(stat.m_awayTeam.m_name);
+    $('#a_match').text(stat.m_homeTeam.m_Statistics.goals + " - " + stat.m_awayTeam.m_Statistics.goals);
+    $('#a_match').attr('href', 'https://www.managerzone.com/?p=match&sub=result&mid=' + mid);
 
     $('#homeName').html(stat.m_homeTeam.m_shortname);
     $('#awayName').html(stat.m_awayTeam.m_shortname);
@@ -134,52 +140,52 @@ function ShowMatchStat(stat) {
     let tgdiv;
     for (let pid in stat.m_players) {
         tmpPid_Player[stat.m_players[pid].Pid] = stat.m_players[pid];
-        if (stat.m_players[pid].m_stat.goals > 0 || stat.m_players[pid].m_stat.owngoals > 0||stat.m_players[pid].m_stat.yellowCards>0||stat.m_players[pid].m_stat.redCards>0) {
+        if (stat.m_players[pid].m_stat.goals > 0 || stat.m_players[pid].m_stat.owngoals > 0 || stat.m_players[pid].m_stat.yellowCards > 0 || stat.m_players[pid].m_stat.redCards > 0) {
             for (let i = 0; i < stat.m_players[pid].m_events.length; i++) {
-				 
+
                 if (stat.m_players[pid].m_events[i].m_type == 5) {
-					if (stat.m_players[pid].m_events[i].m_teamId == stat.m_homeTeam.m_id) {
-						tgdiv = tgdiv_home;
-					} else {
-						tgdiv = tgdiv_away;
-					}
+                    if (stat.m_players[pid].m_events[i].m_teamId == stat.m_homeTeam.m_id) {
+                        tgdiv = tgdiv_home;
+                    } else {
+                        tgdiv = tgdiv_away;
+                    }
                     let goaltxt = "";
-					let goalsrc="";
+                    let goalsrc = "";
                     if (stat.m_players[pid].m_teamId != stat.m_players[pid].m_events[i].m_teamId) {
                         goaltxt = "乌龙 "
-						goalsrc='https://www.managerzone.com/nocache-702/img/soccer/match/own_goal.png';
-                    }else{
+                        goalsrc = 'https://www.managerzone.com/nocache-702/img/soccer/match/own_goal.png';
+                    } else {
                         goaltxt = "进球 "
-						goalsrc='https://www.managerzone.com/nocache-702/img/soccer/match/goal.png';
-					}
-					
+                        goalsrc = 'https://www.managerzone.com/nocache-702/img/soccer/match/goal.png';
+                    }
+
                     tgdiv.push({
-                        html: "<div>" + goaltxt+ stat.m_players[pid].m_events[i].Time + "′ " + stat.m_players[pid].m_name + "(" + stat.m_players[pid].m_shirtNo + ')  <img src="'+goalsrc+'" width="13" height="13" alt=""></div>',
+                        html: "<div>" + goaltxt + stat.m_players[pid].m_events[i].Time + "′ " + stat.m_players[pid].m_name + "(" + stat.m_players[pid].m_shirtNo + ')  <img src="' + goalsrc + '" width="13" height="13" alt=""></div>',
                         time: timeToFrame(stat.m_players[pid].m_events[i].Time)
                     });
-                }else{ 
-					if (stat.m_players[pid].m_teamId == stat.m_homeTeam.m_id) {
-						tgdiv = tgdiv_home;
-					} else {
-						tgdiv = tgdiv_away;
-					}
-					if(stat.m_players[pid].m_events[i].m_type == 16) {
-                    tgdiv.push({
-                        html: "<div>红牌 " + stat.m_players[pid].m_events[i].Time + "′ " + stat.m_players[pid].m_name + "(" + stat.m_players[pid].m_shirtNo + ')  <img src="https://www.managerzone.com/nocache-702/img/soccer/card_red.png" height="13" alt=""></div>',
-                        time: timeToFrame(stat.m_players[pid].m_events[i].Time)
-                    });
-					}else if(stat.m_players[pid].m_events[i].m_type == 17) {
-						tgdiv.push({
-							html: "<div>黄牌 " + stat.m_players[pid].m_events[i].Time + "′ " + stat.m_players[pid].m_name + "(" + stat.m_players[pid].m_shirtNo + ')  <img src="https://www.managerzone.com/nocache-702/img/soccer/card_yellow.png" width="13" height="13" alt=""></div>',
-							time: timeToFrame(stat.m_players[pid].m_events[i].Time)
-						});
-					}else if(stat.m_players[pid].m_events[i].m_type == 18) {
-						tgdiv.push({
-							html: "<div>双黄 " + stat.m_players[pid].m_events[i].Time + "′ " + stat.m_players[pid].m_name + "(" + stat.m_players[pid].m_shirtNo +  ')  <img src="https://www.managerzone.com/nocache-702/img/soccer/card_yellow_red.png" height="13" alt=""></div>',
-							time: timeToFrame(stat.m_players[pid].m_events[i].Time)
-						});
-					}
-				}
+                } else {
+                    if (stat.m_players[pid].m_teamId == stat.m_homeTeam.m_id) {
+                        tgdiv = tgdiv_home;
+                    } else {
+                        tgdiv = tgdiv_away;
+                    }
+                    if (stat.m_players[pid].m_events[i].m_type == 16) {
+                        tgdiv.push({
+                            html: "<div>红牌 " + stat.m_players[pid].m_events[i].Time + "′ " + stat.m_players[pid].m_name + "(" + stat.m_players[pid].m_shirtNo + ')  <img src="https://www.managerzone.com/nocache-702/img/soccer/card_red.png" height="13" alt=""></div>',
+                            time: timeToFrame(stat.m_players[pid].m_events[i].Time)
+                        });
+                    } else if (stat.m_players[pid].m_events[i].m_type == 17) {
+                        tgdiv.push({
+                            html: "<div>黄牌 " + stat.m_players[pid].m_events[i].Time + "′ " + stat.m_players[pid].m_name + "(" + stat.m_players[pid].m_shirtNo + ')  <img src="https://www.managerzone.com/nocache-702/img/soccer/card_yellow.png" width="13" height="13" alt=""></div>',
+                            time: timeToFrame(stat.m_players[pid].m_events[i].Time)
+                        });
+                    } else if (stat.m_players[pid].m_events[i].m_type == 18) {
+                        tgdiv.push({
+                            html: "<div>双黄 " + stat.m_players[pid].m_events[i].Time + "′ " + stat.m_players[pid].m_name + "(" + stat.m_players[pid].m_shirtNo + ')  <img src="https://www.managerzone.com/nocache-702/img/soccer/card_yellow_red.png" height="13" alt=""></div>',
+                            time: timeToFrame(stat.m_players[pid].m_events[i].Time)
+                        });
+                    }
+                }
             }
         }
     }
@@ -241,7 +247,7 @@ function Add2Sec(data) {
         $("#TacTeam_away_sec").append("<option value='" + sf + "'>" + frameToMatchMinute(sf) + "分钟</option>");
     }
 }
-function ShowTeamTac(match, tid, sec, myChart, tv_txt,symbol) {
+function ShowTeamTac(match, tid, sec, myChart, tv_txt, symbol) {
 
     let arr = { data: new Array(), links: new Array(), categories: new Array() };
     let tmplk = {};
