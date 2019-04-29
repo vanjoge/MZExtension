@@ -1,7 +1,7 @@
 ﻿
 var myChart_home, myChart_away;
 var mdata;
-var mid, Lsp,sp;
+var mid;
 $(document).ready(function () {
 
     $('#mdiv').html('<table width="100%" cellspacing="0" cellpadding="2" class="hitlist marker"><tbody><tr class="odd"><td id="td_home" width="44%" style="text-align: right; font-weight: bold;"></td><td width="12%" style="text-align: center; white-space: nowrap; font-weight: bold;"><a id="a_match"></a></td><td id="td_away" width="44%" style="text-align: left; font-weight: bold;"></td></tr></tbody></table><table><tr><td><select id="TacTeam_home_sec" onchange="TacTeamChange(this.value, true);"></select></td><td><select id="TacTeam_away_sec" onchange="TacTeamChange(this.value, false);"></select></td></tr><tr><td><div id="homeTac" class="Tac"></div></td><td><div id="awayTac" class="Tac"></div></td></tr><tr><td><div style="text-align: center;"><label>上半场</label><table border="1" style="margin: auto;"><tr style="background-color: #ffffe5;"><td id="homeName">主队</td><td>项目</td><td id="awayName">客队</td></tr><tr><td id="homePossession">-</td><td>控球率</td><td id="awayPossession">-</td></tr><tr><td id="homeGoal">-</td><td>进球(点球)</td><td id="awayGoal">-</td></tr><tr><td id="homeSaves">-</td><td>扑救</td><td id="awaySaves">-</td></tr><tr><td id="homeShots">-</td><td>射门/射正</td><td id="awayShots">-</td></tr><tr><td id="homeCards">-</td><td>红/黄牌</td><td id="awayCards">-</td></tr><tr><td id="homeFK">-</td><td>定位/角球</td><td id="awayFK">-</td></tr><tr><td id="homePass">-</td><td>传球次数(成功率)</td><td id="awayPass">-</td></tr><tr><td id="homeTackles">-</td><td>断球(成功率)</td><td id="awayTackles">-</td></tr><tr><td id="homeSubs">-</td><td>换人/受伤</td><td id="awaySubs">-</td></tr><tr><td id="homeThrowins">-</td><td>界外球/越位</td><td id="awayThrowins">-</td></tr></table></div></td><td><div style="text-align: center;"><label>全场</label><table border="1" style="margin: auto;"><tr style="background-color: #ffffe5;"><td id="a_homeName">主队</td><td>项目</td><td id="a_awayName">客队</td></tr><tr><td id="a_homePossession">-</td><td>控球率</td><td id="a_awayPossession">-</td></tr><tr><td id="a_homeGoal">-</td><td>进球(点球)</td><td id="a_awayGoal">-</td></tr><tr><td id="a_homeSaves">-</td><td>扑救</td><td id="a_awaySaves">-</td></tr><tr><td id="a_homeShots">-</td><td>射门/射正</td><td id="a_awayShots">-</td></tr><tr><td id="a_homeCards">-</td><td>红/黄牌</td><td id="a_awayCards">-</td></tr><tr><td id="a_homeFK">-</td><td>定位/角球</td><td id="a_awayFK">-</td></tr><tr><td id="a_homePass">-</td><td>传球次数(成功率)</td><td id="a_awayPass">-</td></tr><tr><td id="a_homeTackles">-</td><td>断球(成功率)</td><td id="a_awayTackles">-</td></tr><tr><td id="a_homeSubs">-</td><td>换人/受伤</td><td id="a_awaySubs">-</td></tr><tr><td id="a_homeThrowins">-</td><td>界外球/越位</td><td id="a_awayThrowins">-</td></tr></table></div></td></tr><tr><td><div id="homeGoalsDiv" style="text-align: center;"></div></td><td><div id="awayGoalsDiv" style="text-align: center;"></div></td></tr></table>');
@@ -9,8 +9,6 @@ $(document).ready(function () {
     myChart_away = echarts.init(document.getElementById("awayTac"));
 
     let json1 = pako.ungzip(base64js.toByteArray(mdata), { to: 'string' });
-    let json2 = pako.ungzip(base64js.toByteArray(sp), { to: 'string' });
-    Lsp = JSON.parse(json2);
     Show2Doc(JSON.parse(json1));
 });
 function Show2Doc(data) {
@@ -36,8 +34,8 @@ function TacTeamChange(sec, ishome) {
 var match = {};
 function AddLBStat(data) {
     if (data) {
-        match = { sp: Lsp, data: data };
-        if (Lsp == undefined) {
+        match = { sp: data.sp, data: data };
+        if (match.sp == undefined) {
 
             for (let i_id in data.longPass) {
                 let pid = data.stat.m_players[i_id].Pid;
