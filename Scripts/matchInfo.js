@@ -77,8 +77,8 @@ function ShowMatchStat(stat) {
     $('#awayName').html(stat.m_awayTeam.m_shortname);
     $('#homePossession').html(stat.m_homeTeam.m_HalfStatistics.possession + "%");
     $('#awayPossession').html(stat.m_awayTeam.m_HalfStatistics.possession + "%");
-    $('#homeGoal').html(stat.m_homeTeam.m_HalfStatistics.goals);
-    $('#awayGoal').html(stat.m_awayTeam.m_HalfStatistics.goals);
+    $('#homeGoal').html(stat.m_homeTeam.m_HalfStatistics.goals + "(" + stat.m_homeTeam.m_HalfStatistics.penaltyshots + ")");
+    $('#awayGoal').html(stat.m_awayTeam.m_HalfStatistics.goals + "(" + stat.m_awayTeam.m_HalfStatistics.penaltyshots + ")");
     $('#homeSaves').html(stat.m_homeTeam.m_HalfStatistics.saves);
     $('#awaySaves').html(stat.m_awayTeam.m_HalfStatistics.saves);
     $('#homeShots').html((parseInt(stat.m_homeTeam.m_HalfStatistics.shotsOnGoal) + parseInt(stat.m_homeTeam.m_HalfStatistics.shotsWide)) + "/" + stat.m_homeTeam.m_HalfStatistics.shotsOnGoal);
@@ -106,8 +106,8 @@ function ShowMatchStat(stat) {
     $('#a_awayName').html(stat.m_awayTeam.m_shortname);
     $('#a_homePossession').html(stat.m_homeTeam.m_Statistics.possession + "%");
     $('#a_awayPossession').html(stat.m_awayTeam.m_Statistics.possession + "%");
-    $('#a_homeGoal').html(stat.m_homeTeam.m_Statistics.goals);
-    $('#a_awayGoal').html(stat.m_awayTeam.m_Statistics.goals);
+    $('#a_homeGoal').html(stat.m_homeTeam.m_Statistics.goals + "(" + stat.m_homeTeam.m_Statistics.penaltyshots + ")");
+    $('#a_awayGoal').html(stat.m_awayTeam.m_Statistics.goals + "(" + stat.m_awayTeam.m_Statistics.penaltyshots + ")");
     $('#a_homeSaves').html(stat.m_homeTeam.m_Statistics.saves);
     $('#a_awaySaves').html(stat.m_awayTeam.m_Statistics.saves);
     $('#a_homeShots').html((parseInt(stat.m_homeTeam.m_Statistics.shotsOnGoal) + parseInt(stat.m_homeTeam.m_Statistics.shotsWide)) + "/" + stat.m_homeTeam.m_Statistics.shotsOnGoal);
@@ -212,12 +212,19 @@ function ShowMatchStat(stat) {
             }
             let player = tmpPid_Player[stat.Events[i].attributes["playerId"]];
             let sub_player = tmpPid_Player[stat.Events[i].attributes["substitutedId"]];
+            let sub_str = "";
+            if (stat.Events[i].attributes["scorecondition"] != undefined) {
+                sub_str = stat.Events[i].attributes["scorecondition"];
+                if (stat.Events[i].attributes["score"] != undefined) {
+                    sub_str += " " + stat.Events[i].attributes["score"];
+                }
+            }
             tgdiv.push({
                 html: "<div>" + stat.Events[i].attributes["time"] + "′ "
                     + player.m_name + "(" + player.m_shirtNo + ")↑ "
                     + sub_player.m_name + "(" + sub_player.m_shirtNo + ")↓ "
                     + stat.Events[i].attributes["reason"] + stat.Events[i].attributes["minute"]
-                    + ((stat.Events[i].attributes["scorecondition"] == undefined) ? "" : (" " + stat.Events[i].attributes["scorecondition"] + " " + stat.Events[i].attributes["score"])),
+                    + sub_str,
                 time: timeToFrame(stat.Events[i].attributes["time"])
             });
         }
