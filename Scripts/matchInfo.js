@@ -212,19 +212,25 @@ function ShowMatchStat(stat) {
             }
             let player = tmpPid_Player[stat.Events[i].attributes["playerId"]];
             let sub_player = tmpPid_Player[stat.Events[i].attributes["substitutedId"]];
-            let sub_str = "";
+            let sub_str1 = "", sub_str2 = "";
+            if (stat.Events[i].attributes["reason"] != undefined) {
+                sub_str1 = stat.Events[i].attributes["reason"];
+                if (stat.Events[i].attributes["minute"] != undefined) {
+                    sub_str1 += stat.Events[i].attributes["minute"];
+                }
+            }
             if (stat.Events[i].attributes["scorecondition"] != undefined) {
-                sub_str = stat.Events[i].attributes["scorecondition"];
+                sub_str2 = stat.Events[i].attributes["scorecondition"];
                 if (stat.Events[i].attributes["score"] != undefined) {
-                    sub_str += " " + stat.Events[i].attributes["score"];
+                    sub_str2 += " " + stat.Events[i].attributes["score"];
                 }
             }
             tgdiv.push({
                 html: "<div>" + stat.Events[i].attributes["time"] + "′ "
                     + player.m_name + "(" + player.m_shirtNo + ")↑ "
                     + sub_player.m_name + "(" + sub_player.m_shirtNo + ")↓ "
-                    + stat.Events[i].attributes["reason"] + stat.Events[i].attributes["minute"]
-                    + sub_str,
+                    + sub_str1
+                    + sub_str2,
                 time: timeToFrame(stat.Events[i].attributes["time"])
             });
         }
