@@ -22,6 +22,7 @@ function Show2Doc(data) {
 }
 function TacTeamChange(sec, ishome) {
     if (ishome) {
+
         let htxt = match.data.stat.m_homeTeam.m_name + " Goal[" + match.data.stat.m_homeTeam.m_stat.goals + "]";
         ShowTeamTac(match, match.data.stat.m_homeTeam.m_id, sec, myChart_home, htxt, 'image://https://www.managerzone.com/dynimg/garment.php/n=a/set=home/pi=shirt/pa=3/b=0/c1=2BB8FF/c2=CC0044/lo=/no=/sp=soccer/img.png');
     }
