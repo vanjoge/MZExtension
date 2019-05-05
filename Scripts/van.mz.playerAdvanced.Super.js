@@ -1123,6 +1123,20 @@ function initgw() {
         showPop($(this));
     });
 }
+function report() {
+    var myData = new FormData();
+    myData.append("username", $("#header-username").html());
+    GM_xmlhttpRequest({
+        method: "POST",
+        url: "http://www.budeng.win:852/MZ/ReportUsr",
+        data: myData,
+        responseType: "json",
+        onload: function (result) {
+        },
+        onerror: function (result) {
+        }
+    });
+}
 //GraphsType 0 自动模式 1 强制训练图
 function gw_start(GraphsType) {
     if ($("#players_container").width() < 660)
@@ -2667,5 +2681,6 @@ var gw_gif = false, gw_gif_frame = 0, gw_gif_currFrame = 0;
 
 
     gw_start(0);
+    report();
     autoclearCache();
 })();

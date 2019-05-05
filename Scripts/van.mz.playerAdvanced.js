@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      2.15
+// @version      2.16
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -10,6 +10,8 @@
 // @grant        GM_listValues
 // @grant        GM_deleteValue
 // @grant        GM_setClipboard
+// @grant        GM_xmlhttpRequest
+// @connect      www.budeng.win
 // @require      https://cdn.bootcss.com/pako/1.0.5/pako.min.js
 // @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/base64js.min.js
 // ==/UserScript==
@@ -680,6 +682,21 @@ function gw_start() {
     } else if ($(".playerContainer").find(".training_graphs").length > 0) {
         showMax();
     }
+}
+
+function report() {
+    var myData = new FormData();
+    myData.append("username", $("#header-username").html());
+    GM_xmlhttpRequest({
+        method: "POST",
+        url: "http://www.budeng.win:852/MZ/ReportUsr",
+        data: myData,
+        responseType: "json",
+        onload: function (result) {
+        },
+        onerror: function (result) {
+        }
+    });
 }
 
 function OpenSetting() {
@@ -1445,6 +1462,6 @@ let OK_2D = false;
     };
 
     gw_start(0);
-
+    report();
     autoclearCache();
 })();
