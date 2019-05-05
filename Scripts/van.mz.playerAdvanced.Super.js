@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.9
+// @version      3.10
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -1124,18 +1124,19 @@ function initgw() {
     });
 }
 function report() {
-    var myData = new FormData();
-    myData.append("username", $("#header-username").html());
-    GM_xmlhttpRequest({
-        method: "POST",
-        url: "http://www.budeng.win:852/MZ/ReportUsr",
-        data: myData,
-        responseType: "json",
-        onload: function (result) {
-        },
-        onerror: function (result) {
-        }
-    });
+    let username = $("#header-username").html();
+    if (username != undefined) {
+
+        GM_xmlhttpRequest({
+            method: "GET",
+            url: "http://www.budeng.win:852/MZ/ReportUsr?username=" + username,
+            responseType: "json",
+            onload: function (result) {
+            },
+            onerror: function (result) {
+            }
+        });
+    }
 }
 //GraphsType 0 自动模式 1 强制训练图
 function gw_start(GraphsType) {
