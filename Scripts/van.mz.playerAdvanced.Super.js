@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.11
+// @version      3.12
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -1099,7 +1099,7 @@ function initgw() {
         + "<div>---</div>"
         + "<div id='gw_run2' class='gw_run shupai' title='" + now_language.SettingTitle + "'><b>" + now_language.Setting + "</b></div>"
         + "</div>");
-    $('#gw_run')[0].addEventListener('click', function () { gw_start(0); });
+    $('#gw_run')[0].addEventListener('click', function () { gw_start(1); });
     $('#gw_run2')[0].addEventListener('click', function () {
         OpenSetting();
     });
@@ -1108,7 +1108,7 @@ function initgw() {
         if (event.altKey) {
             if (window.event.keyCode == 65) {
                 //alt + A
-                gw_start(0);
+                gw_start(1);
             }
             else if (window.event.keyCode == 83) {
                 //alt + S
