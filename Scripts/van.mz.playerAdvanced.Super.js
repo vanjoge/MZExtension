@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.13
+// @version      3.14
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -304,7 +304,7 @@ var gm_mzlanguage = {
         training_ycc: "YCC",
         training_itc: "ITC",
         training_neg: "Neg",
-        training_unit: "?",
+        training_unit: "↑",
         training_unknown: "Entrenamiento desconocido",
         training_ball_day: "Días para ganar una pelotita",
         training_part: "Eficacia de entrenamiento",
