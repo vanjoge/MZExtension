@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.12
+// @version      3.13
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -220,19 +220,19 @@ var gm_mzlanguage = {
     ,
     es: {
         Name: "Español",
-        Save: "Grabar",
+        Save: "Guardar",
         Setting: "Ajustes",
         Test: "Test",
         SettingTitle: "Haga clic en configuración Idioma",
         Language: "Idioma",
 
         XmlMode: "Tactical Export Model",
-        XmlMode1: "Sequential selection",
-        XmlMode2: "Choose by location(need submit data to server)",
+        XmlMode1: "Secuencia de selección",
+        XmlMode2: "Elegir por locación (necesita suministrar datos al servidor)",
         TacConf: "Tactical Coefficient Setting",
-        AutoRun: "Auto Colorable",
-        AutoRun0: "By page loaded(Once)",
-        AutoRun1: "By MZ Refresh",
+        AutoRun: "Auto Coloreable",
+        AutoRun0: "Por página cargada (sólo una vez)",
+        AutoRun1: "Por recargar MZ",
 
         NotSureEx: "Las skills pueden cambiar después de ingresar al mercado. <br/> Cambiar hora ",
         NotSure: "Skill incierta",
@@ -241,7 +241,7 @@ var gm_mzlanguage = {
         Jijing: "Eventos",
         dongzuo: "PlayerStatus",
         Copyxml1: "CopiarXML(local)",
-        Copyxml2: "CopiarXML(visi)",
+        Copyxml2: "CopiarXML(visitante)",
         CopyXmlMsg: "La táctica fue copiada al portapapeles",
         CopyXmlMsgError: "¡Error al copiar!",
         BA_NORMAL: "Normal",
@@ -266,54 +266,55 @@ var gm_mzlanguage = {
         BA_RIGHT_FOOT_PASS_BACK: "FootPassBack(R)",
         BA_RIGHT_FOOT_PASS_RIGHT: "FootPassRight(R)",
         BA_RIGHT_FOOT_PASS_LEFT: "FootPassLeft(R)",
-        BA_PICK_UP_BALL: "PickUpBall",
-        BA_DROP_BALL: "DropBall",
-        BA_HEADER: "Header",
+        BA_PICK_UP_BALL: "Toma la pelota",
+        BA_DROP_BALL: "Tira la pelota al césped",
+        BA_HEADER: "Cabezazo",
         BA_TRIP: "Trip",
-        BA_CELEBRATE: "Celebrate",
-        BA_GK_READY: "GkReady",
+        BA_CELEBRATE: "Celebración",
+        BA_GK_READY: "Arquero preparado",
         BA_GK_ACRO_LEFT: "GkAcroLeft",
         BA_GK_ACRO_LEFT_HOLD: "GkAcroLeftHold",
         BA_GK_ACRO_RIGHT: "GkAcroRight",
         BA_GK_ACRO_RIGHT_HOLD: "GkAcroRightHold",
-        BA_GK_SIDESTEP_LEFT: "GkSidestepLeft",
-        BA_GK_SIDESTEP_RIGHT: "GkSidestepRight",
-        BA_GK_KICK: "GkKick",
+        BA_GK_SIDESTEP_LEFT: "Arquero da un paso a la izquierda",
+        BA_GK_SIDESTEP_RIGHT: "Arquero da un paso a la derecha",
+        BA_GK_KICK: "Arquero da una patada",
         BA_GK_THROW_BALL: "GkThrowBall",
         BA_GK_STRETCH_LEFT: "GkStretchLeft",
         BA_GK_STRETCH_LEFT_HOLD: "GkStretchLeftHold",
         BA_GK_STRETCH_RIGHT: "GkStretchRight",
         BA_GK_STRETCH_RIGHT_HOLD: "GkStretchRightHold",
-        BA_BALL_OWNER: "BallOwner",
-        BA_TACKLE: "Tackle",
-        BA_SLIDING_TACKLE: "SlidingTackle",
+        BA_BALL_OWNER: "Con la pelota en los pies",
+        BA_TACKLE: "Entrada",
+        BA_SLIDING_TACKLE: "Barrida",
         BA_SLIDING_TACKLE_STAND: "SlidingTackleStand",
         BA_MAX: "Max",
         BA_MY_1001: "HeadGoal(L)",
         BA_MY_1002: "HeadGoal(R)",
-        BA_MY_1003: "StopTheBall",
-        BA_MY_1011: "Tackle(Success)",
-        BA_MY_1012: "Tackle(Fail)",
+        BA_MY_1003: "Frena la pelota",
+        BA_MY_1011: "Entrada(acertada)",
+        BA_MY_1012: "Entrada(fallida)",
         Unknown: "Desconocido"
 
 
         ,
-        training_pos: "No coach",
+        training_pos: "Sin entrenador",
         training_camp: "CAMP",
         training_coach: "Coach",
-        training_ycc: "Ycc",
-        training_itc: "Itc",
+        training_ycc: "YCC",
+        training_itc: "ITC",
         training_neg: "Neg",
-        training_unit: "↑",
-        training_unknown: "Unknown training",
-        training_ball_day: "Next ball days",
-        training_part: "Training efficiency",
+        training_unit: "?",
+        training_unknown: "Entrenamiento desconocido",
+        training_ball_day: "Días para ganar una pelotita",
+        training_part: "Eficacia de entrenamiento",
         training_total: "Total",
         training_avg: "Avg",
-        training_now: "Now",
-        SkillsAnalysisTitle: "Colorable Skill and Analysis of Training Efficiency Shortcut key :ALT + S",
-        SkillsAnalysis: "Colorable By Graphs"
+        training_now: "Ahora",
+        SkillsAnalysisTitle: "Skills y análisis de eficacia de entrenamiento coloreables al presionar: ALT + S",
+        SkillsAnalysis: "Coloreable por gráficos"
     }
+
 };
 var now_language = gm_mzlanguage.en;
 
