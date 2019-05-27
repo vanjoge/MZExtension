@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.14
+// @version      3.15
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -838,18 +838,31 @@ function showMax(GraphsType) {
             setSrc(false, imgs[9], player.skills.highpassing, player.maxed.highpassing);
             setSrc(false, imgs[10], player.skills.situations, player.maxed.situations);
         } else if (pdom.find(".training_graphs").length > 0 && imgs.length > 0) {
-            let skills = pdom.find("td.skillval");
-            getTrainingGraphs(pid, imgs, skills);
+            getTrainingGraphs(pid, pdom);
         }
     }
     return false;
 }
-function drawPlayerByTrainingGraphs(pid, data, imgs, skills) {
+function drawPlayerByTrainingGraphs(pid, data, pdom) {
+
+    let imgs = pdom.find("img.skill");
+    let skills = pdom.find("td.skillval");
+
     eval(data);
     let maxeds = ["green", "green", "green", "green", "green", "green", "green", "green", "green", "green", "green"];
     let skillBallDays = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     let allSkillTraining_tmp = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     let camp = new mzcamp();
+    let SeasonTraining = new playerTrainingBySkill();
+    //赛季开始时间
+    let SeasonStart = 0;
+    if (xPlotLines && xPlotLines.length) {
+        let tmps1 = xPlotLines[xPlotLines.length - 1].value;
+        if (tmps1) {
+            SeasonStart = tmps1;
+        }
+    }
+
     for (var i = 0; i < series.length; i++) {
         if ((series[i].type == "line" && series[i].color == "rgba(255,0,0,0.7)")) {
             if (series[i].data.length > 0) {
@@ -936,11 +949,27 @@ function drawPlayerByTrainingGraphs(pid, data, imgs, skills) {
                             fillTrainingLevel("ycc", mzreg.bar_ycc, playerTS, g.marker.symbol);
                             fillTrainingLevel("pos", mzreg.bar_pos, playerTS, g.marker.symbol);
                             fillTrainingLevel("neg", mzreg.bar_neg, playerTS, g.marker.symbol, true);
+
+
+                            if (g.x > SeasonStart) {
+                                fillTrainingLevel("itc", mzreg.bar_itc, SeasonTraining, g.marker.symbol);
+                                fillTrainingLevel("ycc", mzreg.bar_ycc, SeasonTraining, g.marker.symbol);
+                                fillTrainingLevel("pos", mzreg.bar_pos, SeasonTraining, g.marker.symbol);
+                                fillTrainingLevel("neg", mzreg.bar_neg, SeasonTraining, g.marker.symbol, true);
+                            }
                         } else {
                             fillTrainingLevel(type, mzreg.bar_itc, playerTS, g.marker.symbol);
                             fillTrainingLevel(type, mzreg.bar_ycc, playerTS, g.marker.symbol);
                             fillTrainingLevel(type, mzreg.bar_pos, playerTS, g.marker.symbol);
                             fillTrainingLevel(type, mzreg.bar_neg, playerTS, g.marker.symbol, true);
+
+
+                            if (g.x > SeasonStart) {
+                                fillTrainingLevel(type, mzreg.bar_itc, SeasonTraining, g.marker.symbol);
+                                fillTrainingLevel(type, mzreg.bar_ycc, SeasonTraining, g.marker.symbol);
+                                fillTrainingLevel(type, mzreg.bar_pos, SeasonTraining, g.marker.symbol);
+                                fillTrainingLevel(type, mzreg.bar_neg, SeasonTraining, g.marker.symbol, true);
+                            }
                         }
                     }
                 }
@@ -967,6 +996,29 @@ function drawPlayerByTrainingGraphs(pid, data, imgs, skills) {
     for (var k = 0; k < maxeds.length; k++) {
         setSrc($(".player_share_skills").length == 0, imgs[k], skills[k].nowSkill, maxeds[k], skillBallDays[k], pid, k);
     }
+    $("#GM_NSAVG_" + pid).remove();
+    let nsavgstat = "<span id='GM_NSAVG_" + pid + "'> 本季训练效率:" + SeasonTraining.stat.all.getAvg() + "%";
+    if (SeasonTraining.stat.camp) {
+        nsavgstat += ",营" + SeasonTraining.stat.camp.getAvg() + "%";
+    }
+    if (SeasonTraining.stat.coach) {
+        let avg = SeasonTraining.stat.coach.getAvg();
+        if (avg > 4.9) {
+            nsavgstat += ",<span class='gm_ytc'>教练" + avg + "%</span>";
+        } else {
+            nsavgstat += ",<span>教练" + avg + "%</span>";
+        }
+    }
+    if (SeasonTraining.stat.pos) {
+        let avg = SeasonTraining.stat.pos.getAvg();
+        if (avg > 4.9) {
+            nsavgstat += ",<span class='gm_ytc'>无教练" + avg + "%</span>";
+        } else {
+            nsavgstat += ",<span>无教练" + avg + "%</span>";
+        }
+    }
+    nsavgstat += "</span>";
+    pdom.find("a.subheader").after(nsavgstat);
 }
 function fillTrainingLevel(type, reg, playerTS, url, isneg) {
     let result = url.match(reg);
@@ -986,11 +1038,11 @@ function fillTrainingLevel(type, reg, playerTS, url, isneg) {
         }
     }
 }
-function getTrainingGraphs(pid, imgs, skills) {
+function getTrainingGraphs(pid, pdom) {
     myAjax(
         "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=soccer&player_id=" + pid,
         function (data) {
-            drawPlayerByTrainingGraphs(pid, data, imgs, skills);
+            drawPlayerByTrainingGraphs(pid, data, pdom);
         });
 }
 function getTrainingGraphsBySkill_id(pid, skill_id, callback) {
