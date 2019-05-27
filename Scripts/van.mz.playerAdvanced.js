@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      3.14
+// @version      3.16
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -542,7 +542,8 @@ var mzreg = {
     bar_pos: /bar_pos_(\d+)/,
     bar_neg: /bar_neg_(\d+)/,
     trainingType: /&t=([^)]+)/,
-    data2d_url: /matchviewer\/media/
+    data2d_url: /matchviewer\/media/,
+    shortlist_url: /\/?p=shortlist/
 };
 var mzImg = {
     red_skill:
@@ -1095,8 +1096,12 @@ function report() {
 }
 //GraphsType 0 自动模式 1 强制训练图
 function gw_start(GraphsType) {
-    if ($("#players_container").width() < 660)
+    if ($("#players_container").width() < 660) {
+        if (mzreg.shortlist_url.test(location.href)) {
+            $(".col_2_of_3").width("660");
+        }
         $("#players_container").width("660");
+    }
     if ($(".player_share_skills").length > 0) {
         if (GraphsType == 0) {
             getMax(function () {
