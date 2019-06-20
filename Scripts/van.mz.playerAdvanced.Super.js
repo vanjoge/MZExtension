@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.16
+// @version      3.17
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -685,9 +685,13 @@ function autoclearCache() {
         return true;
     }
 }
-function myAjax(url, callback, noCache, Cjson) {
-    if (!noCache) {
-        let b64 = getLocValue(url);
+function myAjax(url, callback, cache_mode, Cjson) {
+    if (cache_mode == undefined) {
+        cache_mode = 2;
+        //0 不缓存每次都获取 1 缓存永不刷新 2 缓存每日刷新
+    }
+    if (cache_mode > 0) {
+        let b64 = getLocValue(url, cache_mode);
         if (b64) {
             let tdata;
             if (b64.startsWith("H4sIAA")) {
@@ -724,31 +728,39 @@ function myAjax(url, callback, noCache, Cjson) {
     });
 
 }
-function getLocValue(key) {
-    let ts = GM_getValue("Dt_" + key, -1);
-
-    if (ts != -1) {
-        let dt = new Date(ts);
-        let now = new Date();
-        //let d = now.getTime() - dt.getTime();
-        if (now.getUTCFullYear() == dt.getUTCFullYear() && now.getUTCMonth() == dt.getUTCMonth() && now.getUTCDate() == dt.getUTCDate()) {
-            if (now.getUTCHours() >= 1 && now.getUTCHours() <= 22) {
-                //取缓存
-            } else if (now.getUTCHours() != dt.getUTCHours()) {
-                //每小时更新一次缓存
-                return false;
-            }
-        } else {
-            return false;
-        }
+function getLocValue(key, cache_mode) {
+    if (cache_mode == 1) {
         let b64 = GM_getValue(key, false);
         if (b64) {
             return b64;
         }
         return false;
-
     } else {
-        return false;
+        let ts = GM_getValue("Dt_" + key, -1);
+
+        if (ts != -1) {
+            let dt = new Date(ts);
+            let now = new Date();
+            //let d = now.getTime() - dt.getTime();
+            if (now.getUTCFullYear() == dt.getUTCFullYear() && now.getUTCMonth() == dt.getUTCMonth() && now.getUTCDate() == dt.getUTCDate()) {
+                if (now.getUTCHours() >= 1 && now.getUTCHours() <= 22) {
+                    //取缓存
+                } else if (now.getUTCHours() != dt.getUTCHours()) {
+                    //每小时更新一次缓存
+                    return false;
+                }
+            } else {
+                return false;
+            }
+            let b64 = GM_getValue(key, false);
+            if (b64) {
+                return b64;
+            }
+            return false;
+
+        } else {
+            return false;
+        }
     }
 }
 function setLocValue(key, val) {
@@ -826,6 +838,10 @@ function showMax(GraphsType) {
         let pid = pdom.html().match(mzreg.playerId)[1];
         let player = pmax[pid];
         let imgs = pdom.find("img.skill");
+
+        if (pdom.find(".scout_report").length > 0) {
+            getScoutReport(pid, pdom);
+        }
         if (GraphsType == 0 && player) {
             setSrc(false, imgs[0], player.skills.speed, player.maxed.speed);
             setSrc(false, imgs[1], player.skills.stamina, player.maxed.stamina);
@@ -1019,7 +1035,7 @@ function drawPlayerByTrainingGraphs(pid, data, pdom) {
         }
     }
     nsavgstat += "</span>";
-    pdom.find("a.subheader").after(nsavgstat);
+    pdom.find("span.floatRight").before(nsavgstat);
 }
 function fillTrainingLevel(type, reg, playerTS, url, isneg) {
     let result = url.match(reg);
@@ -1039,6 +1055,50 @@ function fillTrainingLevel(type, reg, playerTS, url, isneg) {
         }
     }
 }
+
+function getScoutReport(pid, pdom) {
+    myAjax(
+        "/ajax.php?p=players&sub=scout_report&pid=" + pid + "&sport=soccer",
+        function (data) {
+            var srdom = $($.parseHTML(data));
+            var remark = srdom.find("span.blurred span").text();
+            var srdivs = srdom.find("dd div.flex-grow-1");
+            if (srdivs.length == 3) {
+                var HS = srdivs.eq(0).find(".lit").length;
+                var LS = srdivs.eq(1).find(".lit").length;
+                var SS = srdivs.eq(2).find(".lit").length;
+                //Trzxyvopaxis
+                var Hspan = srdivs.eq(0).find(".blurred span");
+                var HArr = new Array();
+                for (var i = 0; i < Hspan.length; i++) {
+                    if (Hspan.eq(i).text() != "Trzxyvopaxis") {
+                        HArr.push(Hspan.eq(i).text());
+                    }
+                }
+                var Lspan = srdivs.eq(1).find(".blurred span");
+                var LArr = new Array();
+                for (var i = 0; i < Lspan.length; i++) {
+                    if (Lspan.eq(i).text() != "Trzxyvopaxis") {
+                        LArr.push(Lspan.eq(i).text());
+                    }
+                }
+
+                $("#GM_scout_" + pid).remove();
+                let nsavgstat = "<a id='GM_scout_" + pid + "'>[H" + HS + " " + HArr[0] + "," + HArr[1] + "] [L" + LS + " " + LArr[0] + "," + LArr[1] + "] S" + SS;
+                nsavgstat += "</a>";
+                nsavgstat = $(nsavgstat)[0];
+                nsavgstat.addEventListener('click', function () {
+                    showHelpLayer(remark, 'Scout Report', true);
+                    return false;
+                });
+                nsavgstat.herf = "#";
+                pdom.find("a.subheader").after(nsavgstat);
+
+            }
+
+        }, 1);
+}
+
 function getTrainingGraphs(pid, pdom) {
     myAjax(
         "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=soccer&player_id=" + pid,
@@ -2568,7 +2628,7 @@ function CopyXML(ishome) {
                         alert(now_language.CopyXmlMsgError);
                     }
                 });
-            }, false, true);
+            }, 2, true);
     }
 }
 function Stats2XML(ishome, players) {
