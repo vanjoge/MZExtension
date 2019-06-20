@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      3.17
+// @version      3.18
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -788,7 +788,7 @@ function setSrc(transfer, img, skill, maxed, skillBallDay, pid, k) {
             }
         }
         if (img.isYtc) {
-            $(img).parent().parent().children()[0].className = "gm_ytc";
+            $(img).parent().parent().children().eq(0).addClass("gm_ytc");
         }
     }
 }
@@ -995,6 +995,20 @@ function getScoutReport(pid, pdom) {
                 nsavgstat.herf = "#";
                 pdom.find("a.subheader").after(nsavgstat);
 
+                var skillnames = pdom.find("td > span.clippable");
+                for (var i = 0; i < skillnames.length; i++) {
+                    if (HArr.indexOf(skillnames.eq(i).text()) >= 0) {
+                        skillnames.eq(i).parent().addClass("gm_scout_h");
+                        skillnames.eq(i).parent().addClass("gm_s" + HS);
+                    } else if (LArr.indexOf(skillnames.eq(i).text()) >= 0) {
+                        skillnames.eq(i).parent().removeClass("gm_scout_h");
+                        skillnames.eq(i).parent().addClass("gm_s" + LS);
+                    }
+                    //else {
+                    //    skillnames.eq(i).parent().removeClass("gm_scout_h");
+                    //    skillnames.eq(i).parent().removeClass("gm_s*");
+                    //}
+                }
             }
 
         }, 1);
@@ -1102,7 +1116,7 @@ function initgw() {
 
     var css = document.createElement('style');
     css.type = 'text/css';
-    css.innerHTML = ".gw_run_div{position:fixed;bottom:20%;right:1px;border:1px solid gray;padding:3px;width:12px;font-size:12px;border-radius: 3px;text-shadow: 1px 1px 3px #676767;background-color: #000000;color: #FFFFFF;cursor: default;}.gw_run{cursor:pointer;}.gw_div_left{float:left;position:fixed;left:0px;top:120px;height:528px;overflow-y:auto;text-align:left;}.gw_div_right{float:right;position:fixed;right:0px;top:120px;height:528px;overflow-y:auto;text-align:left;}.shupai{writing-mode:tb-rl;-webkit-writing-mode:vertical-rl;}.gm_ytc{color:blue;}";
+    css.innerHTML = ".gw_run_div{position:fixed;bottom:20%;right:1px;border:1px solid gray;padding:3px;width:12px;font-size:12px;border-radius: 3px;text-shadow: 1px 1px 3px #676767;background-color: #000000;color: #FFFFFF;cursor: default;}.gw_run{cursor:pointer;}.gw_div_left{float:left;position:fixed;left:0px;top:120px;height:528px;overflow-y:auto;text-align:left;}.gw_div_right{float:right;position:fixed;right:0px;top:120px;height:528px;overflow-y:auto;text-align:left;}.shupai{writing-mode:tb-rl;-webkit-writing-mode:vertical-rl;}.gm_ytc{font-style:italic;text-decoration:underline;}.gm_scout_h{font-weight: bold;}.gm_s1{color:red;}.gm_s2{color:darkgoldenrod;}.gm_s3{color:blue;}.gm_s4{color:fuchsia;}";
 
 
     document.getElementsByTagName('head')[0].appendChild(css);
