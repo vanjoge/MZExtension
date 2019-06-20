@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.18
+// @version      3.19
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -1084,8 +1084,8 @@ function getScoutReport(pid, pdom) {
                 }
 
                 $("#GM_scout_" + pid).remove();
-                let nsavgstat = "<a id='GM_scout_" + pid + "'>[H" + HS + " " + HArr[0] + "," + HArr[1] + "] [L" + LS + " " + LArr[0] + "," + LArr[1] + "] S" + SS;
-                nsavgstat += "</a>";
+                let nsavgstat = "<span id='GM_scout_" + pid + "'>[H" + HS + " " + HArr[0] + "," + HArr[1] + "] [L" + LS + " " + LArr[0] + "," + LArr[1] + "] S" + SS;
+                nsavgstat += "</span>";
                 nsavgstat = $(nsavgstat)[0];
                 nsavgstat.addEventListener('click', function () {
                     showHelpLayer(remark, 'Scout Report', true);
