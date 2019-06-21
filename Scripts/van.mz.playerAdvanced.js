@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      3.19
+// @version      3.20
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -114,6 +114,34 @@ var gm_mzlanguage = {
         SkillsAnalysis: "训练效率分析"
 
 
+        ,
+
+        sug_T0: "首选:",
+        sug_T1: "次选:",
+        sug_T2: "可尝试:",
+        sug_T3: "默认:",
+
+        Pos9: "后卫",
+        Pos7: "门将",
+        Pos10: "边锋",
+        Pos5: "前锋",
+        Pos4: "中场",
+        Pos56: "中锋",
+
+        sug_Loser: "关键属性容易早死，尽早交换或开除。",
+
+        sug_PRI: "训练顺序:",
+        attrName1: "速度",
+        attrName2: "耐力",
+        attrName3: "意识",
+        attrName4: "传球",
+        attrName5: "射门",
+        attrName6: "头球",
+        attrName7: "守门",
+        attrName8: "控球",
+        attrName9: "抢断",
+        attrName10: "传中",
+        attrName11: "定位"
     }
     ,
 
@@ -212,6 +240,36 @@ var gm_mzlanguage = {
         training_now: "Now",
         SkillsAnalysisTitle: "Colorable Skill and Analysis of Training Efficiency Shortcut key :ALT + S",
         SkillsAnalysis: "Colorable By Graphs"
+
+
+
+        ,
+        sug_T0: "First plan:",
+        sug_T1: "Second plan:",
+        sug_T2: "May try:",
+        sug_T3: "Default:",
+
+        Pos9: "CB",
+        Pos7: "GK",
+        Pos10: "WF",
+        Pos5: "ST",
+        Pos4: "MF",
+        Pos56: "CF",
+
+        sug_Loser: "Key skills too low.Exchange or dismiss as soon as possible.",
+
+        sug_PRI: "Training order:",
+        attrName1: "Speed",
+        attrName2: "Stamina",
+        attrName3: "Play Intelligence",
+        attrName4: "Passing",
+        attrName5: "Shooting",
+        attrName6: "Heading",
+        attrName7: "Keeping",
+        attrName8: "Ball Control",
+        attrName9: "Tackling",
+        attrName10: "Aerial Passing",
+        attrName11: "Set Plays"
     }
 
     ,
@@ -310,10 +368,41 @@ var gm_mzlanguage = {
         training_now: "Ahora",
         SkillsAnalysisTitle: "Skills y análisis de eficacia de entrenamiento coloreables al presionar: ALT + S",
         SkillsAnalysis: "Coloreable por gráficos"
+
+
+        ,
+        sug_T0: "First plan:",
+        sug_T1: "Second plan:",
+        sug_T2: "May try:",
+        sug_T3: "Default:",
+
+        Pos9: "CB",
+        Pos7: "GK",
+        Pos10: "WF",
+        Pos5: "ST",
+        Pos4: "MF",
+        Pos56: "CF",
+
+        sug_Loser: "Key skills too low.Exchange or dismiss as soon as possible.",
+
+        sug_PRI: "Training order:",
+        attrName1: "Speed",
+        attrName2: "Stamina",
+        attrName3: "Play Intelligence",
+        attrName4: "Passing",
+        attrName5: "Shooting",
+        attrName6: "Heading",
+        attrName7: "Keeping",
+        attrName8: "Ball Control",
+        attrName9: "Tackling",
+        attrName10: "Aerial Passing",
+        attrName11: "Set Plays"
     }
 
 };
 var now_language = gm_mzlanguage.en;
+var scoutLocList = { "9": { "Prop": { "1": 0, "2": 0, "9": 1, "10": 2, "8": 2, "3": 2, "4": 2, "6": 2 }, "Order": [1, 2, 9, 10, 8, 3, 4, 6], "CampKey": "9" }, "7": { "Prop": { "2": 0, "7": 1, "3": 1, "1": 1, "10": 2, "11": 2, "8": 2 }, "Order": [2, 7, 3, 1, 10, 11, 8], "CampKey": "7" }, "10": { "Prop": { "1": 0, "2": 0, "10": 1, "8": 1, "9": 2, "4": 2, "5": 2, "6": 2 }, "Order": [1, 2, 10, 8, 9, 4, 5, 6], "CampKey": "10" }, "5": { "Prop": { "1": 0, "2": 0, "5": 1, "8": 1, "6": 1, "3": 2, "4": 2, "10": 2, "9": 2 }, "Order": [1, 2, 5, 8, 6, 3, 4, 10, 9], "CampKey": "5" }, "4": { "Prop": { "1": 0, "2": 0, "4": 1, "8": 1, "3": 1, "10": 2, "9": 2, "5": 2, "6": 2 }, "Order": [1, 2, 4, 8, 3, 10, 9, 5, 6], "CampKey": "4" }, "5,6": { "Prop": { "2": 0, "1": 0, "5": 1, "6": 1, "8": 1, "3": 2, "4": 2, "10": 2, "9": 2 }, "Order": [2, 1, 5, 8, 6, 3, 4, 10, 9], "CampKey": "56" } };
+var OKeys = ["9", "7", "10", "5", "4", "5,6"];
 
 function CTable() {
     //key value
@@ -957,6 +1046,7 @@ function fillTrainingLevel(type, reg, playerTS, url, isneg) {
         }
     }
 }
+
 function getScoutReport(pid, pdom) {
     myAjax(
         "/ajax.php?p=players&sub=scout_report&pid=" + pid + "&sport=soccer",
@@ -984,34 +1074,188 @@ function getScoutReport(pid, pdom) {
                     }
                 }
 
-                $("#GM_scout_" + pid).remove();
-                let nsavgstat = "<span id='GM_scout_" + pid + "'>[H" + HS + " " + HArr[0] + "," + HArr[1] + "] [L" + LS + " " + LArr[0] + "," + LArr[1] + "] S" + SS;
-                nsavgstat += "</span>";
-                nsavgstat = $(nsavgstat)[0];
-                nsavgstat.addEventListener('click', function () {
-                    showHelpLayer(remark, 'Scout Report', true);
-                    return false;
-                });
-                pdom.find("a.subheader").after(nsavgstat);
+                var HPids = [], LPids = [];
 
                 var skillnames = pdom.find("td > span.clippable");
                 for (var i = 0; i < skillnames.length; i++) {
                     if (HArr.indexOf(skillnames.eq(i).text()) >= 0) {
                         skillnames.eq(i).parent().addClass("gm_scout_h");
                         skillnames.eq(i).parent().addClass("gm_s" + HS);
+                        HPids.push(i + 1);
                     } else if (LArr.indexOf(skillnames.eq(i).text()) >= 0) {
                         skillnames.eq(i).parent().removeClass("gm_scout_h");
                         skillnames.eq(i).parent().addClass("gm_s" + LS);
+                        LPids.push(i + 1);
                     }
                     //else {
                     //    skillnames.eq(i).parent().removeClass("gm_scout_h");
                     //    skillnames.eq(i).parent().removeClass("gm_s*");
                     //}
                 }
+
+                $("#GM_scout_" + pid).remove();
+                let nsavgstat = "<span id='GM_scout_" + pid + "'>[H" + HS + " " + HArr[0] + "," + HArr[1] + "] [L" + LS + " " + LArr[0] + "," + LArr[1] + "] S" + SS;
+                nsavgstat += "</span>";
+                nsavgstat = $(nsavgstat)[0];
+                nsavgstat.addEventListener('click', function () {
+                    var strSus = remark;
+                    if (IsLoser(HS, LS, LPids[0], LPids[1])) {
+                        strSus += "<br/><br/>" + now_language.sug_Loser;
+                    }
+                    var plans = getTrainPlans(HPids[0], HPids[1], LPids[0], LPids[1]);
+                    for (var j = 0; j < plans.length; j++) {
+
+                        var str = "";
+                        var pri = getTrainPRI(plans[j].loc, HS, HPids[0], HPids[1], LS, LPids[0], LPids[1]);
+                        for (var i = 0; i < pri.Order.length; i++) {
+                            if (str != "") {
+                                str += ">";
+                            }
+                            str += now_language["attrName" + pri.Order[i]];
+                        }
+                        strSus += "<br/><br/>" + now_language["sug_T" + plans[j].type] + now_language["Pos" + pri.Sloc.CampKey] + "<br/><br/>" + now_language.sug_PRI + str;
+
+                    }
+                    showHelpLayer(strSus, 'Scout Report', true);
+
+                    return false;
+                });
+                pdom.find("a.subheader").after(nsavgstat);
+
             }
 
         }, 1);
 }
+
+function checkScoutLoc(lst, key, LP1, LP2, slocs) {
+    if (lst[key] != undefined) {
+        var sloc = lst[key];
+        if (getProp(LP1, sloc) == 0 || getProp(LP2, sloc) == 0) {
+
+            slocs.push({ type: 1, loc: sloc });
+        }
+        else {
+            slocs.push({ type: 0, loc: sloc });
+        }
+        slocs.keys[key] = true;
+    }
+}
+function getProp(id, loc) {
+    if (loc.Prop[id] != undefined) {
+        return loc.Prop[id];
+    }
+    return 3;
+}
+function getTrainPlans(HP1, HP2, LP1, LP2) {
+    //0 首选 1 次选(弱项有主项) 2 一般(强项不适合 从非弱项中找) 3 强行默认 一般练后卫
+    var slocs = [];
+    slocs.keys = {};
+
+    //按高星挑选合适训练计划
+    checkScoutLoc(scoutLocList, HP1 + "," + HP2, LP1, LP2, slocs);
+    checkScoutLoc(scoutLocList, HP2 + "," + HP1, LP1, LP2, slocs);
+    checkScoutLoc(scoutLocList, HP1, LP1, LP2, slocs);
+    checkScoutLoc(scoutLocList, HP2, LP1, LP2, slocs);
+
+
+    for (var i = 0; i < OKeys.length; i++) {
+        var key = OKeys[i];
+        if (!slocs.keys[key]) {
+            var loc = scoutLocList[key];
+            if (getProp(LP1, loc) != 1 && getProp(LP2, loc) != 1) {
+                slocs.push({ type: 2, loc: loc });
+                slocs.keys[key] = true;
+            }
+        }
+    }
+    if (slocs.length == 0) {
+        slocs.push({ type: 3, loc: scoutLocList[OKeys[0]] });
+    }
+    return slocs;
+}
+function IsLoser(HStar, LStar, LP1, LP2) {
+    if (HStar <= 2) {
+        return true;
+    }
+    //弱1带速耐
+    if (LStar == 1 && HStar < 4) {
+        if (LP1 == 1 || LP2 == 1 || LP1 == 2 || LP2 == 2) {
+            return true;
+        }
+    }
+    return false;
+}
+function getTrainPRI(sloc, HStar, HP1, HP2, LStar, LP1, LP2) {
+
+    //获取训练顺序
+    var lstBase = [];
+    var lstMain = [];
+    var lstSub = [];
+    for (var i = 0; i < sloc.Order.length; i++) {
+        var ID = sloc.Order[i];
+        var t = getProp(ID, sloc);
+        if (t == 0 || t == 1) {
+            //强3+星 基础和主项训练完再训练
+            if (HStar >= 3) {
+                if (HP1 == ID || HP2 == ID) {
+                    lstSub.push(ID);
+                }
+            }
+            //弱2星带基础和主项 最优先训练
+            if (LStar <= 2) {
+                if (LP1 == ID || LP2 == ID) {
+                    if (t == 0) {
+                        lstBase.unshift(ID);
+                    }
+                    else {
+                        lstMain.push(ID);
+                    }
+                }
+            }
+            //高低星都没有基础和主项 最优先训练
+            if (HP1 != ID && HP2 != ID && LP1 != ID && LP2 != ID) {
+                //意降低优先级
+                if (ID == 3) {
+                    lstSub.push(ID);
+                }
+                else if (t == 0) {
+                    lstBase.push(ID);
+                }
+                else {
+                    lstMain.push(ID);
+                }
+            }
+        }
+        else if (t == 2) {
+            lstSub.push(ID);
+        }
+    }
+
+    var pri = 29;
+    var ditPRI = {};
+    var lstOrder = lstBase.concat(lstMain).concat(lstSub);
+
+    while (lstBase.length > 0) {
+        ditPRI[lstBase.shift()] = pri;
+        pri -= 1;
+    }
+    pri = 19;
+    while (lstMain.length > 0) {
+        ditPRI[lstMain.shift()] = pri;
+        pri -= 1;
+    }
+    pri = 9;
+    while (lstSub.length > 0) {
+        ditPRI[lstSub.shift()] = pri;
+        pri -= 1;
+    }
+
+    var ret = {
+        "Sloc": sloc, "TrainPRI": ditPRI, "Order": lstOrder
+    };
+    return ret;
+}
+
 function getTrainingGraphs(pid, imgs, skills) {
     myAjax(
         "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=soccer&player_id=" + pid,
