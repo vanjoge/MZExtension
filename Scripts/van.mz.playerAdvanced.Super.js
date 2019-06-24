@@ -1486,7 +1486,7 @@ function OpenSetting() {
 
     let lang = GM_getValue("mylanguage", "en");
     let xml_mode = GM_getValue("xml_mode", 0);
-    let autoRun = GM_getValue("autoRun1", 0);
+    let autoRun = GM_getValue("autoRun1", 1);
     let tmphtml;
     tmphtml = '\
 <div><b>'+ now_language.Language + ':</b></div>\
@@ -1499,8 +1499,8 @@ function OpenSetting() {
 \
 <div><b>'+ now_language.AutoRun + ':</b></div>\
 <div><select id="gm_autorun">\
-<option value="0"'+ (autoRun == 0 ? ' selected="selected" ' : '') + '>' + now_language.AutoRun1 + '</option>\
-<option value="1"'+ (autoRun == 1 ? ' selected="selected" ' : '') + '>' + now_language.AutoRun0 + '</option>\
+<option value="0"'+ (autoRun == 0 ? ' selected="selected" ' : '') + '>' + now_language.AutoRun0 + '</option>\
+<option value="1"'+ (autoRun == 1 ? ' selected="selected" ' : '') + '>' + now_language.AutoRun1 + '</option>\
 </select>\
 </div>\
 \
@@ -2931,7 +2931,7 @@ let OK_2D = false;
         unsafeWindow.prepareTransferData = function (readyState, response, responseParameter) {
 
             _prepareTransferData.apply(this, arguments);
-            if (GM_getValue("autoRun1", 0) == 1) {
+            if (GM_getValue("autoRun1", 1) == 1) {
                 if (typeof (responseParameter) === "undefined" || !responseParameter) {
                     gw_start(0);
                 }
@@ -2944,7 +2944,7 @@ let OK_2D = false;
         unsafeWindow.centerPowerbox = function () {
 
             _centerPowerbox.apply(this, arguments);
-            if (GM_getValue("autoRun1", 0) == 1) {
+            if (GM_getValue("autoRun1", 1) == 1) {
                 gw_start(0);
             }
         };
@@ -2958,7 +2958,7 @@ let OK_2D = false;
                 options.gm_success = options.success;
                 options.success = function () {
                     options.gm_success.apply(this, arguments);
-                    if (GM_getValue("autoRun1", 0) == 1) {
+                    if (GM_getValue("autoRun1", 1) == 1) {
                         gw_start(0);
                     }
                 };
