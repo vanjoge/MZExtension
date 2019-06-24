@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.20
+// @version      3.21
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -816,6 +816,8 @@ function getMax(callback) {
     return false;
 }
 function setSrc(transfer, img, skill, maxed, skillBallDay, pid, k) {
+    img.skill = skill;
+    img.maxed = maxed;
     if (skill > 0) {
         let flag_exit = false;
         if (transfer && skillBallDay) {
@@ -848,29 +850,27 @@ function setSrc(transfer, img, skill, maxed, skillBallDay, pid, k) {
             $(img).parent().parent().append("<td class='skill_exact2'><div><span id=" + pid + "_" + k + "_" + skill + " class='skillval skill_exact_van'>" + sum + "%</span></div></td>");
         }
 
-        var src = img.b;
-        if (maxed === "red") {
-            src = mzImg.r;
-        }
-        else if (maxed === "green") {
-            src = mzImg.g;
-        }
-        var strdiv = "<div class='skill' style='font-size:0;padding: 0 0 0 4px;'>";
-        for (var i = 0; i < skill; i++) {
-            strdiv += "<img src='" + src + "'>";
-        }
-        if (/blevel_/.test(img.src)) {
-            strdiv += "<img src='" + mzImg.x + "'>";
-        }
-        strdiv += "</div>";
-        $(img).hide();
-
-        $(img).parent().find("div").remove();
-        $(img).after(strdiv);
         if (img.isYtc) {
             $(img).parent().parent().children().eq(0).addClass("gm_ytc");
         }
     }
+    var strdiv = "<div class='skill' style='font-size:0;padding: 0 0 0 4px;'>";
+    for (var i = 0; i < skill; i++) {
+        if (maxed === "red") {
+            strdiv += "<img src='" + mzImg.r + "'>";
+        }
+        else if (maxed === "green") {
+            strdiv += "<img src='" + mzImg.g + "'>";
+        }
+    }
+    if (/blevel_/.test(img.src)) {
+        strdiv += "<img src='" + mzImg.x + "'>";
+    }
+    strdiv += "</div>";
+    $(img).hide();
+
+    $(img).parent().find("div").remove();
+    $(img).after(strdiv);
 }
 function showMax(GraphsType) {
     let players = $(".playerContainer");
@@ -896,7 +896,7 @@ function showMax(GraphsType) {
             setSrc(false, imgs[9], player.skills.highpassing, player.maxed.highpassing);
             setSrc(false, imgs[10], player.skills.situations, player.maxed.situations);
         } else if (pdom.find(".training_graphs").length > 0 && imgs.length > 0) {
-            getTrainingGraphs(pid, pdom);
+            getTrainingGraphs(pid, pdom, GraphsType);
         }
     }
     return false;
@@ -1095,7 +1095,7 @@ function fillTrainingLevel(type, reg, playerTS, url, isneg) {
     }
 }
 
-function getScoutReport(pid, pdom) {
+function getScoutReport(pid, pdom, showMB) {
     myAjax(
         "/ajax.php?p=players&sub=scout_report&pid=" + pid + "&sport=soccer",
         function (data) {
@@ -1164,12 +1164,18 @@ function getScoutReport(pid, pdom) {
                         strSus += "<br/><br/>" + now_language["sug_T" + plans[j].type] + now_language["Pos" + pri.Sloc.CampKey] + "<br/><br/>" + now_language.sug_PRI + str;
 
                     }
+                    strSus += "<br/><br/><a id='GM_smb_" + pid + "' herf='#'>显示球员可能的最大属性</a>";
                     showHelpLayer(strSus, 'Scout Report', true);
 
+                    $("#GM_smb_" + pid)[0].addEventListener('click', function () {
+                        showMaybeSkill(pdom, HS, HPids[0], HPids[1], LS, LPids[0], LPids[1]);
+                    });
                     return false;
                 });
                 pdom.find("a.subheader").after(nsavgstat);
-
+                if (showMB) {
+                    showMaybeSkill(pdom, HS, HPids[0], HPids[1], LS, LPids[0], LPids[1]);
+                }
             }
 
         }, 1);
@@ -1304,15 +1310,75 @@ function getTrainPRI(sloc, HStar, HP1, HP2, LStar, LP1, LP2) {
     return ret;
 }
 
-function showMaybeSkill() {
+function showMaybeSkill(pdom, HStar, HP1, HP2, LStar, LP1, LP2) {
+
+    let imgs = pdom.find("img.skill");
+    let maxL = 0, maxN = 0;
+    for (let i = 0; i < 11; i++) {
+        if (imgs[i].skill == undefined) {
+            return;
+        }
+        let mskill = imgs[i].skill;
+        if (imgs[i].maxed == "green") {
+            mskill += 1;
+        }
+        //if (mskill < 4) {
+        //    mskill = 4;
+        //}
+        if (i == LP1 - 1 || i == LP2 - 1) {
+            if (maxL < mskill) {
+                maxL = mskill;
+            }
+        } else if (i == HP1 - 1 || i == HP2 - 1) {
+            //高星
+        } else {
+            if (maxN < mskill) {
+                maxN = mskill;
+            }
+        }
+    }
+    for (let i = 0; i < 11; i++) {
+        let mbskill = 4;
+        if (i == HP1 - 1 || i == HP2 - 1) {
+            //高星
+            if (HStar == 3) {
+                mbskill = 8;
+            } else if (HStar == 4) {
+                mbskill = 9;
+            }
+            if (mbskill < maxN) {
+                mbskill = maxN;
+            }
+            if (mbskill < maxL) {
+                mbskill = maxL;
+            }
+        } else if (i == LP1 - 1 || i == LP2 - 1) {
+            //低星
+        } else {
+            if (mbskill < maxL) {
+                mbskill = maxL;
+            }
+        }
+        if (imgs[i].skill < mbskill) {
+            var imgdiv = $(imgs[i]).parent().find("div");
+            imgdiv.find(".GM_Mbimg").remove();
+            for (let j = imgs[i].skill; j < mbskill; j++) {
+                imgdiv.append("<img class='GM_Mbimg' src='" + mzImg.b + "'>");
+            }
+        }
+    }
 
 }
 
-function getTrainingGraphs(pid, pdom) {
+function getTrainingGraphs(pid, pdom, GraphsType) {
     myAjax(
         "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=soccer&player_id=" + pid,
         function (data) {
             drawPlayerByTrainingGraphs(pid, data, pdom);
+
+            if (GraphsType == 2) {
+                getScoutReport(pid, pdom, true);
+            }
         });
 }
 function getTrainingGraphsBySkill_id(pid, skill_id, callback) {
@@ -1435,7 +1501,7 @@ function initgw() {
             }
             else if (window.event.keyCode == 83) {
                 //alt + S
-                gw_start(1);
+                gw_start(2);
             }
             else if (window.event.keyCode == 68) {
                 //alt + D
@@ -1462,7 +1528,7 @@ function report() {
         });
     }
 }
-//GraphsType 0 自动模式 1 强制训练图
+//GraphsType 0 自动模式 1 强制训练图 2 星级球员显示最大值
 function gw_start(GraphsType) {
     if ($("#players_container").width() < 660) {
         if (mzreg.shortlist_url.test(location.href)) {
