@@ -1376,7 +1376,7 @@ function getTrainingGraphs(pid, pdom, GraphsType) {
         function (data) {
             drawPlayerByTrainingGraphs(pid, data, pdom);
 
-            if (GraphsType == 2) {
+            if (GraphsType == 2 && pdom.find(".scout_report").length > 0) {
                 getScoutReport(pid, pdom, true);
             }
         });
