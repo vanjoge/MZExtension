@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.21
+// @version      3.22
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -145,6 +145,10 @@ var gm_mzlanguage = {
         attrName9: "抢断",
         attrName10: "传中",
         attrName11: "定位"
+
+        ,
+        scoutReport:"球探报告"
+
     }
     ,
 
@@ -273,6 +277,8 @@ var gm_mzlanguage = {
         attrName9: "Tackling",
         attrName10: "Aerial Passing",
         attrName11: "Set Plays"
+        ,
+        scoutReport: "Scout Report"
     }
 
     ,
@@ -389,17 +395,19 @@ var gm_mzlanguage = {
         sug_Loser: "Key skills too low.Exchange or dismiss as soon as possible.",
 
         sug_PRI: "Training order:",
-        attrName1: "Speed",
-        attrName2: "Stamina",
-        attrName3: "Play Intelligence",
-        attrName4: "Passing",
-        attrName5: "Shooting",
-        attrName6: "Heading",
-        attrName7: "Keeping",
-        attrName8: "Ball Control",
-        attrName9: "Tackling",
-        attrName10: "Aerial Passing",
-        attrName11: "Set Plays"
+        attrName1: "Velocidad",
+        attrName2: "Resistencia",
+        attrName3: "Inteligencia",
+        attrName4: "Pases",
+        attrName5: "Remates",
+        attrName6: "Cabezazos",
+        attrName7: "Atajando",
+        attrName8: "Control de balón",
+        attrName9: "Entradas",
+        attrName10: "Pases Largos",
+        attrName11: "Balón Parado"
+        ,
+        scoutReport: "REPORTE DE SCOUTEO"
     }
 
 };
@@ -1165,7 +1173,7 @@ function getScoutReport(pid, pdom, showMB) {
 
                     }
                     strSus += "<br/><br/><a id='GM_smb_" + pid + "' herf='#'>显示球员可能的最大属性</a>";
-                    showHelpLayer(strSus, 'Scout Report', true);
+                    showHelpLayer(strSus, now_language.scoutReport, true);
 
                     $("#GM_smb_" + pid)[0].addEventListener('click', function () {
                         showMaybeSkill(pdom, HS, HPids[0], HPids[1], LS, LPids[0], LPids[1]);
