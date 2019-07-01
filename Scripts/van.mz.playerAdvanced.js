@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      3.22
+// @version      3.23
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -378,21 +378,21 @@ var gm_mzlanguage = {
 
 
         ,
-        sug_T0: "First plan:",
-        sug_T1: "Second plan:",
-        sug_T2: "May try:",
-        sug_T3: "Default:",
+        sug_T0: "Primera opción:",
+        sug_T1: "Segunda opción:",
+        sug_T2: "Podrías intentar:",
+        sug_T3: "Predeterminado:",
 
-        Pos9: "CB",
-        Pos7: "GK",
-        Pos10: "WF",
-        Pos5: "ST",
-        Pos4: "MF",
-        Pos56: "CF",
+        Pos9: "Centro defensor",
+        Pos7: "Arquero",
+        Pos10: "Delantero lateral",
+        Pos5: "Segundo delantero",
+        Pos4: "Centrocampista",
+        Pos56: "Miediocampista/Anchor",
 
-        sug_Loser: "Key skills too low.Exchange or dismiss as soon as possible.",
+        sug_Loser: "Habilidades clave demasiado bajas. Intercambialo lo más antes posible.",
 
-        sug_PRI: "Training order:",
+        sug_PRI: "Orden de entrenamiento:",
         attrName1: "Velocidad",
         attrName2: "Resistencia",
         attrName3: "Inteligencia",
