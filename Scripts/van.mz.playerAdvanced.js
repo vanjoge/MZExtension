@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      3.23
+// @version      3.24
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -12,7 +12,7 @@
 // @grant        GM_setClipboard
 // @grant        GM_xmlhttpRequest
 // @connect      www.budeng.win
-// @require      https://cdn.bootcss.com/pako/1.0.5/pako.min.js
+// @require      https://cdn.jsdelivr.net/pako/1.0.5/pako.min.js
 // @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/base64js.min.js
 // ==/UserScript==
 

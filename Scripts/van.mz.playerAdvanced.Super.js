@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.23
+// @version      3.24
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -14,7 +14,7 @@
 // @connect      www.budeng.win
 // @updateURL    https://raw.githubusercontent.com/vanjoge/MZExtension/master/Scripts/van.mz.playerAdvanced.Super.js
 // @downloadURL  https://raw.githubusercontent.com/vanjoge/MZExtension/master/Scripts/van.mz.playerAdvanced.Super.js
-// @require      https://cdn.bootcss.com/pako/1.0.5/pako.min.js
+// @require      https://cdn.jsdelivr.net/pako/1.0.5/pako.min.js
 // @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/base64js.min.js
 // ==/UserScript==
 
