@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.25
+// @version      3.26
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -731,6 +731,7 @@ function autoclearCache() {
         return true;
     }
 }
+
 function myAjax(url, callback, cache_mode, Cjson) {
     if (cache_mode == undefined) {
         cache_mode = 2;
@@ -753,7 +754,9 @@ function myAjax(url, callback, cache_mode, Cjson) {
                     tdata = b64;
                 }
             }
-            callback(tdata, true);
+            if (callback(tdata, true)) {
+                clearCacheItem(url);
+            }
             return;
         }
     }
@@ -764,10 +767,14 @@ function myAjax(url, callback, cache_mode, Cjson) {
         success: function (data) {
             let b64 = base64js.fromByteArray(pako.gzip(data));
             setLocValue(url, b64);
+            let ret = false;
             if (Cjson) {
-                callback("9" + b64, false);
+                ret = callback("9" + b64, false);
             } else {
-                callback(data, false);
+                ret = callback(data, false);
+            }
+            if (ret) {
+                clearCacheItem(url);
             }
             isAjaxing = false;
         }
@@ -813,13 +820,21 @@ function setLocValue(key, val) {
     GM_setValue("Dt_" + key, new Date().getTime());
     GM_setValue(key, val);
 }
+function clearCacheItem(key) {
+    GM_deleteValue("Dt_" + key);
+    GM_deleteValue(key);
+}
 function getMax(callback) {
     myAjax(
         "/?p=training",
         function (data) {
             var result = data.match(mzreg.playerMax);
-            pmax = JSON.parse(result[1]);
-            callback(pmax);
+            if (result) {
+                pmax = JSON.parse(result[1]);
+                callback(pmax);
+            } else {
+                return true;
+            }
 
         });
     return false;
@@ -838,6 +853,9 @@ function setSrc(transfer, img, skill, maxed, skillBallDay, pid, k) {
                         $(img).parent().parent().find("td.skillval").html("(" + result[1] + ")");
                         setSrc(false, img, parseInt(result[1]), maxed, false, pid, k);
                         flag_exit = true;
+                        return true;
+                    } else {
+                        return false;
                     }
                 });
                 //$(img).parent().find("span").remove();
@@ -926,6 +944,9 @@ function drawPlayerByTrainingGraphs(pid, data, pdom) {
     let imgs = pdom.find("img.skill");
 
     eval(data);
+    if (series == undefined) {
+        return false;
+    }
     let maxeds = ["green", "green", "green", "green", "green", "green", "green", "green", "green", "green", "green"];
     let skillBallDays = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     let allSkillTraining_tmp = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -1095,6 +1116,8 @@ function drawPlayerByTrainingGraphs(pid, data, pdom) {
     }
     nsavgstat += "</span>";
     pdom.find("span.floatRight").before(nsavgstat);
+
+    return true;
 }
 function fillTrainingLevel(type, reg, playerTS, url, isneg) {
     let result = url.match(reg);
@@ -1202,6 +1225,8 @@ function getScoutReport(pid, pdom, showMB) {
                 if (showMB) {
                     showMaybeSkill(pdom, HS, HPids[0], HPids[1], LS, LPids[0], LPids[1]);
                 }
+            } else {
+                return true;
             }
 
         }, cache_mode);
@@ -1400,18 +1425,19 @@ function getTrainingGraphs(pid, pdom, GraphsType) {
     myAjax(
         "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=soccer&player_id=" + pid,
         function (data) {
-            drawPlayerByTrainingGraphs(pid, data, pdom);
+            var ret = drawPlayerByTrainingGraphs(pid, data, pdom);
 
             if (GraphsType == 2 && pdom.find(".scout_report").length > 0) {
                 getScoutReport(pid, pdom, true);
             }
+            return !ret;
         });
 }
 function getTrainingGraphsBySkill_id(pid, skill_id, callback) {
     myAjax(
         "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=soccer&player_id=" + pid + "&skill_id=" + (skill_id + 2),
         function (data) {
-            callback(data);
+            return !callback(data);
         });
 }
 function showPop(parent) {
