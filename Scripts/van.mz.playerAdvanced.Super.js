@@ -1116,8 +1116,14 @@ function fillTrainingLevel(type, reg, playerTS, url, isneg) {
 }
 
 function getScoutReport(pid, pdom, showMB) {
+    var url = "/ajax.php?p=players&sub=scout_report&pid=" + pid + "&sport=soccer";
+    var cache_mode = 1;
+    if (pdom.find("#discard_youth_button").length) {
+        url = "/ajax.php?p=players&sub=scout_report&pid=null&sport=soccer";
+        cache_mode = 0;
+    }
     myAjax(
-        "/ajax.php?p=players&sub=scout_report&pid=" + pid + "&sport=soccer",
+        url,
         function (data) {
             var srdom = $($.parseHTML(data));
             var remark = srdom.find("span.blurred span").text();
@@ -1198,7 +1204,7 @@ function getScoutReport(pid, pdom, showMB) {
                 }
             }
 
-        }, 1);
+        }, cache_mode);
 }
 
 function checkScoutLoc(lst, key, LP1, LP2, slocs) {
