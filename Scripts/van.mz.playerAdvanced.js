@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      3.24
+// @version      3.25
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -681,6 +681,7 @@ var mzImg = {
     g: "data:image/gif;base64,R0lGODlhDAAKAJEDAP///8zM/wAA/////yH5BAEAAAMALAAAAAAMAAoAAAIk3CIpYZ0BABJtxvjMgojTIVwKpl0dCQbQJX3T+jpLNDXGlDUFADs=",
     r: "data:image/gif;base64,R0lGODlhDAAKAJEDAP////8AAMyZmf///yH5BAEAAAMALAAAAAAMAAoAAAIk3BQZYp0CAAptxvjMgojTEVwKpl0dCQrQJX3T+jpLNDXGlDUFADs=",
     b: "data:image/gif;base64,R0lGODlhDAAKAJEDAP///5mZmQAAAP///yH5BAEAAAMALAAAAAAMAAoAAAIk3CIpYZ0BABJtxvjMgojTIVwKpl0dCQbQJX3T+jpLNDXGlDUFADs=",
+    p: "data:image/gif;base64,R0lGODlhDAAKAJEDAP///5lm/5kzzP///yH5BAEAAAMALAAAAAAMAAoAAAIk3CIpYZ0BABJtxvjMgojTIVwKpl0dCQbQJX3T+jpLNDXGlDUFADs=",
     x: "data:image/gif;base64,R0lGODlhBgAKAJEDAJnMZpmZmQAAAP///yH5BAEAAAMALAAAAAAGAAoAAAIRXCRhApAMgoPtVXXS2Lz73xUAOw=="
 };
 var pmax = {};
@@ -833,7 +834,7 @@ function setSrc(transfer, img, skill, maxed, skillBallDay, pid, k) {
                     let result = data.match(new RegExp('{"x":' + skillBallDay + ',"y":(\\d+),[^}]*"marker"'));
                     if (result && result.length) {
                         $(img).parent().parent().find("td.skillval").html("(" + result[1] + ")");
-                        setSrc(false, img, result[1], maxed, false, pid, k);
+                        setSrc(false, img, parseInt(result[1]), maxed, false, pid, k);
                         flag_exit = true;
                     }
                 });
@@ -867,6 +868,8 @@ function setSrc(transfer, img, skill, maxed, skillBallDay, pid, k) {
         }
         else if (maxed === "green") {
             strdiv += "<img src='" + mzImg.g + "'>";
+        } else {
+            strdiv += "<img src='" + mzImg.b + "'>";
         }
     }
     if (/blevel_/.test(img.src)) {
@@ -885,6 +888,14 @@ function showMax(GraphsType) {
         let pid = pdom.html().match(mzreg.playerId)[1];
         let player = pmax[pid];
         let imgs = pdom.find("img.skill");
+        if (GraphsType >= 100) {
+            for (var j = 0; j < imgs.length; j++) {
+                setSrc(false, imgs[j], parseInt(imgs[j].src.match(mzreg.img_val)[1]), "");
+            }
+            getScoutReport(pid, pdom);
+            continue;
+        }
+
 
         if (pdom.find(".scout_report").length > 0) {
             getScoutReport(pid, pdom);
@@ -1424,6 +1435,8 @@ function gw_start(GraphsType) {
         }
     } else if ($(".playerContainer").find(".training_graphs").length > 0) {
         showMax(GraphsType);
+    } else if ($(".playerContainer").find(".scout_report").length > 0) {
+        showMax(100 + GraphsType);
     }
 }
 function OpenSetting() {
