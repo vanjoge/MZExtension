@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      3.26
+// @version      3.27
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -1042,7 +1042,6 @@ function drawPlayerByTrainingGraphs(pid, data, pdom) {
                 }
             }
         }
-        return true;
     }
     let allSkillTraining = new Array();
     for (var t1 = 0; t1 < allSkillTraining_tmp.length; t1++) {
@@ -1063,6 +1062,7 @@ function drawPlayerByTrainingGraphs(pid, data, pdom) {
     for (var k = 0; k < maxeds.length; k++) {
         setSrc($(".player_share_skills").length == 0, imgs[k], imgs[k].nowSkill, maxeds[k], skillBallDays[k], pid, k);
     }
+    return true;
 }
 function fillTrainingLevel(type, reg, playerTS, url, isneg) {
     let result = url.match(reg);
