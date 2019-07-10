@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      3.27
+// @version      3.28
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -906,14 +906,6 @@ function showMax(GraphsType) {
         let pid = pdom.html().match(mzreg.playerId)[1];
         let player = pmax[pid];
         let imgs = pdom.find("img.skill");
-        if (GraphsType >= 100) {
-            for (var j = 0; j < imgs.length; j++) {
-                setSrc(false, imgs[j], parseInt(imgs[j].src.match(mzreg.img_val)[1]), "");
-            }
-            getScoutReport(pid, pdom);
-            continue;
-        }
-
 
         if (pdom.find(".scout_report").length > 0) {
             getScoutReport(pid, pdom);
@@ -932,6 +924,11 @@ function showMax(GraphsType) {
             setSrc(false, imgs[10], player.skills.situations, player.maxed.situations);
         } else if (pdom.find(".training_graphs").length > 0 && imgs.length > 0) {
             getTrainingGraphs(pid, pdom, GraphsType);
+        } else if (pdom.find(".scout_report").length > 0) {
+            for (var j = 0; j < imgs.length; j++) {
+                setSrc(false, imgs[j], parseInt(imgs[j].src.match(mzreg.img_val)[1]), "");
+            }
+            getScoutReport(pid, pdom, GraphsType == 2);
         }
     }
     return false;
@@ -1467,7 +1464,7 @@ function gw_start(GraphsType) {
     } else if ($(".playerContainer").find(".training_graphs").length > 0) {
         showMax(GraphsType);
     } else if ($(".playerContainer").find(".scout_report").length > 0) {
-        showMax(100 + GraphsType);
+        showMax(GraphsType);
     }
 }
 function OpenSetting() {
