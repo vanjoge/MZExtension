@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.28
+// @version      3.29
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -1045,7 +1045,7 @@ function drawPlayerByTrainingGraphs(pid, data, pdom) {
                             fillTrainingLevel("neg", mzreg.bar_neg, playerTS, g.marker.symbol, true);
 
 
-                            if (g.x > SeasonStart) {
+                            if (g.x >= SeasonStart) {
                                 fillTrainingLevel("itc", mzreg.bar_itc, SeasonTraining, g.marker.symbol);
                                 fillTrainingLevel("ycc", mzreg.bar_ycc, SeasonTraining, g.marker.symbol);
                                 fillTrainingLevel("pos", mzreg.bar_pos, SeasonTraining, g.marker.symbol);
@@ -1058,7 +1058,7 @@ function drawPlayerByTrainingGraphs(pid, data, pdom) {
                             fillTrainingLevel(type, mzreg.bar_neg, playerTS, g.marker.symbol, true);
 
 
-                            if (g.x > SeasonStart) {
+                            if (g.x >= SeasonStart) {
                                 fillTrainingLevel(type, mzreg.bar_itc, SeasonTraining, g.marker.symbol);
                                 fillTrainingLevel(type, mzreg.bar_ycc, SeasonTraining, g.marker.symbol);
                                 fillTrainingLevel(type, mzreg.bar_pos, SeasonTraining, g.marker.symbol);
