@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.26
+// @version      3.28
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -909,15 +909,6 @@ function showMax(GraphsType) {
         let player = pmax[pid];
         let imgs = pdom.find("img.skill");
 
-        if (GraphsType >= 100) {
-            for (var j = 0; j < imgs.length; j++) {
-                setSrc(false, imgs[j], parseInt(imgs[j].src.match(mzreg.img_val)[1]), "");
-            }
-            getScoutReport(pid, pdom, GraphsType == 102);
-            continue;
-        }
-
-
         if (pdom.find(".scout_report").length > 0) {
             getScoutReport(pid, pdom);
         }
@@ -935,6 +926,11 @@ function showMax(GraphsType) {
             setSrc(false, imgs[10], player.skills.situations, player.maxed.situations);
         } else if (pdom.find(".training_graphs").length > 0 && imgs.length > 0) {
             getTrainingGraphs(pid, pdom, GraphsType);
+        } else if (pdom.find(".scout_report").length > 0) {
+            for (var j = 0; j < imgs.length; j++) {
+                setSrc(false, imgs[j], parseInt(imgs[j].src.match(mzreg.img_val)[1]), "");
+            }
+            getScoutReport(pid, pdom, GraphsType == 2);
         }
     }
     return false;
@@ -1364,7 +1360,8 @@ function getTrainPRI(sloc, HStar, HP1, HP2, LStar, LP1, LP2) {
 function showMaybeSkill(pdom, HStar, HP1, HP2, LStar, LP1, LP2) {
 
     let imgs = pdom.find("img.skill");
-    let maxL = 0, maxN = 0;
+    let maxL = 4, maxN = 0;
+    let tmpMSkills = {};
     for (let i = 0; i < 11; i++) {
         if (imgs[i].skill == undefined) {
             return;
@@ -1373,6 +1370,7 @@ function showMaybeSkill(pdom, HStar, HP1, HP2, LStar, LP1, LP2) {
         if (imgs[i].maxed == "green") {
             mskill += 1;
         }
+        tmpMSkills[i] = mskill;
         //if (mskill < 4) {
         //    mskill = 4;
         //}
@@ -1389,7 +1387,7 @@ function showMaybeSkill(pdom, HStar, HP1, HP2, LStar, LP1, LP2) {
         }
     }
     for (let i = 0; i < 11; i++) {
-        let mbskill = 4;
+        let mbskill = maxL;
         if (i == HP1 - 1 || i == HP2 - 1) {
             //高星
             if (HStar == 3) {
@@ -1409,6 +1407,9 @@ function showMaybeSkill(pdom, HStar, HP1, HP2, LStar, LP1, LP2) {
             if (mbskill < maxL) {
                 mbskill = maxL;
             }
+        }
+        if (mbskill < tmpMSkills[i]) {
+            mbskill = tmpMSkills[i];
         }
         if (imgs[i].skill < mbskill) {
             var imgdiv = $(imgs[i]).parent().find("div");
@@ -1599,7 +1600,7 @@ function gw_start(GraphsType) {
     } else if ($(".playerContainer").find(".training_graphs").length > 0) {
         showMax(GraphsType);
     } else if ($(".playerContainer").find(".scout_report").length > 0) {
-        showMax(100 + GraphsType);
+        showMax(GraphsType);
     }
 }
 function OpenSetting() {
