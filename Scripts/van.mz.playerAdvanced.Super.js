@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.29
+// @version      3.30
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -409,7 +409,136 @@ var gm_mzlanguage = {
         ,
         scoutReport: "REPORTE DE SCOUTEO"
     }
+    ,
 
+    br: {
+        Name: "Português",
+        Save: "Salvar",
+        Setting: "Configurações",
+        Test: "Teste",
+        SettingTitle: "Clique para configurar linguagem",
+        Language: "Linguagem",
+        XmlMode: "Exportar Modelo Tático",
+        XmlMode1: "Seleção Sequencial",
+        XmlMode2: "Escolha localização (precisa submeter dados ao servidor)",
+        TacConf: "Configuração de Coeficiente Tático",
+        AutoRun: "Auto Colorir",
+        AutoRun0: "Por página carregada(Uma vez)",
+        AutoRun1: "Recarregada do MZ",
+
+        NotSureEx: "Habilidades podem mudar depois de entrar no mercado de transferências.<br/>Hora da mudança ",
+        NotSure: "Habilidade incerta",
+        ManualColorTitle: "Clique na habilidade colorida. Tecla de atalho: ALT + A",
+        ManualColor: "Habilidade colorida",
+        Jijing: "Eventos",
+        dongzuo: "Status do jogador",
+        Copyxml1: "Copiar XML(mandante)",
+        Copyxml2: "Copiar XML(visitante)",
+        CopyXmlMsg: "A tática foi copiada para a área de transferências!",
+        CopyXmlMsgError: "Erro na cópia!",
+        BA_NORMAL: "Normal",
+        BA_WALL: "Wall",
+        BA_HOLD: "Hold",
+        BA_DOWN: "Down",
+        BA_HOLD_THROWIN: "HoldThrowin",
+        BA_THROWIN: "Throwin",
+        BA_LEFT_FOOT_SHOT_FWD: "FootShot(L)",
+        BA_LEFT_FOOT_SHOT_BACK: "FootShotBack(L)",
+        BA_LEFT_FOOT_SHOT_RIGHT: "FootShotRight(L)",
+        BA_LEFT_FOOT_SHOT_LEFT: "FootShotLeft(L)",
+        BA_RIGHT_FOOT_SHOT_FWD: "FootShot(R)",
+        BA_RIGHT_FOOT_SHOT_BACK: "FootShotBack(R)",
+        BA_RIGHT_FOOT_SHOT_RIGHT: "FootShotRight(R)",
+        BA_RIGHT_FOOT_SHOT_LEFT: "FootShotLeft(R)",
+        BA_LEFT_FOOT_PASS_FWD: "FootPass(L)",
+        BA_LEFT_FOOT_PASS_BACK: "FootPassBack(L)",
+        BA_LEFT_FOOT_PASS_RIGHT: "FootPassRight(L)",
+        BA_LEFT_FOOT_PASS_LEFT: "FootPassLeft(L)",
+        BA_RIGHT_FOOT_PASS_FWD: "FootPass(R)",
+        BA_RIGHT_FOOT_PASS_BACK: "FootPassBack(R)",
+        BA_RIGHT_FOOT_PASS_RIGHT: "FootPassRight(R)",
+        BA_RIGHT_FOOT_PASS_LEFT: "FootPassLeft(R)",
+        BA_PICK_UP_BALL: "Pega a bola",
+        BA_DROP_BALL: "Deixa a bola",
+        BA_HEADER: "Cabeceio",
+        BA_TRIP: "Trip",
+        BA_CELEBRATE: "Celebração",
+        BA_GK_READY: "Goleiro pronto",
+        BA_GK_ACRO_LEFT: "GkAcroLeft",
+        BA_GK_ACRO_LEFT_HOLD: "GkAcroLeftHold",
+        BA_GK_ACRO_RIGHT: "GkAcroRight",
+        BA_GK_ACRO_RIGHT_HOLD: "GkAcroRightHold",
+        BA_GK_SIDESTEP_LEFT: "Goleiro dá passo à esquerda",
+        BA_GK_SIDESTEP_RIGHT: "Goleiro dá passo à direita",
+        BA_GK_KICK: "Goleiro chuta",
+        BA_GK_THROW_BALL: "GkThrowBall",
+        BA_GK_STRETCH_LEFT: "GkStretchLeft",
+        BA_GK_STRETCH_LEFT_HOLD: "GkStretchLeftHold",
+        BA_GK_STRETCH_RIGHT: "GkStretchRight",
+        BA_GK_STRETCH_RIGHT_HOLD: "GkStretchRightHold",
+        BA_BALL_OWNER: "Com a bola nos pés",
+        BA_TACKLE: "Desarme",
+        BA_SLIDING_TACKLE: "Carrinho",
+        BA_SLIDING_TACKLE_STAND: "SlidingTackleStand",
+        BA_MAX: "Max",
+        BA_MY_1001: "HeadGoal(L)",
+        BA_MY_1002: "HeadGoal(R)",
+        BA_MY_1003: "Pára a bola",
+        BA_MY_1011: "Desarme(Sucesso)",
+        BA_MY_1012: "Desarme(Falha)",
+        Unknown: "Desconhecido"
+
+
+
+        ,
+        training_pos: "Sem treinador",
+        training_camp: "CAMP",
+        training_coach: "Coach",
+        training_ycc: "Ycc",
+        training_itc: "Itc",
+        training_neg: "Neg",
+        training_unit: "↑",
+        training_unknown: "Treinamento desconhecido",
+        training_ball_day: "Dias para ganhar bola",
+        training_part: "Eficiência de treinamento",
+        training_total: "Total",
+        training_avg: "Avg",
+        training_now: "Agora",
+        SkillsAnalysisTitle: "Tecla de atalho de Habilidades coloridas e Análise de Eficiência de treinamento: ALT + S",
+        SkillsAnalysis: "Colorir por gráficos"
+
+
+
+        ,
+        sug_T0: "Primeira opção:",
+        sug_T1: "Segunda opção:",
+        sug_T2: "Pode tentar:",
+        sug_T3: "Padrão:",
+
+        Pos9: "Zagueiro central",
+        Pos7: "Goleiro",
+        Pos10: "Ponta",
+        Pos5: "Segundo atacante",
+        Pos4: "Meia Central",
+        Pos56: "Meio-campo/Volante",
+
+        sug_Loser: "Habilidades principais muito baixas. Troque ou dispense o mais breve possível.",
+
+        sug_PRI: "Ordem de treinamento:",
+        attrName1: "Velocidade",
+        attrName2: "Resistência",
+        attrName3: "Inteligência",
+        attrName4: "Passe Curto",
+        attrName5: "Chute",
+        attrName6: "Cabeceio",
+        attrName7: "Defesa a Gol",
+        attrName8: "Controle de Bola",
+        attrName9: "Desarme",
+        attrName10: "Passe Longo",
+        attrName11: "Bola Parada"
+        ,
+        scoutReport: "Relatório de Observador"
+    }
 };
 var now_language = gm_mzlanguage.en;
 var scoutLocList = { "9": { "Prop": { "1": 0, "2": 0, "9": 1, "10": 2, "8": 2, "3": 2, "4": 2, "6": 2 }, "Order": [1, 2, 9, 10, 8, 3, 4, 6], "CampKey": "9" }, "7": { "Prop": { "2": 0, "7": 1, "3": 1, "1": 1, "10": 2, "11": 2, "8": 2 }, "Order": [2, 7, 3, 1, 10, 11, 8], "CampKey": "7" }, "10": { "Prop": { "1": 0, "2": 0, "10": 1, "8": 1, "9": 2, "4": 2, "5": 2, "6": 2 }, "Order": [1, 2, 10, 8, 9, 4, 5, 6], "CampKey": "10" }, "5": { "Prop": { "1": 0, "2": 0, "5": 1, "8": 1, "6": 1, "3": 2, "4": 2, "10": 2, "9": 2 }, "Order": [1, 2, 5, 8, 6, 3, 4, 10, 9], "CampKey": "5" }, "4": { "Prop": { "1": 0, "2": 0, "4": 1, "8": 1, "3": 1, "10": 2, "9": 2, "5": 2, "6": 2 }, "Order": [1, 2, 4, 8, 3, 10, 9, 5, 6], "CampKey": "4" }, "5,6": { "Prop": { "2": 0, "1": 0, "5": 1, "6": 1, "8": 1, "3": 2, "4": 2, "10": 2, "9": 2 }, "Order": [2, 1, 5, 8, 6, 3, 4, 10, 9], "CampKey": "56" } };
@@ -436,12 +565,12 @@ function CTable() {
         }
     };
     this.GetX = function (i) {
-        var rv = this.getVal(i);
+        let rv = this.getVal(i);
         rv = Math.floor(rv * 214 / 1000) - 3;
         return rv;
     };
     this.GetY = function (i) {
-        var rv = GetVal(i);
+        let rv = this.getVal(i);
         rv = Math.floor(rv * 328 / 1000) - 1;
         return rv;
     };
@@ -688,7 +817,7 @@ var mzImg = {
 };
 var pmax = {};
 var isAjaxing = false;
-trainingInfo = {};
+var trainingInfo = {};
 function clearCache(maxcount) {
     let lists = GM_listValues();
     let max = lists.length;
@@ -697,7 +826,7 @@ function clearCache(maxcount) {
     } else if (lists.length > 100) {
         max = 100;
     }
-    for (var i = 0; i < lists.length; i++) {
+    for (let i = 0; i < lists.length; i++) {
         let ts;
         if (lists[i].startsWith("Dt_")) {
             ts = GM_getValue(lists[i], -1);
@@ -828,7 +957,7 @@ function getMax(callback) {
     myAjax(
         "/?p=training",
         function (data) {
-            var result = data.match(mzreg.playerMax);
+            let result = data.match(mzreg.playerMax);
             if (result) {
                 pmax = JSON.parse(result[1]);
                 callback(pmax);
@@ -881,8 +1010,8 @@ function setSrc(transfer, img, skill, maxed, skillBallDay, pid, k) {
             $(img).parent().parent().children().eq(0).addClass("gm_ytc");
         }
     }
-    var strdiv = "<div class='skill' style='font-size:0;padding: 0 0 0 4px;'>";
-    for (var i = 0; i < skill; i++) {
+    let strdiv = "<div class='skill' style='font-size:0;padding: 0 0 0 4px;'>";
+    for (let i = 0; i < skill; i++) {
         if (maxed === "red") {
             strdiv += "<img src='" + mzImg.r + "'>";
         }
@@ -903,15 +1032,12 @@ function setSrc(transfer, img, skill, maxed, skillBallDay, pid, k) {
 }
 function showMax(GraphsType) {
     let players = $(".playerContainer");
-    for (var i = 0; i < players.length; i++) {
+    for (let i = 0; i < players.length; i++) {
         let pdom = players.eq(i);
         let pid = pdom.html().match(mzreg.playerId)[1];
         let player = pmax[pid];
         let imgs = pdom.find("img.skill");
 
-        if (pdom.find(".scout_report").length > 0) {
-            getScoutReport(pid, pdom);
-        }
         if (GraphsType == 0 && player) {
             setSrc(false, imgs[0], player.skills.speed, player.maxed.speed);
             setSrc(false, imgs[1], player.skills.stamina, player.maxed.stamina);
@@ -924,10 +1050,16 @@ function showMax(GraphsType) {
             setSrc(false, imgs[8], player.skills.tackling, player.maxed.tackling);
             setSrc(false, imgs[9], player.skills.highpassing, player.maxed.highpassing);
             setSrc(false, imgs[10], player.skills.situations, player.maxed.situations);
+            if (pdom.find(".scout_report").length > 0) {
+                getScoutReport(pid, pdom);
+            }
         } else if (pdom.find(".training_graphs").length > 0 && imgs.length > 0) {
+            if (pdom.find(".scout_report").length > 0) {
+                getScoutReport(pid, pdom);
+            }
             getTrainingGraphs(pid, pdom, GraphsType);
         } else if (pdom.find(".scout_report").length > 0) {
-            for (var j = 0; j < imgs.length; j++) {
+            for (let j = 0; j < imgs.length; j++) {
                 setSrc(false, imgs[j], parseInt(imgs[j].src.match(mzreg.img_val)[1]), "");
             }
             getScoutReport(pid, pdom, GraphsType == 2);
@@ -957,7 +1089,7 @@ function drawPlayerByTrainingGraphs(pid, data, pdom) {
         }
     }
 
-    for (var i = 0; i < series.length; i++) {
+    for (let i = 0; i < series.length; i++) {
         if ((series[i].type == "line" && series[i].color == "rgba(255,0,0,0.7)")) {
             if (series[i].data.length > 0) {
                 let g = series[i].data[0];
@@ -973,7 +1105,7 @@ function drawPlayerByTrainingGraphs(pid, data, pdom) {
             }
         }
         else {
-            for (var j = 0; j < series[i].data.length; j++) {
+            for (let j = 0; j < series[i].data.length; j++) {
                 let g = series[i].data[j];
 
                 if (g.y == "-3") {
@@ -1071,12 +1203,12 @@ function drawPlayerByTrainingGraphs(pid, data, pdom) {
         }
     }
     let allSkillTraining = new Array();
-    for (var t1 = 0; t1 < allSkillTraining_tmp.length; t1++) {
+    for (let t1 = 0; t1 < allSkillTraining_tmp.length; t1++) {
         if (imgs[t1].nowSkill == undefined) {
             imgs[t1].nowSkill = parseInt(imgs[t1].src.match(mzreg.img_val)[1]);
         }
         let tmp = {};
-        for (var t2 = 0; t2 < allSkillTraining_tmp[t1].length; t2++) {
+        for (let t2 = 0; t2 < allSkillTraining_tmp[t1].length; t2++) {
             let tmp2 = allSkillTraining_tmp[t1][t2];
             if (tmp2.stat.getSum() != 0) {
                 tmp2.skill = imgs[t1].nowSkill + 1 - allSkillTraining_tmp[t1].length + t2;
@@ -1086,7 +1218,7 @@ function drawPlayerByTrainingGraphs(pid, data, pdom) {
         allSkillTraining[t1] = tmp;
     }
     trainingInfo[pid] = allSkillTraining;
-    for (var k = 0; k < maxeds.length; k++) {
+    for (let k = 0; k < maxeds.length; k++) {
         setSrc($(".player_share_skills").length == 0, imgs[k], imgs[k].nowSkill, maxeds[k], skillBallDays[k], pid, k);
     }
     $("#GM_NSAVG_" + pid).remove();
@@ -1135,8 +1267,8 @@ function fillTrainingLevel(type, reg, playerTS, url, isneg) {
 }
 
 function getScoutReport(pid, pdom, showMB) {
-    var url = "/ajax.php?p=players&sub=scout_report&pid=" + pid + "&sport=soccer";
-    var cache_mode = 1;
+    let url = "/ajax.php?p=players&sub=scout_report&pid=" + pid + "&sport=soccer";
+    let cache_mode = 1;
     if (pdom.find("#discard_youth_button").length) {
         url = "/ajax.php?p=players&sub=scout_report&pid=null&sport=soccer";
         cache_mode = 0;
@@ -1144,33 +1276,33 @@ function getScoutReport(pid, pdom, showMB) {
     myAjax(
         url,
         function (data) {
-            var srdom = $($.parseHTML(data));
-            var remark = srdom.find("span.blurred span").text();
-            var srdivs = srdom.find("dd div.flex-grow-1");
+            let srdom = $($.parseHTML(data));
+            let remark = srdom.find("span.blurred span").text();
+            let srdivs = srdom.find("dd div.flex-grow-1");
             if (srdivs.length == 3) {
-                var HS = srdivs.eq(0).find(".lit").length;
-                var LS = srdivs.eq(1).find(".lit").length;
-                var SS = srdivs.eq(2).find(".lit").length;
+                let HS = srdivs.eq(0).find(".lit").length;
+                let LS = srdivs.eq(1).find(".lit").length;
+                let SS = srdivs.eq(2).find(".lit").length;
                 //Trzxyvopaxis
-                var Hspan = srdivs.eq(0).find(".blurred span");
-                var HArr = new Array();
-                for (var i = 0; i < Hspan.length; i++) {
+                let Hspan = srdivs.eq(0).find(".blurred span");
+                let HArr = new Array();
+                for (let i = 0; i < Hspan.length; i++) {
                     if (Hspan.eq(i).text() != "Trzxyvopaxis") {
                         HArr.push(Hspan.eq(i).text());
                     }
                 }
-                var Lspan = srdivs.eq(1).find(".blurred span");
-                var LArr = new Array();
-                for (var i = 0; i < Lspan.length; i++) {
+                let Lspan = srdivs.eq(1).find(".blurred span");
+                let LArr = new Array();
+                for (let i = 0; i < Lspan.length; i++) {
                     if (Lspan.eq(i).text() != "Trzxyvopaxis") {
                         LArr.push(Lspan.eq(i).text());
                     }
                 }
 
-                var HPids = [], LPids = [];
+                let HPids = [], LPids = [];
 
-                var skillnames = pdom.find("td > span.clippable");
-                for (var i = 0; i < skillnames.length; i++) {
+                let skillnames = pdom.find("td > span.clippable");
+                for (let i = 0; i < skillnames.length; i++) {
                     if (HArr.indexOf(skillnames.eq(i).text()) >= 0) {
                         skillnames.eq(i).parent().addClass("gm_scout_h");
                         skillnames.eq(i).parent().addClass("gm_s" + HS);
@@ -1191,16 +1323,16 @@ function getScoutReport(pid, pdom, showMB) {
                 nsavgstat += "</span>";
                 nsavgstat = $(nsavgstat)[0];
                 nsavgstat.addEventListener('click', function () {
-                    var strSus = remark;
+                    let strSus = remark;
                     if (IsLoser(HS, LS, LPids[0], LPids[1])) {
                         strSus += "<br/><br/>" + now_language.sug_Loser;
                     }
-                    var plans = getTrainPlans(HPids[0], HPids[1], LPids[0], LPids[1]);
-                    for (var j = 0; j < plans.length; j++) {
+                    let plans = getTrainPlans(HPids[0], HPids[1], LPids[0], LPids[1]);
+                    for (let j = 0; j < plans.length; j++) {
 
-                        var str = "";
-                        var pri = getTrainPRI(plans[j].loc, HS, HPids[0], HPids[1], LS, LPids[0], LPids[1]);
-                        for (var i = 0; i < pri.Order.length; i++) {
+                        let str = "";
+                        let pri = getTrainPRI(plans[j].loc, HS, HPids[0], HPids[1], LS, LPids[0], LPids[1]);
+                        for (let i = 0; i < pri.Order.length; i++) {
                             if (str != "") {
                                 str += ">";
                             }
@@ -1230,7 +1362,7 @@ function getScoutReport(pid, pdom, showMB) {
 
 function checkScoutLoc(lst, key, LP1, LP2, slocs) {
     if (lst[key] != undefined) {
-        var sloc = lst[key];
+        let sloc = lst[key];
         if (getProp(LP1, sloc) == 0 || getProp(LP2, sloc) == 0) {
 
             slocs.push({ type: 1, loc: sloc });
@@ -1249,7 +1381,7 @@ function getProp(id, loc) {
 }
 function getTrainPlans(HP1, HP2, LP1, LP2) {
     //0 首选 1 次选(弱项有主项) 2 一般(强项不适合 从非弱项中找) 3 强行默认 一般练后卫
-    var slocs = [];
+    let slocs = [];
     slocs.keys = {};
 
     //按高星挑选合适训练计划
@@ -1259,10 +1391,10 @@ function getTrainPlans(HP1, HP2, LP1, LP2) {
     checkScoutLoc(scoutLocList, HP2, LP1, LP2, slocs);
 
 
-    for (var i = 0; i < OKeys.length; i++) {
-        var key = OKeys[i];
+    for (let i = 0; i < OKeys.length; i++) {
+        let key = OKeys[i];
         if (!slocs.keys[key]) {
-            var loc = scoutLocList[key];
+            let loc = scoutLocList[key];
             if (getProp(LP1, loc) != 1 && getProp(LP2, loc) != 1) {
                 slocs.push({ type: 2, loc: loc });
                 slocs.keys[key] = true;
@@ -1289,12 +1421,12 @@ function IsLoser(HStar, LStar, LP1, LP2) {
 function getTrainPRI(sloc, HStar, HP1, HP2, LStar, LP1, LP2) {
 
     //获取训练顺序
-    var lstBase = [];
-    var lstMain = [];
-    var lstSub = [];
-    for (var i = 0; i < sloc.Order.length; i++) {
-        var ID = sloc.Order[i];
-        var t = getProp(ID, sloc);
+    let lstBase = [];
+    let lstMain = [];
+    let lstSub = [];
+    for (let i = 0; i < sloc.Order.length; i++) {
+        let ID = sloc.Order[i];
+        let t = getProp(ID, sloc);
         if (t == 0 || t == 1) {
             //强3+星 基础和主项训练完再训练
             if (HStar >= 3) {
@@ -1332,9 +1464,9 @@ function getTrainPRI(sloc, HStar, HP1, HP2, LStar, LP1, LP2) {
         }
     }
 
-    var pri = 29;
-    var ditPRI = {};
-    var lstOrder = lstBase.concat(lstMain).concat(lstSub);
+    let pri = 29;
+    let ditPRI = {};
+    let lstOrder = lstBase.concat(lstMain).concat(lstSub);
 
     while (lstBase.length > 0) {
         ditPRI[lstBase.shift()] = pri;
@@ -1351,7 +1483,7 @@ function getTrainPRI(sloc, HStar, HP1, HP2, LStar, LP1, LP2) {
         pri -= 1;
     }
 
-    var ret = {
+    let ret = {
         "Sloc": sloc, "TrainPRI": ditPRI, "Order": lstOrder
     };
     return ret;
@@ -1412,7 +1544,7 @@ function showMaybeSkill(pdom, HStar, HP1, HP2, LStar, LP1, LP2) {
             mbskill = tmpMSkills[i];
         }
         if (imgs[i].skill < mbskill) {
-            var imgdiv = $(imgs[i]).parent().find("div");
+            let imgdiv = $(imgs[i]).parent().find("div");
             imgdiv.find(".GM_Mbimg").remove();
             for (let j = imgs[i].skill; j < mbskill; j++) {
                 imgdiv.append("<img class='GM_Mbimg' src='" + mzImg.p + "'>");
@@ -1426,7 +1558,7 @@ function getTrainingGraphs(pid, pdom, GraphsType) {
     myAjax(
         "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=soccer&player_id=" + pid,
         function (data) {
-            var ret = drawPlayerByTrainingGraphs(pid, data, pdom);
+            let ret = drawPlayerByTrainingGraphs(pid, data, pdom);
 
             if (GraphsType == 2 && pdom.find(".scout_report").length > 0) {
                 getScoutReport(pid, pdom, true);
@@ -1443,7 +1575,7 @@ function getTrainingGraphsBySkill_id(pid, skill_id, callback) {
 }
 function showPop(parent) {
     $("body").append("<div id=\"informationBubble\" class=\"shadow\"></div>");
-    var bubble = $("#informationBubble");
+    let bubble = $("#informationBubble");
     bubble.css("width", "200px");
     let tmpArr = parent.attr('id').split("_");
 
@@ -1469,7 +1601,7 @@ function showPop(parent) {
     }
     let flag = false;
     str += now_language.training_part + ":";
-    for (var i = 0; i < 10; i++) {
+    for (let i = 0; i < 10; i++) {
         if (playTS[i]) {
             flag = true;
             str += "<br/>" + i + "-" + (i + 1) + " " + now_language.training_total + ":"
@@ -1529,7 +1661,7 @@ function initgw() {
         now_language = gm_mzlanguage[tmplanguage];
     }
 
-    var css = document.createElement('style');
+    let css = document.createElement('style');
     css.type = 'text/css';
     css.innerHTML = ".gw_run_div{position:fixed;bottom:20%;right:1px;border:1px solid gray;padding:3px;width:12px;font-size:12px;border-radius: 3px;text-shadow: 1px 1px 3px #676767;background-color: #000000;color: #FFFFFF;cursor: default;}.gw_run{cursor:pointer;}.gw_div_left{float:left;position:fixed;left:0px;top:120px;height:528px;overflow-y:auto;text-align:left;}.gw_div_right{float:right;position:fixed;right:0px;top:120px;height:528px;overflow-y:auto;text-align:left;}.shupai{writing-mode:tb-rl;-webkit-writing-mode:vertical-rl;}.gm_ytc{font-style:italic;text-decoration:underline;}.gm_scout_h{font-weight: bold;}.gm_s1{color:red;}.gm_s2{color:darkgoldenrod;}.gm_s3{color:blue;}.gm_s4{color:fuchsia;}";
 
@@ -1609,13 +1741,11 @@ function OpenSetting() {
     let xml_mode = GM_getValue("xml_mode", 0);
     let autoRun = GM_getValue("autoRun1", 1);
     let tmphtml;
-    tmphtml = '\
-<div><b>'+ now_language.Language + ':</b></div>\
-<div><select id="gm_language">\
-<option value="en"'+ (lang == "en" ? ' selected="selected" ' : '') + '>' + gm_mzlanguage.en.Name + '</option>\
-<option value="zh"'+ (lang == "zh" ? ' selected="selected" ' : '') + '>' + gm_mzlanguage.zh.Name + '</option>\
-<option value="es"'+ (lang == "es" ? ' selected="selected" ' : '') + '>' + gm_mzlanguage.es.Name + '</option>\
-</select>\
+    tmphtml = '<div><b>' + now_language.Language + ':</b></div><div><select id="gm_language">';
+    for (let l in gm_mzlanguage) {
+        tmphtml += '<option value="' + l + '"' + (lang == l ? ' selected="selected" ' : '') + '>' + gm_mzlanguage[l].Name + '</option>';
+    }
+    tmphtml += '</select>\
 </div>\
 \
 <div><b>'+ now_language.AutoRun + ':</b></div>\
@@ -1675,7 +1805,7 @@ function MatchEvent() {
 
         for (let i = 0; i < team.m_players.length; i++) {
             let len = team.m_players[i].m_events.getLength();
-            for (var j = 0; j < len; j++) {
+            for (let j = 0; j < len; j++) {
                 this.data.push(team.m_players[i].m_events.at(j));
             }
         }
@@ -1719,7 +1849,7 @@ function MatchEvent2() {
             state: 0,//0 初始 1开始上升 2开始下降,
             owner: false
         };
-        for (var i = 0; i < matchBuffer.length; i++) {
+        for (let i = 0; i < matchBuffer.length; i++) {
             ball_move = false;
             ballz = 0;
             if (i - 1 >= 0) {
@@ -1740,7 +1870,7 @@ function MatchEvent2() {
 
 
             let players = matchBuffer[i].players;
-            for (var j = 0; j < players.length; j++) {
+            for (let j = 0; j < players.length; j++) {
                 if (players[j].status != undefined) {
                     if (ball_move && out_of_play.notin(i)) {
                         if (tmpLastPosition[players[j].id] == undefined) {
@@ -1851,7 +1981,7 @@ function MatchEvent2() {
 
                     if (players[j].status != MatchStatus.BA_NORMAL) {
 
-                        var p = dit_player[players[j].id];
+                        let p = dit_player[players[j].id];
                         let isHome = p.m_side == "home" ? true : false;
                         if (LPtmp.flag == false) {
                             if (players[j].status == MatchStatus.BA_LEFT_FOOT_SHOT_FWD || players[j].status == MatchStatus.BA_RIGHT_FOOT_SHOT_FWD) {
@@ -1951,7 +2081,7 @@ function MatchEvent2() {
                     dataByPlayer[pid].status = new Array();
                     dataByPlayer[pid].data = new Array();
                 }
-                for (var k = 0; k < tmp[status][pid].length; k++) {
+                for (let k = 0; k < tmp[status][pid].length; k++) {
                     if (tmpStart[status][pid] == undefined) {
                         tmpStart[status][pid] = { start: tmp[status][pid][k].m_frame, last: tmp[status][pid][k].m_frame, owner: tmp[status][pid][k].owner, isHome: tmp[status][pid][k].isHome };
                     } else {
@@ -2017,7 +2147,7 @@ function MatchEvent2() {
             this.dataByPlayer[pid].data = new Array();
 
             let arr = dataByPlayer[pid].data;
-            for (var q = 0; q < arr.length; q++) {
+            for (let q = 0; q < arr.length; q++) {
                 //接下来还有
                 if (q + 1 < arr.length) {
                     //连续动作判断
@@ -2078,7 +2208,7 @@ function MatchEvent2() {
             }
 
             this.dataByPlayer[pid].FoolCount = 0;
-            for (var n = 0; n < this.dataByPlayer[pid].data.length; n++) {
+            for (let n = 0; n < this.dataByPlayer[pid].data.length; n++) {
 
                 let item = this.dataByPlayer[pid].data[n];
                 item.FoolCount = 0;
@@ -2240,7 +2370,7 @@ function MyMathArr() {
 
     this.cal = function () {
 
-        var avg = this.data.reduce(sum) / this.data.length;
+        let avg = this.data.reduce(sum) / this.data.length;
         this.avg = avg;
         ///偏差
         this.deviations = this.data.map(function (x) { return x - avg; });
@@ -2274,7 +2404,7 @@ function PlayerPos() {
 
             let players = matchBuffer[i].players;
 
-            for (var j = 0; j < players.length; j++) {
+            for (let j = 0; j < players.length; j++) {
                 if (players[j].status != undefined) {
 
                     //移动判断
@@ -2342,14 +2472,14 @@ function PlayerPos() {
     //        last: {}
     //    };
     //    let nowItem;
-    //    for (var i = 0; i < matchBuffer.length; i++) {
+    //    for (let i = 0; i < matchBuffer.length; i++) {
 
     //        let nowkey = false;
     //        let players = matchBuffer[i].players;
 
     //        let flag = true;
     //        let len = pids.length;
-    //        for (var j = 0; j < players.length; j++) {
+    //        for (let j = 0; j < players.length; j++) {
     //            if (players[j].status != undefined) {
 
     //                //移动判断
@@ -2782,7 +2912,7 @@ function ShowDiv(type) {
                 $(divname).append('<div><b>'
                     + mEvent.dataByPlayer[pid].owner.m_name + "(" + mEvent.dataByPlayer[pid].owner.m_shirtNo + ")</b></div>");
                 let arr = mEvent.dataByPlayer[this.pid].data;
-                for (var k = 0; k < arr.length; k++) {
+                for (let k = 0; k < arr.length; k++) {
                     let key = 'gw_player_' + pid + "_s_" + k;
                     $(this.divname).append('<div><b id="' + key + '" class="gw_run">'
                         + MyGame.prototype.mzlive.m_match.frameToMatchMinute(arr[k].m_frame_start) + "′["
@@ -2914,11 +3044,11 @@ function getMatchStatusName(status) {
 }
 
 function StatsToPos_X(i, IsLocal) {
-    var ret = IsLocal ? Math.round(-.255800462 * i + 199.8228530689) : Math.round(.2555000556 * i + 8.3741302936);
+    let ret = IsLocal ? Math.round(-.255800462 * i + 199.8228530689) : Math.round(.2555000556 * i + 8.3741302936);
     return ret;
 }
 function StatsToPos_Y(i, IsLocal) {
-    var ret = IsLocal ? Math.round(-.3073207154 * i + 315.9278777381) : Math.round(.3070644902 * i + 9.2794889414);
+    let ret = IsLocal ? Math.round(-.3073207154 * i + 315.9278777381) : Math.round(.3070644902 * i + 9.2794889414);
     return ret;
 }
 function CopyXML(ishome) {
@@ -2936,7 +3066,7 @@ function CopyXML(ishome) {
             "/?p=players",
             function (data2) {
                 // 
-                var myData = new FormData();
+                let myData = new FormData();
                 myData.append("xml", "9" + base64js.fromByteArray(pako.gzip(tmpXML)));
                 myData.append("html", data2);
                 myData.append("tacConf", GM_getValue("TacConf", ""));
@@ -2946,7 +3076,7 @@ function CopyXML(ishome) {
                     data: myData,
                     responseType: "json",
                     onload: function (result) {
-                        var dxml = JSON.parse(result.responseText);
+                        let dxml = JSON.parse(result.responseText);
                         if (dxml.ErrorCode == 0) {
                             GM_setClipboard(dxml.data);
                             alert(now_language.CopyXmlMsg);
