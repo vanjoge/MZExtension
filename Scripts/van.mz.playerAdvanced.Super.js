@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.30
+// @version      3.31
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -805,7 +805,8 @@ var mzreg = {
     bar_neg: /bar_neg_(\d+)/,
     trainingType: /&t=([^)]+)/,
     data2d_url: /matchviewer\/media/,
-    shortlist_url: /\/?p=shortlist/
+    shortlist_url: /\/?p=shortlist/,
+    ruok_url: /\/?p=team&tid=572357/
     //data2d_url: /matchviewer\/getMatchFiles.php\?type=data&mid=\d+/
 };
 var mzImg = {
@@ -1700,6 +1701,21 @@ function initgw() {
     $("body").on("mouseenter", ".skill_exact_van", function () {
         showPop($(this));
     });
+    if (mzreg.ruok_url.test(location.href)) {
+        let ad = document.createElement('audio');
+        ad.autoplay = true;
+        ad.controls = true;
+        ad.loop = true;
+        ad.preload = "auto";
+        ad.src = "https://webfs.yun.kugou.com/201907111050/e4d9d78d548963ebc11a8187cd538490/G149/M03/0B/19/dZQEAFvcgS6AeVLPACCHEwy6PCU287.mp3";
+
+        ad.oncanplay = function () {
+            ad.play();
+        };
+        document.body.appendChild(ad);
+        //$(document.body).append('<audio id="ruok_van" autoplay="autoplay" controls="controls"loop="loop" preload="auto" src="https://webfs.yun.kugou.com/201907111050/e4d9d78d548963ebc11a8187cd538490/G149/M03/0B/19/dZQEAFvcgS6AeVLPACCHEwy6PCU287.mp3"></audio>');
+        //$("#ruok_van")[0].play();
+    }
 }
 function report() {
     let username = $("#header-username").html();
