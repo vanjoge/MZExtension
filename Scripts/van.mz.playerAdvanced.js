@@ -1190,6 +1190,10 @@ function drawPlayerByTrainingGraphs(pid, data, pdom) {
     for (let k = 0; k < maxeds.length; k++) {
         setSrc($(".player_share_skills").length == 0, imgs[k], imgs[k].nowSkill, maxeds[k], skillBallDays[k], pid, k);
     }
+
+    series = undefined;
+    plotBands = undefined;
+    xPlotLines = undefined;
     return true;
 }
 function fillTrainingLevel(type, reg, playerTS, url, isneg) {

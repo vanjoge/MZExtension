@@ -1245,6 +1245,9 @@ function drawPlayerByTrainingGraphs(pid, data, pdom) {
     nsavgstat += "</span>";
     pdom.find("span.floatRight").before(nsavgstat);
 
+    series = undefined;
+    plotBands = undefined;
+    xPlotLines = undefined;
     return true;
 }
 function fillTrainingLevel(type, reg, playerTS, url, isneg) {
