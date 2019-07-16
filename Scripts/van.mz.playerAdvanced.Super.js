@@ -1077,7 +1077,7 @@ function showMax(GraphsType) {
 function drawPlayerByTrainingGraphs(pid, data, pdom) {
 
     let imgs = pdom.find("img.skill");
-
+    var series = undefined;
     eval(data);
     if (series == undefined) {
         return false;
@@ -1568,6 +1568,9 @@ function getTrainingGraphs(pid, pdom, GraphsType) {
     myAjax(
         "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=soccer&player_id=" + pid,
         function (data) {
+            if (data == "") {
+                return true;
+            }
             let ret = drawPlayerByTrainingGraphs(pid, data, pdom);
 
             if (GraphsType == 2 && pdom.find(".scout_report").length > 0) {
