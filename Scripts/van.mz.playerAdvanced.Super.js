@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.31
+// @version      3.32
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -1040,17 +1040,23 @@ function showMax(GraphsType) {
         let imgs = pdom.find("img.skill");
 
         if (GraphsType == 0 && player) {
-            setSrc(false, imgs[0], player.skills.speed, player.maxed.speed);
-            setSrc(false, imgs[1], player.skills.stamina, player.maxed.stamina);
-            setSrc(false, imgs[2], player.skills.gameintelligence, player.maxed.gameintelligence);
-            setSrc(false, imgs[3], player.skills.passing, player.maxed.passing);
-            setSrc(false, imgs[4], player.skills.shooting, player.maxed.shooting);
-            setSrc(false, imgs[5], player.skills.heading, player.maxed.heading);
-            setSrc(false, imgs[6], player.skills.goalkeeping, player.maxed.goalkeeping);
-            setSrc(false, imgs[7], player.skills.technique, player.maxed.technique);
-            setSrc(false, imgs[8], player.skills.tackling, player.maxed.tackling);
-            setSrc(false, imgs[9], player.skills.highpassing, player.maxed.highpassing);
-            setSrc(false, imgs[10], player.skills.situations, player.maxed.situations);
+            if (isNaN(parseInt(player.skills.speed))) {
+                for (let j = 0; j < imgs.length; j++) {
+                    setSrc(false, imgs[j], parseInt(imgs[j].src.match(mzreg.img_val)[1]), "");
+                }
+            } else {
+                setSrc(false, imgs[0], player.skills.speed, player.maxed.speed);
+                setSrc(false, imgs[1], player.skills.stamina, player.maxed.stamina);
+                setSrc(false, imgs[2], player.skills.gameintelligence, player.maxed.gameintelligence);
+                setSrc(false, imgs[3], player.skills.passing, player.maxed.passing);
+                setSrc(false, imgs[4], player.skills.shooting, player.maxed.shooting);
+                setSrc(false, imgs[5], player.skills.heading, player.maxed.heading);
+                setSrc(false, imgs[6], player.skills.goalkeeping, player.maxed.goalkeeping);
+                setSrc(false, imgs[7], player.skills.technique, player.maxed.technique);
+                setSrc(false, imgs[8], player.skills.tackling, player.maxed.tackling);
+                setSrc(false, imgs[9], player.skills.highpassing, player.maxed.highpassing);
+                setSrc(false, imgs[10], player.skills.situations, player.maxed.situations);
+            }
             if (pdom.find(".scout_report").length > 0) {
                 getScoutReport(pid, pdom);
             }
