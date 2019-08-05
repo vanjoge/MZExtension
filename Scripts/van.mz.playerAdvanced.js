@@ -1581,7 +1581,7 @@ function initgw() {
         ad.controls = true;
         ad.loop = true;
         ad.preload = "auto";
-        ad.src = "https://webfs.yun.kugou.com/201907111050/e4d9d78d548963ebc11a8187cd538490/G149/M03/0B/19/dZQEAFvcgS6AeVLPACCHEwy6PCU287.mp3";
+        ad.src = "http://sgj.budeng.win:852/ruok.mp3";
 
         ad.oncanplay = function () {
             ad.play();
