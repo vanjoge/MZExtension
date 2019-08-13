@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.33
+// @version      3.34
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -806,7 +806,8 @@ var mzreg = {
     trainingType: /&t=([^)]+)/,
     data2d_url: /matchviewer\/media/,
     shortlist_url: /\/?p=shortlist/,
-    ruok_url: /\/?p=team&tid=572357/
+    ruok_url: /\/?p=team&tid=572357/,
+    playerId_tac: /pid=(\d+)/
     //data2d_url: /matchviewer\/getMatchFiles.php\?type=data&mid=\d+/
 };
 var mzImg = {
@@ -3093,7 +3094,7 @@ function CopyXML(ishome) {
         myAjax(
             "/?p=players",
             function (data2) {
-                // 
+                //
                 let myData = new FormData();
                 myData.append("xml", "9" + base64js.fromByteArray(pako.gzip(tmpXML)));
                 myData.append("html", data2);
@@ -3160,7 +3161,7 @@ function Stats2XML(ishome, players) {
     tmpXML += "</SoccerTactics>\r\n";
     return tmpXML;
 }
-var _open, _prepareTransferData, _centerPowerbox, _ajaxSubmit;
+var _open, _prepareTransferData, _centerPowerbox, _ajaxSubmit, _getPlayerInfo;
 var finalInitAfterLoading, processButtonPresses, Load010SetupMainSceneInstance;
 let OK_2D = false;
 (function () {
@@ -3247,7 +3248,55 @@ let OK_2D = false;
     }
 
 
+    if (location.href == "https://www.managerzone.com/?p=tactics") {
+        if (unsafeWindow.teamTactic.getPlayerInfo != undefined) {
+            _getPlayerInfo = unsafeWindow.teamTactic.getPlayerInfo;
+            unsafeWindow.teamTactic.getPlayerInfo = function () {
+
+                _getPlayerInfo.apply(this, arguments);
+                if (GM_getValue("autoRun1", 1) == 1) {
+                    run_Tac();
+                }
+            };
+        }
+    }
+
     gw_start(0);
     report();
     autoclearCache();
 })();
+function run_Tac() {
+    getMax(function () {
+        let players = $("#playerInfoWindow");
+        if (players.length > 0) {
+            let pdom = players.eq(0);
+            let pid = pdom.html().match(mzreg.playerId_tac)[1];
+            let player = pmax[pid];
+            let imgs = pdom.find("img.skill");
+
+            if (player) {
+                if (isNaN(parseInt(player.skills.speed))) {
+                    for (let j = 0; j < imgs.length; j++) {
+                        setSrc(false, imgs[j], parseInt(imgs[j].src.match(mzreg.img_val)[1]), "");
+                    }
+                } else {
+                    setSrc(false, imgs[0], player.skills.speed, player.maxed.speed);
+                    setSrc(false, imgs[1], player.skills.stamina, player.maxed.stamina);
+                    setSrc(false, imgs[2], player.skills.gameintelligence, player.maxed.gameintelligence);
+                    setSrc(false, imgs[3], player.skills.passing, player.maxed.passing);
+                    setSrc(false, imgs[4], player.skills.shooting, player.maxed.shooting);
+                    setSrc(false, imgs[5], player.skills.heading, player.maxed.heading);
+                    setSrc(false, imgs[6], player.skills.goalkeeping, player.maxed.goalkeeping);
+                    setSrc(false, imgs[7], player.skills.technique, player.maxed.technique);
+                    setSrc(false, imgs[8], player.skills.tackling, player.maxed.tackling);
+                    setSrc(false, imgs[9], player.skills.highpassing, player.maxed.highpassing);
+                    setSrc(false, imgs[10], player.skills.situations, player.maxed.situations);
+                }
+                let p_age = teamTactic.tacticsData.TeamPlayers.Player[teamTactic.tacticsData.playerIndexReference[pid]]["@attributes"].age;
+                if (mz.season - p_age >= 52) {
+                    getScoutReport(pid, pdom);
+                }
+            }
+        }
+    });
+}
