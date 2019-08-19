@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      3.34
+// @version      3.35
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -2275,90 +2275,92 @@ let OK_2D = false;
 (function () {
     'use strict';
 
+    if (ajaxSport && ajaxSport == "soccer") {
 
-    initgw();
+        initgw();
 
-    _open = window.XMLHttpRequest.prototype.open;
-    window.XMLHttpRequest.prototype.open = function () {
-        if (mzreg.data2d_url.test(arguments[1])) {
-            OK_2D = false;
-            if (MyGame.prototype.mzlive.R_GW == undefined) {
-                MyGame.prototype.mzlive.R_GW = true;
+        _open = window.XMLHttpRequest.prototype.open;
+        window.XMLHttpRequest.prototype.open = function () {
+            if (mzreg.data2d_url.test(arguments[1])) {
+                OK_2D = false;
+                if (MyGame.prototype.mzlive.R_GW == undefined) {
+                    MyGame.prototype.mzlive.R_GW = true;
 
-                finalInitAfterLoading = MyGame.prototype.mzlive.finalInitAfterLoading;
-                MyGame.prototype.mzlive.finalInitAfterLoading = function () {
-                    finalInitAfterLoading.apply(this);
-                    OK_2D = true;
-                    Advanced2D();
-                };
-                Load010SetupMainSceneInstance = MyGame.prototype.Load010SetupMainSceneInstance;
-                MyGame.prototype.Load010SetupMainSceneInstance = function () {
-                    window.matchLoader = arguments[0];
-                    Load010SetupMainSceneInstance.apply(this, arguments);
-                };
+                    finalInitAfterLoading = MyGame.prototype.mzlive.finalInitAfterLoading;
+                    MyGame.prototype.mzlive.finalInitAfterLoading = function () {
+                        finalInitAfterLoading.apply(this);
+                        OK_2D = true;
+                        Advanced2D();
+                    };
+                    Load010SetupMainSceneInstance = MyGame.prototype.Load010SetupMainSceneInstance;
+                    MyGame.prototype.Load010SetupMainSceneInstance = function () {
+                        window.matchLoader = arguments[0];
+                        Load010SetupMainSceneInstance.apply(this, arguments);
+                    };
 
-            }
-        }
-        return _open.apply(this, arguments);
-    };
-
-    if (unsafeWindow.prepareTransferData != undefined) {
-        _prepareTransferData = unsafeWindow.prepareTransferData;
-        unsafeWindow.prepareTransferData = function (readyState, response, responseParameter) {
-
-            _prepareTransferData.apply(this, arguments);
-            if (GM_getValue("autoRun1", 1) == 1) {
-                if (typeof (responseParameter) === "undefined" || !responseParameter) {
-                    gw_start(0);
                 }
             }
+            return _open.apply(this, arguments);
         };
-    }
 
-    if (unsafeWindow.centerPowerbox != undefined) {
-        _centerPowerbox = unsafeWindow.centerPowerbox;
-        unsafeWindow.centerPowerbox = function () {
+        if (unsafeWindow.prepareTransferData != undefined) {
+            _prepareTransferData = unsafeWindow.prepareTransferData;
+            unsafeWindow.prepareTransferData = function (readyState, response, responseParameter) {
 
-            _centerPowerbox.apply(this, arguments);
-            if (GM_getValue("autoRun1", 1) == 1) {
-                gw_start(0);
-            }
-        };
-    }
-
-    if ($.fn.ajaxSubmit != undefined) {
-        _ajaxSubmit = $.fn.ajaxSubmit;
-        $.fn.ajaxSubmit = function (options) {
-            if (options.gm_success_is == undefined) {
-                options.gm_success_is = true;
-                options.gm_success = options.success;
-                options.success = function () {
-                    options.gm_success.apply(this, arguments);
-                    if (GM_getValue("autoRun1", 1) == 1) {
+                _prepareTransferData.apply(this, arguments);
+                if (GM_getValue("autoRun1", 1) == 1) {
+                    if (typeof (responseParameter) === "undefined" || !responseParameter) {
                         gw_start(0);
                     }
-                };
-            }
-            _ajaxSubmit.apply(this, arguments);
-        };
-    }
-
-    if (location.href == "https://www.managerzone.com/?p=tactics") {
-        if (unsafeWindow.teamTactic.getPlayerInfo != undefined) {
-            _getPlayerInfo = unsafeWindow.teamTactic.getPlayerInfo;
-            unsafeWindow.teamTactic.getPlayerInfo = function () {
-
-                _getPlayerInfo.apply(this, arguments);
-                if (GM_getValue("autoRun1", 1) == 1) {
-                    run_Tac();
                 }
             };
         }
-    }
 
-    gw_start(0);
-    report();
-    autoclearCache();
+        if (unsafeWindow.centerPowerbox != undefined) {
+            _centerPowerbox = unsafeWindow.centerPowerbox;
+            unsafeWindow.centerPowerbox = function () {
+
+                _centerPowerbox.apply(this, arguments);
+                if (GM_getValue("autoRun1", 1) == 1) {
+                    gw_start(0);
+                }
+            };
+        }
+
+        if ($.fn.ajaxSubmit != undefined) {
+            _ajaxSubmit = $.fn.ajaxSubmit;
+            $.fn.ajaxSubmit = function (options) {
+                if (options.gm_success_is == undefined) {
+                    options.gm_success_is = true;
+                    options.gm_success = options.success;
+                    options.success = function () {
+                        options.gm_success.apply(this, arguments);
+                        if (GM_getValue("autoRun1", 1) == 1) {
+                            gw_start(0);
+                        }
+                    };
+                }
+                _ajaxSubmit.apply(this, arguments);
+            };
+        }
+
+        if (location.href == "https://www.managerzone.com/?p=tactics") {
+            if (unsafeWindow.teamTactic.getPlayerInfo != undefined) {
+                _getPlayerInfo = unsafeWindow.teamTactic.getPlayerInfo;
+                unsafeWindow.teamTactic.getPlayerInfo = function () {
+
+                    _getPlayerInfo.apply(this, arguments);
+                    if (GM_getValue("autoRun1", 1) == 1) {
+                        run_Tac();
+                    }
+                };
+            }
+        }
+
+        gw_start(0);
+        report();
+        autoclearCache();
+    }
 })();
 
 function run_Tac() {
