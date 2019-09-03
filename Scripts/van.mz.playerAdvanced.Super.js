@@ -1530,7 +1530,7 @@ function showMaybeSkill(pdom, HStar, HP1, HP2, LStar, LP1, LP2) {
         }
     }
     for (let i = 0; i < 11; i++) {
-        let mbskill = maxL;
+        let mbskill = 4;
         if (i == HP1 - 1 || i == HP2 - 1) {
             //高星
             if (HStar == 3) {
