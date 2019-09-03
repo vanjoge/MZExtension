@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      3.35
+// @version      3.36
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -804,7 +804,8 @@ var mzreg = {
     data2d_url: /matchviewer\/media/,
     shortlist_url: /\/?p=shortlist/,
     ruok_url: /\/?p=team&tid=572357/,
-    playerId_tac: /pid=(\d+)/
+    playerId_tac: /pid=(\d+)/,
+    matchResult: /\/?p=match&sub=result&mid=(\d+)/
     //data2d_url: /matchviewer\/getMatchFiles.php\?type=data&mid=\d+/
 };
 var mzImg = {
@@ -1591,6 +1592,84 @@ function initgw() {
         //$(document.body).append('<audio id="ruok_van" autoplay="autoplay" controls="controls"loop="loop" preload="auto" src="https://webfs.yun.kugou.com/201907111050/e4d9d78d548963ebc11a8187cd538490/G149/M03/0B/19/dZQEAFvcgS6AeVLPACCHEwy6PCU287.mp3"></audio>');
         //$("#ruok_van")[0].play();
     }
+    let mth = location.href.match(mzreg.matchResult);
+    if (mth && mth.length > 0) {
+        var mid = mth[1];
+        let amatch = $("a.matchIcon.large.shadow");
+        if (amatch.length > 0) {
+            amatch.eq(0).before('<a id="gw_match_result" class="matchIcon  large shadow" href="#" rel="nofollow" title="Watch match result"><i>R</i><span>&nbsp;</span></a>');
+            $('#gw_match_result')[0].addEventListener('click', function () {
+                ShowMatchResult("2d", mid);
+                return false;
+            });
+        }
+    }
+}
+function ShowMatchResult(type, matchId) {
+    var _overlay = this;
+    this.prepareMatch = function () {
+        $.getJSON(mz.getAjaxLink("matchViewer&sub=check-match&type=" + type + "&mid=" + matchId), function (data) {
+            switch (data.response) {
+                case "ok":
+
+                    $.ajax({
+                        type: "GET",
+                        url: "https://www.managerzone.com/matchviewer/getMatchFiles.php?type=stats&mid=" + matchId + "&sport=soccer",
+                        dataType: "xml",
+                        success: function (data) {
+                            let teams = data.documentElement.getElementsByTagName("Team");
+                            let homeS = teams[0].getElementsByTagName("Statistics")[0];
+                            let awayS = teams[1].getElementsByTagName("Statistics")[0];
+                            let td = $("div#match-tactic-facts-wrapper div div table.hitlist.statsLite tbody tr td");
+
+                            td.eq(1).html(homeS.getAttribute("goals"));
+                            td.eq(2).html(awayS.getAttribute("goals"));
+
+                            td.eq(4).html(homeS.getAttribute("injuries"));
+                            td.eq(5).html(awayS.getAttribute("injuries"));
+
+                            td.eq(7).html(homeS.getAttribute("yellowCards"));
+                            td.eq(8).html(awayS.getAttribute("yellowCards"));
+
+                            td.eq(10).html(homeS.getAttribute("redCards"));
+                            td.eq(11).html(awayS.getAttribute("redCards"));
+
+                            td.eq(13).html(homeS.getAttribute("freekicks"));
+                            td.eq(14).html(awayS.getAttribute("freekicks"));
+
+                            td.eq(16).html(homeS.getAttribute("penaltyshots"));
+                            td.eq(17).html(awayS.getAttribute("penaltyshots"));
+
+                            td.eq(19).html(homeS.getAttribute("corners"));
+                            td.eq(20).html(awayS.getAttribute("corners"));
+
+                            td.eq(22).html(homeS.getAttribute("shotsOnGoal"));
+                            td.eq(23).html(awayS.getAttribute("shotsOnGoal"));
+
+                            td.eq(25).html(homeS.getAttribute("possession") + "%");
+                            td.eq(26).html(awayS.getAttribute("possession") + "%");
+
+                        }
+                    });
+
+                    break;
+                case "queued":
+                    _overlay.tryCounter++;
+                    if (_overlay.tryCounter > 5) {
+                        return false;
+                    }
+                    setTimeout(function () { _overlay.prepareMatch() }, 3000);
+                    break;
+                case "walkover":
+                case "blocked":
+                case "error":
+                    return false;
+            }
+        });
+    };
+
+    this.tryCounter = 1;
+    this.prepareMatch();
 }
 function report() {
     let username = $("#header-username").html();
