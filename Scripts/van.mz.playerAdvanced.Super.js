@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.36
+// @version      3.37
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -808,7 +808,8 @@ var mzreg = {
     shortlist_url: /\/?p=shortlist/,
     ruok_url: /\/?p=team&tid=572357/,
     playerId_tac: /pid=(\d+)/,
-    matchResult: /\/?p=match&sub=result&mid=(\d+)/
+    matchResult: /\/?p=match&sub=result&mid=(\d+)/,
+    nocache: /nocache-\d+/
     //data2d_url: /matchviewer\/getMatchFiles.php\?type=data&mid=\d+/
 };
 var mzImg = {
@@ -1755,10 +1756,37 @@ function ShowMatchResult(type, matchId) {
                             let teams = data.documentElement.getElementsByTagName("Team");
                             let homeS = teams[0].getElementsByTagName("Statistics")[0];
                             let awayS = teams[1].getElementsByTagName("Statistics")[0];
+
+                            let imgs = $("div.scoreboard.shadow img");
+                            let mth = imgs[0].src.match(mzreg.nocache);
+                            let nocacheUrl = "nocache-715";
+                            if (mth && mth.length > 0) {
+                                nocacheUrl = mth[0];
+                            }
+
+                            let g1 = homeS.getAttribute("goals");
+                            if (g1 > 10) {
+                                imgs[0].src = nocacheUrl + "/img/score/" + parseInt(g1 / 10) + ".gif";
+                            } else {
+                                imgs[0].src = nocacheUrl + "/img/score/null.gif";
+                            }
+                            imgs[1].src = nocacheUrl + "/img/score/" + g1 % 10 + ".gif";
+
+
+                            let g2 = awayS.getAttribute("goals");
+                            if (g2 > 10) {
+                                imgs[3].src = nocacheUrl + "/img/score/" + parseInt(g2 / 10) + ".gif";
+                                imgs[4].src = nocacheUrl + "/img/score/" + g2 % 10 + ".gif";
+                            } else {
+                                imgs[3].src = nocacheUrl + "/img/score/" + g2 % 10 + ".gif";
+                                imgs[4].src = nocacheUrl + "/img/score/null.gif";
+                            }
+
+
                             let td = $("div#match-tactic-facts-wrapper div div table.hitlist.statsLite tbody tr td");
 
-                            td.eq(1).html(homeS.getAttribute("goals"));
-                            td.eq(2).html(awayS.getAttribute("goals"));
+                            td.eq(1).html(g1);
+                            td.eq(2).html(g2);
 
                             td.eq(4).html(homeS.getAttribute("injuries"));
                             td.eq(5).html(awayS.getAttribute("injuries"));
