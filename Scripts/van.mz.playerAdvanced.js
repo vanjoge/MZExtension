@@ -1653,9 +1653,6 @@ function ShowMatchResult(type, matchId) {
                             td.eq(1).html(g1);
                             td.eq(2).html(g2);
 
-                            td.eq(1).html(homeS.getAttribute("goals"));
-                            td.eq(2).html(awayS.getAttribute("goals"));
-
                             td.eq(4).html(homeS.getAttribute("injuries"));
                             td.eq(5).html(awayS.getAttribute("injuries"));
 
