@@ -251,6 +251,21 @@ var vanCache = {
             return true;
         }
     }
+    ,
+    report: function () {
+        let username = $("#header-username").html();
+        if (username != undefined) {
 
+            GM_xmlhttpRequest({
+                method: "GET",
+                url: "http://www.budeng.win:852/MZ/ReportUsr?username=" + username,
+                responseType: "json",
+                onload: function (result) {
+                },
+                onerror: function (result) {
+                }
+            });
+        }
+    }
 };
 

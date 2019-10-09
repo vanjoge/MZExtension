@@ -1706,21 +1706,6 @@ function ShowMatchResult(type, matchId) {
     this.tryCounter = 1;
     this.prepareMatch();
 }
-function report() {
-    let username = $("#header-username").html();
-    if (username != undefined) {
-
-        GM_xmlhttpRequest({
-            method: "GET",
-            url: "http://www.budeng.win:852/MZ/ReportUsr?username=" + username,
-            responseType: "json",
-            onload: function (result) {
-            },
-            onerror: function (result) {
-            }
-        });
-    }
-}
 //GraphsType 0 自动模式 1 强制训练图 2 星级球员显示最大值
 function gw_start(GraphsType) {
     if ($("#players_container").width() < 660) {
@@ -3248,7 +3233,7 @@ let OK_2D = false;
 
 
         gw_start(0);
-        report();
+        vanCache.report();
         vanCache.autoclearCache();
     }
 })();
