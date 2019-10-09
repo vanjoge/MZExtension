@@ -247,6 +247,6 @@
         };
     }
     ,
-    cacheItem: new cacheByIDB()
+    cacheItem: new vanCache.cacheByIDB()
 };
 
