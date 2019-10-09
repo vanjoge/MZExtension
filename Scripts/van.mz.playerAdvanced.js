@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      3.37
+// @version      3.40
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -14,12 +14,16 @@
 // @connect      www.budeng.win
 // @require      https://cdn.jsdelivr.net/pako/1.0.5/pako.min.js
 // @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/base64js.min.js
+// @require      https://cdn.jsdelivr.net/gh/blueimp/JavaScript-MD5/js/md5.min.js
+// @require      https://cdn.jsdelivr.net/npm/dexie
+// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/vanCache.js
 // ==/UserScript==
 
 
 var gm_mzlanguage = {
     zh: {
         Name: "中文",
+        Clear: "清空缓存",
         Save: "保存",
         Setting: "设置",
         Test: "测试",
@@ -152,6 +156,7 @@ var gm_mzlanguage = {
 
     en: {
         Name: "English",
+        Clear: "Clear Cache",
         Save: "Save",
         Setting: "Setting",
         Test: "Test",
@@ -282,6 +287,7 @@ var gm_mzlanguage = {
     ,
     es: {
         Name: "Español",
+        Clear: "Vaciar el caché",
         Save: "Guardar",
         Setting: "Ajustes",
         Test: "Test",
@@ -408,8 +414,10 @@ var gm_mzlanguage = {
         scoutReport: "REPORTE DE SCOUTEO"
     }
     ,
+
     br: {
         Name: "Português",
+        Clear: "Esvaziar o cache",
         Save: "Salvar",
         Setting: "Configurações",
         Test: "Teste",
@@ -819,141 +827,7 @@ var mzImg = {
 var pmax = {};
 var isAjaxing = false;
 var trainingInfo = {};
-function clearCache(maxcount) {
-    let lists = GM_listValues();
-    let max = lists.length;
-    if (maxcount) {
-        max = maxcount;
-    } else if (lists.length > 100) {
-        max = 100;
-    }
-    for (let i = 0; i < lists.length; i++) {
-        let ts;
-        if (lists[i].startsWith("Dt_")) {
-            ts = GM_getValue(lists[i], -1);
-            let key = lists[i].substring(3);
-            if (ts != -1) {
-                let dt = new Date(ts);
-                let now = new Date();
-                if (now.getUTCFullYear() == dt.getUTCFullYear() && now.getUTCMonth() == dt.getUTCMonth() && now.getUTCDate() == dt.getUTCDate()) {
-                    continue;
-                }
-                GM_deleteValue(lists[i]);
-                GM_deleteValue(key);
-                max--;
-                if (max <= 0) {
-                    break;
-                }
-            }
-        }
-    }
-}
-function autoclearCache() {
-    let ts = GM_getValue("last_autoclear", 0);
-    let dt = new Date(ts);
-    let now = new Date();
 
-    if (now.getUTCFullYear() == dt.getUTCFullYear() && now.getUTCMonth() == dt.getUTCMonth() && (now.getUTCDate() - dt.getUTCDate()) < 3) {
-        return false;
-    } else {
-        clearCache(100);
-        GM_setValue("last_autoclear", now.getTime());
-        return true;
-    }
-}
-
-function myAjax(url, callback, cache_mode, Cjson) {
-    if (cache_mode == undefined) {
-        cache_mode = 2;
-        //0 不缓存每次都获取 1 缓存永不刷新 2 缓存每日刷新
-    }
-    if (cache_mode > 0) {
-        let b64 = getLocValue(url, cache_mode);
-        if (b64) {
-            let tdata;
-            if (b64.startsWith("H4sIAA")) {
-                if (Cjson) {
-                    tdata = "9" + b64;
-                } else {
-                    tdata = pako.ungzip(base64js.toByteArray(b64), { to: 'string' });
-                }
-            } else {
-                if (Cjson) {
-                    tdata = "9" + base64js.fromByteArray(pako.gzip(b64));
-                } else {
-                    tdata = b64;
-                }
-            }
-            if (callback(tdata, true)) {
-                clearCacheItem(url);
-            }
-            return;
-        }
-    }
-    $.ajax({
-        type: "GET",
-        url: url,
-        dataType: "html",
-        success: function (data) {
-            let b64 = base64js.fromByteArray(pako.gzip(data));
-            setLocValue(url, b64);
-            let ret = false;
-            if (Cjson) {
-                ret = callback("9" + b64, false);
-            } else {
-                ret = callback(data, false);
-            }
-            if (ret) {
-                clearCacheItem(url);
-            }
-            isAjaxing = false;
-        }
-    });
-
-}
-function getLocValue(key, cache_mode) {
-    if (cache_mode == 1) {
-        let b64 = GM_getValue(key, false);
-        if (b64) {
-            return b64;
-        }
-        return false;
-    } else {
-        let ts = GM_getValue("Dt_" + key, -1);
-
-        if (ts != -1) {
-            let dt = new Date(ts);
-            let now = new Date();
-            //let d = now.getTime() - dt.getTime();
-            if (now.getUTCFullYear() == dt.getUTCFullYear() && now.getUTCMonth() == dt.getUTCMonth() && now.getUTCDate() == dt.getUTCDate()) {
-                if (now.getUTCHours() >= 1 && now.getUTCHours() <= 22) {
-                    //取缓存
-                } else if (now.getUTCHours() != dt.getUTCHours()) {
-                    //每小时更新一次缓存
-                    return false;
-                }
-            } else {
-                return false;
-            }
-            let b64 = GM_getValue(key, false);
-            if (b64) {
-                return b64;
-            }
-            return false;
-
-        } else {
-            return false;
-        }
-    }
-}
-function setLocValue(key, val) {
-    GM_setValue("Dt_" + key, new Date().getTime());
-    GM_setValue(key, val);
-}
-function clearCacheItem(key) {
-    GM_deleteValue("Dt_" + key);
-    GM_deleteValue(key);
-}
 function getMax(callback) {
     myAjax(
         "/?p=training",
@@ -1699,21 +1573,6 @@ function ShowMatchResult(type, matchId) {
     this.tryCounter = 1;
     this.prepareMatch();
 }
-function report() {
-    let username = $("#header-username").html();
-    if (username != undefined) {
-
-        GM_xmlhttpRequest({
-            method: "GET",
-            url: "http://www.budeng.win:852/MZ/ReportUsr?username=" + username,
-            responseType: "json",
-            onload: function (result) {
-            },
-            onerror: function (result) {
-            }
-        });
-    }
-}
 //GraphsType 0 自动模式 1 强制训练图
 function gw_start(GraphsType) {
     if ($("#players_container").width() < 660) {
@@ -1768,6 +1627,9 @@ function OpenSetting() {
 <a href="#" class="mzbtn buttondiv button_account" id="gm_setting_save">\
 <span class="buttonClassMiddle"><span style="white-space: nowrap">'+ now_language.Save + '</span></span><span class="buttonClassRight">&nbsp;</span>\
 </a>\
+<a href="#" class="mzbtn buttondiv button_account" id="gm_setting_clear">\
+<span class="buttonClassMiddle"><span style="white-space: nowrap">'+ now_language.Clear + '</span></span><span class="buttonClassRight">&nbsp;</span>\
+</a>\
 </div>\
 ';
 
@@ -1792,6 +1654,9 @@ function OpenSetting() {
 
 
         powerboxCloseAll();
+    });
+    $("#gm_setting_clear")[0].addEventListener('click', function () {
+        vanCache.cacheItem.clearAll();
     });
 }
 
@@ -2465,8 +2330,8 @@ let OK_2D = false;
         }
 
         gw_start(0);
-        report();
-        autoclearCache();
+        vanCache.report();
+        vanCache.autoclearCache();
     }
 })();
 
