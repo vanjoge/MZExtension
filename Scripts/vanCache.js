@@ -1,4 +1,124 @@
-﻿var vanCache = {
+﻿function cacheByIDB() {
+    this.db = new Dexie("MZCache");
+    this.db.version(1).stores({
+        cache: "key, html, ts"
+    });
+    this.getLocValue = function (key, cache_mode, callback) {
+        this.db.cache.get(key, function (data) {
+            if (data == undefined) {
+                callback(false);
+                return;
+            }
+            if (cache_mode == 1) {
+                callback(data.html);
+            }
+            let ts = data.ts;
+
+            if (ts != -1) {
+                let dt = new Date(ts);
+                let now = new Date();
+                //let d = now.getTime() - dt.getTime();
+                if (now.getUTCFullYear() == dt.getUTCFullYear() && now.getUTCMonth() == dt.getUTCMonth() && now.getUTCDate() == dt.getUTCDate()) {
+                    if (now.getUTCHours() >= 1 && now.getUTCHours() <= 22) {
+                        //取缓存
+                    } else if (now.getUTCHours() != dt.getUTCHours()) {
+                        //每小时更新一次缓存
+                        callback(false);
+                        return;
+                    }
+                } else {
+                    callback(false);
+                    return;
+                }
+                callback(data.html);
+                return;
+
+            } else {
+                callback(false);
+                return;
+            }
+        });
+    };
+    this.setLocValue = function (key, val, callback) {
+        this.db.cache.put({ key: key, html: val, ts: new Date().getTime() }).then(function (lastKey) {
+            callback();
+        });
+    };
+    this.clearCacheItem = function (key) {
+        this.db.cache.delete(key);
+    };
+
+    this.clearExpired = function () {
+        let oneDayAgo = new Date(Date.now() - 3600 * 1000 * 24);
+        this.db.cache.where('timestamp').below(oneDayAgo)
+            .delete();
+    };
+    this.clearAll = function () {
+        this.db.cache.clear();
+    };
+}
+;
+
+function cacheByIDB() {
+    this.db = new Dexie("MZCache");
+    this.db.version(1).stores({
+        cache: "key, html, ts"
+    });
+    this.getLocValue = function (key, cache_mode, callback) {
+        this.db.cache.get(key, function (data) {
+            if (data == undefined) {
+                callback(false);
+                return;
+            }
+            if (cache_mode == 1) {
+                callback(data.html);
+            }
+            let ts = data.ts;
+
+            if (ts != -1) {
+                let dt = new Date(ts);
+                let now = new Date();
+                //let d = now.getTime() - dt.getTime();
+                if (now.getUTCFullYear() == dt.getUTCFullYear() && now.getUTCMonth() == dt.getUTCMonth() && now.getUTCDate() == dt.getUTCDate()) {
+                    if (now.getUTCHours() >= 1 && now.getUTCHours() <= 22) {
+                        //取缓存
+                    } else if (now.getUTCHours() != dt.getUTCHours()) {
+                        //每小时更新一次缓存
+                        callback(false);
+                        return;
+                    }
+                } else {
+                    callback(false);
+                    return;
+                }
+                callback(data.html);
+                return;
+
+            } else {
+                callback(false);
+                return;
+            }
+        });
+    };
+    this.setLocValue = function (key, val, callback) {
+        this.db.cache.put({ key: key, html: val, ts: new Date().getTime() }).then(function (lastKey) {
+            callback();
+        });
+    };
+    this.clearCacheItem = function (key) {
+        this.db.cache.delete(key);
+    };
+
+    this.clearExpired = function () {
+        let oneDayAgo = new Date(Date.now() - 3600 * 1000 * 24);
+        this.db.cache.where('timestamp').below(oneDayAgo)
+            .delete();
+    };
+    this.clearAll = function () {
+        this.db.cache.clear();
+    };
+};
+var vanCache = {
     ajax: function (url, callback, cache_mode, Cjson) {
         if (cache_mode == undefined) {
             cache_mode = 2;
@@ -85,66 +205,7 @@
             return true;
         }
     },
-    cacheByIDB: function () {
-        this.db = new Dexie("MZCache");
-        this.db.version(1).stores({
-            cache: "key, html, ts"
-        });
-        this.getLocValue = function (key, cache_mode, callback) {
-            this.db.cache.get(key, function (data) {
-                if (data == undefined) {
-                    callback(false);
-                    return;
-                }
-                if (cache_mode == 1) {
-                    callback(data.html);
-                }
-                let ts = data.ts;
 
-                if (ts != -1) {
-                    let dt = new Date(ts);
-                    let now = new Date();
-                    //let d = now.getTime() - dt.getTime();
-                    if (now.getUTCFullYear() == dt.getUTCFullYear() && now.getUTCMonth() == dt.getUTCMonth() && now.getUTCDate() == dt.getUTCDate()) {
-                        if (now.getUTCHours() >= 1 && now.getUTCHours() <= 22) {
-                            //取缓存
-                        } else if (now.getUTCHours() != dt.getUTCHours()) {
-                            //每小时更新一次缓存
-                            callback(false);
-                            return;
-                        }
-                    } else {
-                        callback(false);
-                        return;
-                    }
-                    callback(data.html);
-                    return;
-
-                } else {
-                    callback(false);
-                    return;
-                }
-            });
-        };
-        this.setLocValue = function (key, val, callback) {
-            this.db.cache.put({ key: key, html: val, ts: new Date().getTime() }).then(function (lastKey) {
-                callback();
-            });
-        };
-        this.clearCacheItem = function (key) {
-            this.db.cache.delete(key);
-        };
-
-        this.clearExpired = function () {
-            let oneDayAgo = new Date(Date.now() - 3600 * 1000 * 24);
-            this.db.cache.where('timestamp').below(oneDayAgo)
-                .delete();
-        };
-        this.clearAll = function () {
-            this.db.cache.clear();
-        };
-    }
-    ,
     cacheByGM: function () {
         this.getLocValue = function (key, cache_mode, callback) {
             key = md5(key);
@@ -247,6 +308,6 @@
         };
     }
     ,
-    cacheItem: new vanCache.cacheByIDB()
+    cacheItem: new cacheByIDB()
 };
 
