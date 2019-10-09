@@ -1,4 +1,4 @@
-﻿vanCacheModel = {
+﻿var vanCacheModel = {
 
     cacheByIDB: function () {
         this.db = new Dexie("MZCache");
@@ -51,8 +51,8 @@
         };
 
         this.clearExpired = function () {
-            let oneDayAgo = new Date(Date.now() - 3600 * 1000 * 24);
-            this.db.cache.where('timestamp').below(oneDayAgo)
+            let oneDayAgo = new Date(Date.now() - 3600 * 1000 * 24).getTime();
+            this.db.cache.where('ts').below(oneDayAgo)
                 .delete();
         };
         this.clearAll = function () {
@@ -165,13 +165,15 @@
 }
 
 var vanCache = {
+    cacheItem: new vanCacheModel.cacheByIDB(),
     ajax: function (url, callback, cache_mode, Cjson) {
         if (cache_mode == undefined) {
             cache_mode = 2;
             //0 不缓存每次都获取 1 缓存永不刷新 2 缓存每日刷新
         }
+        var nowcacheItem = this.cacheItem;
         if (cache_mode > 0) {
-            cacheItem.getLocValue(url, cache_mode, function (b64) {
+            nowcacheItem.getLocValue(url, cache_mode, function (b64) {
                 if (b64) {
                     let tdata;
                     if (b64.startsWith("H4sIAA")) {
@@ -188,7 +190,7 @@ var vanCache = {
                         }
                     }
                     if (callback(tdata, true)) {
-                        clearCacheItem(url);
+                        nowcacheItem.clearCacheItem(url);
                     }
                 } else {
                     $.ajax({
@@ -197,7 +199,7 @@ var vanCache = {
                         dataType: "html",
                         success: function (data) {
                             let b64 = base64js.fromByteArray(pako.gzip(data));
-                            cacheItem.setLocValue(url, b64, function () {
+                            nowcacheItem.setLocValue(url, b64, function () {
                                 let ret = false;
                                 if (Cjson) {
                                     ret = callback("9" + b64, false);
@@ -205,9 +207,8 @@ var vanCache = {
                                     ret = callback(data, false);
                                 }
                                 if (ret) {
-                                    clearCacheItem(url);
+                                    nowcacheItem.clearCacheItem(url);
                                 }
-                                isAjaxing = false;
                             });
                         }
                     });
@@ -221,7 +222,7 @@ var vanCache = {
                 dataType: "html",
                 success: function (data) {
                     let b64 = base64js.fromByteArray(pako.gzip(data));
-                    cacheItem.setLocValue(url, b64, function () {
+                    nowcacheItem.setLocValue(url, b64, function () {
                         let ret = false;
                         if (Cjson) {
                             ret = callback("9" + b64, false);
@@ -229,9 +230,8 @@ var vanCache = {
                             ret = callback(data, false);
                         }
                         if (ret) {
-                            clearCacheItem(url);
+                            nowcacheItem.clearCacheItem(url);
                         }
-                        isAjaxing = false;
                     });
                 }
             });
@@ -245,13 +245,12 @@ var vanCache = {
         if (now.getUTCFullYear() == dt.getUTCFullYear() && now.getUTCMonth() == dt.getUTCMonth() && (now.getUTCDate() - dt.getUTCDate()) < 1) {
             return false;
         } else {
-            cacheItem.clearExpired();
+            this.cacheItem.clearExpired();
             //clearCache(100);
             GM_setValue("last_autoclear", now.getTime());
             return true;
         }
-    },
+    }
 
-    cacheItem: new vanCacheModel.cacheByIDB()
 };
 
