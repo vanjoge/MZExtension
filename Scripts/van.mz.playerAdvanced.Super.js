@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.37
+// @version      3.38
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -16,12 +16,14 @@
 // @downloadURL  https://raw.githubusercontent.com/vanjoge/MZExtension/master/Scripts/van.mz.playerAdvanced.Super.js
 // @require      https://cdn.jsdelivr.net/pako/1.0.5/pako.min.js
 // @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/base64js.min.js
+// @require      https://cdn.jsdelivr.net/gh/blueimp/JavaScript-MD5/js/md5.min.js
 // ==/UserScript==
 
 
 var gm_mzlanguage = {
     zh: {
         Name: "中文",
+        Clear: "清空缓存",
         Save: "保存",
         Setting: "设置",
         Test: "测试",
@@ -154,6 +156,7 @@ var gm_mzlanguage = {
 
     en: {
         Name: "English",
+        Clear: "Clear Cache",
         Save: "Save",
         Setting: "Setting",
         Test: "Test",
@@ -284,6 +287,7 @@ var gm_mzlanguage = {
     ,
     es: {
         Name: "Español",
+        Clear: "Vaciar el caché",
         Save: "Guardar",
         Setting: "Ajustes",
         Test: "Test",
@@ -413,6 +417,7 @@ var gm_mzlanguage = {
 
     br: {
         Name: "Português",
+        Clear: "Esvaziar o cache",
         Save: "Salvar",
         Setting: "Configurações",
         Test: "Teste",
@@ -914,7 +919,10 @@ function myAjax(url, callback, cache_mode, Cjson) {
     });
 
 }
+
+
 function getLocValue(key, cache_mode) {
+    key = md5(key);
     if (cache_mode == 1) {
         let b64 = GM_getValue(key, false);
         if (b64) {
@@ -950,6 +958,7 @@ function getLocValue(key, cache_mode) {
     }
 }
 function setLocValue(key, val) {
+    key = md5(key);
     GM_setValue("Dt_" + key, new Date().getTime());
     GM_setValue(key, val);
 }
@@ -1904,6 +1913,9 @@ function OpenSetting() {
 <a href="#" class="mzbtn buttondiv button_account" id="gm_setting_save">\
 <span class="buttonClassMiddle"><span style="white-space: nowrap">'+ now_language.Save + '</span></span><span class="buttonClassRight">&nbsp;</span>\
 </a>\
+<a href="#" class="mzbtn buttondiv button_account" id="gm_setting_clear">\
+<span class="buttonClassMiddle"><span style="white-space: nowrap">'+ now_language.Clear + '</span></span><span class="buttonClassRight">&nbsp;</span>\
+</a>\
 </div>\
 ';
 
@@ -1928,6 +1940,10 @@ function OpenSetting() {
 
 
         powerboxCloseAll();
+    });
+    $("#gm_setting_clear")[0].addEventListener('click', function () {
+        clearCache(100);
+
     });
 }
 
