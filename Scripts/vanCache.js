@@ -1,210 +1,65 @@
-﻿function cacheByIDB() {
-    this.db = new Dexie("MZCache");
-    this.db.version(1).stores({
-        cache: "key, html, ts"
-    });
-    this.getLocValue = function (key, cache_mode, callback) {
-        this.db.cache.get(key, function (data) {
-            if (data == undefined) {
-                callback(false);
-                return;
-            }
-            if (cache_mode == 1) {
-                callback(data.html);
-            }
-            let ts = data.ts;
+﻿vanCacheModel = {
 
-            if (ts != -1) {
-                let dt = new Date(ts);
-                let now = new Date();
-                //let d = now.getTime() - dt.getTime();
-                if (now.getUTCFullYear() == dt.getUTCFullYear() && now.getUTCMonth() == dt.getUTCMonth() && now.getUTCDate() == dt.getUTCDate()) {
-                    if (now.getUTCHours() >= 1 && now.getUTCHours() <= 22) {
-                        //取缓存
-                    } else if (now.getUTCHours() != dt.getUTCHours()) {
-                        //每小时更新一次缓存
-                        callback(false);
-                        return;
-                    }
-                } else {
+    cacheByIDB: function () {
+        this.db = new Dexie("MZCache");
+        this.db.version(1).stores({
+            cache: "key, html, ts"
+        });
+        this.getLocValue = function (key, cache_mode, callback) {
+            this.db.cache.get(key, function (data) {
+                if (data == undefined) {
                     callback(false);
                     return;
                 }
-                callback(data.html);
-                return;
-
-            } else {
-                callback(false);
-                return;
-            }
-        });
-    };
-    this.setLocValue = function (key, val, callback) {
-        this.db.cache.put({ key: key, html: val, ts: new Date().getTime() }).then(function (lastKey) {
-            callback();
-        });
-    };
-    this.clearCacheItem = function (key) {
-        this.db.cache.delete(key);
-    };
-
-    this.clearExpired = function () {
-        let oneDayAgo = new Date(Date.now() - 3600 * 1000 * 24);
-        this.db.cache.where('timestamp').below(oneDayAgo)
-            .delete();
-    };
-    this.clearAll = function () {
-        this.db.cache.clear();
-    };
-}
-;
-
-function cacheByIDB() {
-    this.db = new Dexie("MZCache");
-    this.db.version(1).stores({
-        cache: "key, html, ts"
-    });
-    this.getLocValue = function (key, cache_mode, callback) {
-        this.db.cache.get(key, function (data) {
-            if (data == undefined) {
-                callback(false);
-                return;
-            }
-            if (cache_mode == 1) {
-                callback(data.html);
-            }
-            let ts = data.ts;
-
-            if (ts != -1) {
-                let dt = new Date(ts);
-                let now = new Date();
-                //let d = now.getTime() - dt.getTime();
-                if (now.getUTCFullYear() == dt.getUTCFullYear() && now.getUTCMonth() == dt.getUTCMonth() && now.getUTCDate() == dt.getUTCDate()) {
-                    if (now.getUTCHours() >= 1 && now.getUTCHours() <= 22) {
-                        //取缓存
-                    } else if (now.getUTCHours() != dt.getUTCHours()) {
-                        //每小时更新一次缓存
-                        callback(false);
-                        return;
-                    }
-                } else {
-                    callback(false);
-                    return;
+                if (cache_mode == 1) {
+                    callback(data.html);
                 }
-                callback(data.html);
-                return;
+                let ts = data.ts;
 
-            } else {
-                callback(false);
-                return;
-            }
-        });
-    };
-    this.setLocValue = function (key, val, callback) {
-        this.db.cache.put({ key: key, html: val, ts: new Date().getTime() }).then(function (lastKey) {
-            callback();
-        });
-    };
-    this.clearCacheItem = function (key) {
-        this.db.cache.delete(key);
-    };
-
-    this.clearExpired = function () {
-        let oneDayAgo = new Date(Date.now() - 3600 * 1000 * 24);
-        this.db.cache.where('timestamp').below(oneDayAgo)
-            .delete();
-    };
-    this.clearAll = function () {
-        this.db.cache.clear();
-    };
-};
-var vanCache = {
-    ajax: function (url, callback, cache_mode, Cjson) {
-        if (cache_mode == undefined) {
-            cache_mode = 2;
-            //0 不缓存每次都获取 1 缓存永不刷新 2 缓存每日刷新
-        }
-        if (cache_mode > 0) {
-            cacheItem.getLocValue(url, cache_mode, function (b64) {
-                if (b64) {
-                    let tdata;
-                    if (b64.startsWith("H4sIAA")) {
-                        if (Cjson) {
-                            tdata = "9" + b64;
-                        } else {
-                            tdata = pako.ungzip(base64js.toByteArray(b64), { to: 'string' });
+                if (ts != -1) {
+                    let dt = new Date(ts);
+                    let now = new Date();
+                    //let d = now.getTime() - dt.getTime();
+                    if (now.getUTCFullYear() == dt.getUTCFullYear() && now.getUTCMonth() == dt.getUTCMonth() && now.getUTCDate() == dt.getUTCDate()) {
+                        if (now.getUTCHours() >= 1 && now.getUTCHours() <= 22) {
+                            //取缓存
+                        } else if (now.getUTCHours() != dt.getUTCHours()) {
+                            //每小时更新一次缓存
+                            callback(false);
+                            return;
                         }
                     } else {
-                        if (Cjson) {
-                            tdata = "9" + base64js.fromByteArray(pako.gzip(b64));
-                        } else {
-                            tdata = b64;
-                        }
+                        callback(false);
+                        return;
                     }
-                    if (callback(tdata, true)) {
-                        clearCacheItem(url);
-                    }
-                } else {
-                    $.ajax({
-                        type: "GET",
-                        url: url,
-                        dataType: "html",
-                        success: function (data) {
-                            let b64 = base64js.fromByteArray(pako.gzip(data));
-                            cacheItem.setLocValue(url, b64, function () {
-                                let ret = false;
-                                if (Cjson) {
-                                    ret = callback("9" + b64, false);
-                                } else {
-                                    ret = callback(data, false);
-                                }
-                                if (ret) {
-                                    clearCacheItem(url);
-                                }
-                                isAjaxing = false;
-                            });
-                        }
-                    });
-                }
-            });
-        } else {
+                    callback(data.html);
+                    return;
 
-            $.ajax({
-                type: "GET",
-                url: url,
-                dataType: "html",
-                success: function (data) {
-                    let b64 = base64js.fromByteArray(pako.gzip(data));
-                    cacheItem.setLocValue(url, b64, function () {
-                        let ret = false;
-                        if (Cjson) {
-                            ret = callback("9" + b64, false);
-                        } else {
-                            ret = callback(data, false);
-                        }
-                        if (ret) {
-                            clearCacheItem(url);
-                        }
-                        isAjaxing = false;
-                    });
+                } else {
+                    callback(false);
+                    return;
                 }
             });
-        }
+        };
+        this.setLocValue = function (key, val, callback) {
+            this.db.cache.put({ key: key, html: val, ts: new Date().getTime() }).then(function (lastKey) {
+                callback();
+            });
+        };
+        this.clearCacheItem = function (key) {
+            this.db.cache.delete(key);
+        };
+
+        this.clearExpired = function () {
+            let oneDayAgo = new Date(Date.now() - 3600 * 1000 * 24);
+            this.db.cache.where('timestamp').below(oneDayAgo)
+                .delete();
+        };
+        this.clearAll = function () {
+            this.db.cache.clear();
+        };
     }
     ,
-    autoclearCache: function () {
-        let ts = GM_getValue("last_autoclear", 0);
-        let dt = new Date(ts);
-        let now = new Date();
-        if (now.getUTCFullYear() == dt.getUTCFullYear() && now.getUTCMonth() == dt.getUTCMonth() && (now.getUTCDate() - dt.getUTCDate()) < 1) {
-            return false;
-        } else {
-            cacheItem.clearExpired();
-            //clearCache(100);
-            GM_setValue("last_autoclear", now.getTime());
-            return true;
-        }
-    },
 
     cacheByGM: function () {
         this.getLocValue = function (key, cache_mode, callback) {
@@ -307,7 +162,96 @@ var vanCache = {
             }
         };
     }
+}
+
+var vanCache = {
+    ajax: function (url, callback, cache_mode, Cjson) {
+        if (cache_mode == undefined) {
+            cache_mode = 2;
+            //0 不缓存每次都获取 1 缓存永不刷新 2 缓存每日刷新
+        }
+        if (cache_mode > 0) {
+            cacheItem.getLocValue(url, cache_mode, function (b64) {
+                if (b64) {
+                    let tdata;
+                    if (b64.startsWith("H4sIAA")) {
+                        if (Cjson) {
+                            tdata = "9" + b64;
+                        } else {
+                            tdata = pako.ungzip(base64js.toByteArray(b64), { to: 'string' });
+                        }
+                    } else {
+                        if (Cjson) {
+                            tdata = "9" + base64js.fromByteArray(pako.gzip(b64));
+                        } else {
+                            tdata = b64;
+                        }
+                    }
+                    if (callback(tdata, true)) {
+                        clearCacheItem(url);
+                    }
+                } else {
+                    $.ajax({
+                        type: "GET",
+                        url: url,
+                        dataType: "html",
+                        success: function (data) {
+                            let b64 = base64js.fromByteArray(pako.gzip(data));
+                            cacheItem.setLocValue(url, b64, function () {
+                                let ret = false;
+                                if (Cjson) {
+                                    ret = callback("9" + b64, false);
+                                } else {
+                                    ret = callback(data, false);
+                                }
+                                if (ret) {
+                                    clearCacheItem(url);
+                                }
+                                isAjaxing = false;
+                            });
+                        }
+                    });
+                }
+            });
+        } else {
+
+            $.ajax({
+                type: "GET",
+                url: url,
+                dataType: "html",
+                success: function (data) {
+                    let b64 = base64js.fromByteArray(pako.gzip(data));
+                    cacheItem.setLocValue(url, b64, function () {
+                        let ret = false;
+                        if (Cjson) {
+                            ret = callback("9" + b64, false);
+                        } else {
+                            ret = callback(data, false);
+                        }
+                        if (ret) {
+                            clearCacheItem(url);
+                        }
+                        isAjaxing = false;
+                    });
+                }
+            });
+        }
+    }
     ,
-    cacheItem: new cacheByIDB()
+    autoclearCache: function () {
+        let ts = GM_getValue("last_autoclear", 0);
+        let dt = new Date(ts);
+        let now = new Date();
+        if (now.getUTCFullYear() == dt.getUTCFullYear() && now.getUTCMonth() == dt.getUTCMonth() && (now.getUTCDate() - dt.getUTCDate()) < 1) {
+            return false;
+        } else {
+            cacheItem.clearExpired();
+            //clearCache(100);
+            GM_setValue("last_autoclear", now.getTime());
+            return true;
+        }
+    },
+
+    cacheItem: new vanCacheModel.cacheByIDB()
 };
 
