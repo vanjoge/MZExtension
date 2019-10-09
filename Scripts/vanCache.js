@@ -1,8 +1,8 @@
-var vanCache = {
+ï»¿var vanCache = {
     ajax: function (url, callback, cache_mode, Cjson) {
         if (cache_mode == undefined) {
             cache_mode = 2;
-            //0 ²»»º´æÃ¿´Î¶¼»ñÈ¡ 1 »º´æÓÀ²»Ë¢ÐÂ 2 »º´æÃ¿ÈÕË¢ÐÂ
+            //0 ä¸ç¼“å­˜æ¯æ¬¡éƒ½èŽ·å– 1 ç¼“å­˜æ°¸ä¸åˆ·æ–° 2 ç¼“å­˜æ¯æ—¥åˆ·æ–°
         }
         if (cache_mode > 0) {
             cacheItem.getLocValue(url, cache_mode, function (b64) {
@@ -107,9 +107,9 @@ var vanCache = {
                     //let d = now.getTime() - dt.getTime();
                     if (now.getUTCFullYear() == dt.getUTCFullYear() && now.getUTCMonth() == dt.getUTCMonth() && now.getUTCDate() == dt.getUTCDate()) {
                         if (now.getUTCHours() >= 1 && now.getUTCHours() <= 22) {
-                            //È¡»º´æ
+                            //å–ç¼“å­˜
                         } else if (now.getUTCHours() != dt.getUTCHours()) {
-                            //Ã¿Ð¡Ê±¸üÐÂÒ»´Î»º´æ
+                            //æ¯å°æ—¶æ›´æ–°ä¸€æ¬¡ç¼“å­˜
                             callback(false);
                             return;
                         }
@@ -165,9 +165,9 @@ var vanCache = {
                     //let d = now.getTime() - dt.getTime();
                     if (now.getUTCFullYear() == dt.getUTCFullYear() && now.getUTCMonth() == dt.getUTCMonth() && now.getUTCDate() == dt.getUTCDate()) {
                         if (now.getUTCHours() >= 1 && now.getUTCHours() <= 22) {
-                            //È¡»º´æ
+                            //å–ç¼“å­˜
                         } else if (now.getUTCHours() != dt.getUTCHours()) {
-                            //Ã¿Ð¡Ê±¸üÐÂÒ»´Î»º´æ
+                            //æ¯å°æ—¶æ›´æ–°ä¸€æ¬¡ç¼“å­˜
                             callback(false);
                             return;
                         }
@@ -229,7 +229,7 @@ var vanCache = {
             }
         };
         this.clearAll = function () {
-            //¼ÙÊµÏÖ ¹ý¶à»áÒýÆðä¯ÀÀÆ÷±ÀÀ£
+            //å‡å®žçŽ° è¿‡å¤šä¼šå¼•èµ·æµè§ˆå™¨å´©æºƒ
             this.clearExpired(100);
         };
         this.autoclearCache = function () {
