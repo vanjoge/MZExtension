@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      3.40
+// @version      3.41
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -829,7 +829,7 @@ var isAjaxing = false;
 var trainingInfo = {};
 
 function getMax(callback) {
-    myAjax(
+    vanCache.ajax(
         "/?p=training",
         function (data) {
             let result = data.match(mzreg.playerMax);
@@ -1101,7 +1101,7 @@ function getScoutReport(pid, pdom, showMB) {
         url = "/ajax.php?p=players&sub=scout_report&pid=null&sport=soccer";
         cache_mode = 0;
     }
-    myAjax(
+    vanCache.ajax(
         url,
         function (data) {
             let srdom = $($.parseHTML(data));
@@ -1312,7 +1312,7 @@ function getTrainPRI(sloc, HStar, HP1, HP2, LStar, LP1, LP2) {
 }
 
 function getTrainingGraphs(pid, pdom, GraphsType) {
-    myAjax(
+    vanCache.ajax(
         "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=soccer&player_id=" + pid,
         function (data) {
             if (data == "") {
@@ -1323,7 +1323,7 @@ function getTrainingGraphs(pid, pdom, GraphsType) {
         });
 }
 function getTrainingGraphsBySkill_id(pid, skill_id, callback) {
-    myAjax(
+    vanCache.ajax(
         "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=soccer&player_id=" + pid + "&skill_id=" + (skill_id + 2),
         function (data) {
             return !callback(data);
@@ -2171,7 +2171,7 @@ function CopyXML(ishome) {
         });
     } else {
         let tmpXML = Stats2XML(ishome);
-        myAjax(
+        vanCache.ajax(
             "/?p=players",
             function (data2) {
                 // 
