@@ -21,6 +21,7 @@
 // @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/vanCache.js
 // ==/UserScript==
 
+
 var gm_mzlanguage = {
     zh: {
         Name: "中文",
@@ -950,7 +951,6 @@ function showMax(GraphsType) {
     return false;
 }
 function drawPlayerByTrainingGraphs(pid, data, pdom) {
-
     let imgs = pdom.find("img.skill");
     var series = undefined;
     eval(data);
@@ -1136,12 +1136,6 @@ function fillTrainingLevel(type, reg, playerTS, url, isneg) {
     let result = url.match(reg);
     if (result && result.length > 0) {
         let stat = playerTS.stat;
-        //if (skillTraining[index] == 0) {
-        //    stat = new trainingStat();
-        //    skillTraining[index] = stat;
-        //} else {
-        //    stat = skillTraining[index];
-        //}
         if (isneg) {
             stat.add(type, "t" + result[1]);
         } else {
@@ -1472,7 +1466,6 @@ function showPop(parent) {
     let sum = 0;
     if (playTS[tmpArr[2]]) {
         let training = playTS[tmpArr[2]].stat;
-        //let training = new trainingStat();
         str = now_language.training_avg + " " + training.getAvg() + "%" + training.getTnText() + "<br/><br/>" + now_language.training_ball_day + ":<br/>";
         if (training.camp) {
             str += training.getDayByAvg(training.camp.getAvg()) + "(" + now_language.training_camp + ") ";
@@ -2784,12 +2777,6 @@ function Advanced2D() {
                         CopyXML(false);
                     });
                     $('#gw_test')[0].addEventListener('click', function () {
-                        //let pp = new PlayerPos();
-                        ////let pids = {
-                        ////    18: {}, 19: {}, 21: {}, length: 3
-                        ////};
-                        //let arr2 = [dit_bypid["199889186"].internalId, dit_bypid["200235263"].internalId, dit_bypid["199916602"].internalId];
-                        //pp.setData(MyGame.prototype.mzlive.m_match, arr2);
 
                     });
 
@@ -2797,18 +2784,6 @@ function Advanced2D() {
                     $('.gw_div_left').empty();
                     $('.gw_div_right').empty();
                 }
-                //MyGame.prototype.mzlive.buttonJiJing = new ig.TouchButton('jijing', {
-                //    left: 24,
-                //    top: 24
-                //}, 48, 48, MyGame.prototype.mzlive.buttonImagesHelp, 0, 1, 'highlight');
-                //unsafeWindow.myTouchButtons.buttons.push(MyGame.prototype.mzlive.buttonJiJing);
-
-                //MyGame.prototype.mzlive.buttonDongZuo = new ig.TouchButton('dongzuo', {
-                //    left: 88,
-                //    top: 24
-                //}, 48, 48, MyGame.prototype.mzlive.buttonImagesRestart, 0, 1, 'highlight');
-                //unsafeWindow.myTouchButtons.buttons.push(MyGame.prototype.mzlive.buttonDongZuo);
-                //unsafeWindow.myTouchButtons.align();
             }
         }
     }
@@ -2895,9 +2870,6 @@ function ShowDiv(type) {
                 divname = '.gw_div_right';
             }
             let frame_count = 0;
-            //if (mEvent.playerFool[pid]) {
-            //    frame_count = mEvent.playerFool[pid].frame_count;
-            //}
             frame_count = mEvent.dataByPlayer[pid].FoolCount;
             $(divname).append('<div><b id="gw_player_' + pid + '" class="gw_run">'
                 + mEvent.dataByPlayer[pid].owner.m_name + "(" + mEvent.dataByPlayer[pid].owner.m_shirtNo + ")"
@@ -3158,18 +3130,6 @@ let OK_2D = false;
                         window.matchLoader = arguments[0];
                         Load010SetupMainSceneInstance.apply(this, arguments);
                     };
-                    //processButtonPresses = MyGame.prototype.mzlive.processButtonPresses;
-                    //MyGame.prototype.mzlive.processButtonPresses = function () {
-                    //    processButtonPresses.apply(this);
-                    //    if (this.m_state < 2) {
-                    //        return;
-                    //    }
-                    //    if (ig.input.pressed('jijing')) {
-                    //        ShowDiv(0);
-                    //    } else if (ig.input.pressed('dongzuo')) {
-                    //        ShowDiv(1);
-                    //    }
-                    //};
 
                 }
             }
@@ -3217,7 +3177,6 @@ let OK_2D = false;
             };
         }
 
-
         if (location.href == "https://www.managerzone.com/?p=tactics") {
             if (unsafeWindow.teamTactic.getPlayerInfo != undefined) {
                 _getPlayerInfo = unsafeWindow.teamTactic.getPlayerInfo;
@@ -3230,7 +3189,6 @@ let OK_2D = false;
                 };
             }
         }
-
 
         gw_start(0);
         vanCache.report();
