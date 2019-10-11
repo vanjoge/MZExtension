@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced.Super
 // @namespace    http://www.budeng.win:852/
-// @version      3.40
+// @version      4.0
 // @description  Player display optimization 球员增强插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -961,15 +961,8 @@ function drawPlayerByTrainingGraphs(pid, data, pdom) {
     let skillBallDays = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     let allSkillTraining_tmp = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     let camp = new mzcamp();
-    let SeasonTraining = new playerTrainingBySkill();
-    //赛季开始时间
-    let SeasonStart = 0;
-    if (xPlotLines && xPlotLines.length) {
-        let tmps1 = xPlotLines[xPlotLines.length - 1].value;
-        if (tmps1) {
-            SeasonStart = tmps1;
-        }
-    }
+
+    let NowSeasonInfo = D_GetNowSeasonInfo(xPlotLines);
 
     for (let i = 0; i < series.length; i++) {
         if ((series[i].type == "line" && series[i].color == "rgba(255,0,0,0.7)")) {
@@ -1052,33 +1045,7 @@ function drawPlayerByTrainingGraphs(pid, data, pdom) {
                                     break;
                             }
                         }
-                        if (type == "") {
-                            fillTrainingLevel("itc", mzreg.bar_itc, playerTS, g.marker.symbol);
-                            fillTrainingLevel("ycc", mzreg.bar_ycc, playerTS, g.marker.symbol);
-                            fillTrainingLevel("pos", mzreg.bar_pos, playerTS, g.marker.symbol);
-                            fillTrainingLevel("neg", mzreg.bar_neg, playerTS, g.marker.symbol, true);
-
-
-                            if (g.x >= SeasonStart) {
-                                fillTrainingLevel("itc", mzreg.bar_itc, SeasonTraining, g.marker.symbol);
-                                fillTrainingLevel("ycc", mzreg.bar_ycc, SeasonTraining, g.marker.symbol);
-                                fillTrainingLevel("pos", mzreg.bar_pos, SeasonTraining, g.marker.symbol);
-                                fillTrainingLevel("neg", mzreg.bar_neg, SeasonTraining, g.marker.symbol, true);
-                            }
-                        } else {
-                            fillTrainingLevel(type, mzreg.bar_itc, playerTS, g.marker.symbol);
-                            fillTrainingLevel(type, mzreg.bar_ycc, playerTS, g.marker.symbol);
-                            fillTrainingLevel(type, mzreg.bar_pos, playerTS, g.marker.symbol);
-                            fillTrainingLevel(type, mzreg.bar_neg, playerTS, g.marker.symbol, true);
-
-
-                            if (g.x >= SeasonStart) {
-                                fillTrainingLevel(type, mzreg.bar_itc, SeasonTraining, g.marker.symbol);
-                                fillTrainingLevel(type, mzreg.bar_ycc, SeasonTraining, g.marker.symbol);
-                                fillTrainingLevel(type, mzreg.bar_pos, SeasonTraining, g.marker.symbol);
-                                fillTrainingLevel(type, mzreg.bar_neg, SeasonTraining, g.marker.symbol, true);
-                            }
-                        }
+                        D_FillTraining(type, playerTS, g, NowSeasonInfo);
                     }
                 }
             }
@@ -1103,29 +1070,7 @@ function drawPlayerByTrainingGraphs(pid, data, pdom) {
     for (let k = 0; k < maxeds.length; k++) {
         setSrc($(".player_share_skills").length == 0, imgs[k], imgs[k].nowSkill, maxeds[k], skillBallDays[k], pid, k);
     }
-    $("#GM_NSAVG_" + pid).remove();
-    let nsavgstat = "<span id='GM_NSAVG_" + pid + "'> 本季训练效率:" + SeasonTraining.stat.all.getAvg() + "%";
-    if (SeasonTraining.stat.camp) {
-        nsavgstat += ",营" + SeasonTraining.stat.camp.getAvg() + "%";
-    }
-    if (SeasonTraining.stat.coach) {
-        let avg = SeasonTraining.stat.coach.getAvg();
-        if (avg > 4.9) {
-            nsavgstat += ",<span class='gm_s3'>教练" + avg + "%</span>";
-        } else {
-            nsavgstat += ",<span>教练" + avg + "%</span>";
-        }
-    }
-    if (SeasonTraining.stat.pos) {
-        let avg = SeasonTraining.stat.pos.getAvg();
-        if (avg > 4.9) {
-            nsavgstat += ",<span class='gm_s3'>无教练" + avg + "%</span>";
-        } else {
-            nsavgstat += ",<span>无教练" + avg + "%</span>";
-        }
-    }
-    nsavgstat += "</span>";
-    pdom.find("span.floatRight").before(nsavgstat);
+    D_NowSeasonText(pid, NowSeasonInfo, pdom);
 
     series = undefined;
     plotBands = undefined;
@@ -1220,17 +1165,12 @@ function getScoutReport(pid, pdom, showMB) {
                         strSus += "<br/><br/>" + now_language["sug_T" + plans[j].type] + now_language["Pos" + pri.Sloc.CampKey] + "<br/><br/>" + now_language.sug_PRI + str;
 
                     }
-                    strSus += "<br/><br/><a id='GM_smb_" + pid + "' herf='#'>显示球员可能的最大属性</a>";
-                    showHelpLayer(strSus, now_language.scoutReport, true);
-
-                    $("#GM_smb_" + pid)[0].addEventListener('click', function () {
-                        showMaybeSkill(pdom, HS, HPids[0], HPids[1], LS, LPids[0], LPids[1]);
-                    });
+                    D_ShowScoutText(strSus, pid, pdom, HS, HPids, LS, LPids);
                     return false;
                 });
                 pdom.find("a.subheader").after(nsavgstat);
                 if (showMB) {
-                    showMaybeSkill(pdom, HS, HPids[0], HPids[1], LS, LPids[0], LPids[1]);
+                    D_ShowMaybeSkill(pdom, HS, HPids[0], HPids[1], LS, LPids[0], LPids[1]);
                 }
             } else {
                 return true;
@@ -1238,7 +1178,6 @@ function getScoutReport(pid, pdom, showMB) {
 
         }, cache_mode);
 }
-
 function checkScoutLoc(lst, key, LP1, LP2, slocs) {
     if (lst[key] != undefined) {
         let sloc = lst[key];
@@ -1366,71 +1305,6 @@ function getTrainPRI(sloc, HStar, HP1, HP2, LStar, LP1, LP2) {
         "Sloc": sloc, "TrainPRI": ditPRI, "Order": lstOrder
     };
     return ret;
-}
-
-function showMaybeSkill(pdom, HStar, HP1, HP2, LStar, LP1, LP2) {
-
-    let imgs = pdom.find("img.skill");
-    let maxL = 4, maxN = 0;
-    let tmpMSkills = {};
-    for (let i = 0; i < 11; i++) {
-        if (imgs[i].skill == undefined) {
-            return;
-        }
-        let mskill = imgs[i].skill;
-        if (imgs[i].maxed == "green") {
-            mskill += 1;
-        }
-        tmpMSkills[i] = mskill;
-        //if (mskill < 4) {
-        //    mskill = 4;
-        //}
-        if (i == LP1 - 1 || i == LP2 - 1) {
-            if (maxL < mskill) {
-                maxL = mskill;
-            }
-        } else if (i == HP1 - 1 || i == HP2 - 1) {
-            //高星
-        } else {
-            if (maxN < mskill) {
-                maxN = mskill;
-            }
-        }
-    }
-    for (let i = 0; i < 11; i++) {
-        let mbskill = 4;
-        if (i == HP1 - 1 || i == HP2 - 1) {
-            //高星
-            if (HStar == 3) {
-                mbskill = 8;
-            } else if (HStar == 4) {
-                mbskill = 9;
-            }
-            if (mbskill < maxN) {
-                mbskill = maxN;
-            }
-            if (mbskill < maxL) {
-                mbskill = maxL;
-            }
-        } else if (i == LP1 - 1 || i == LP2 - 1) {
-            //低星
-        } else {
-            if (mbskill < maxL) {
-                mbskill = maxL;
-            }
-        }
-        if (mbskill < tmpMSkills[i]) {
-            mbskill = tmpMSkills[i];
-        }
-        if (imgs[i].skill < mbskill) {
-            let imgdiv = $(imgs[i]).parent().find("div");
-            imgdiv.find(".GM_Mbimg").remove();
-            for (let j = imgs[i].skill; j < mbskill; j++) {
-                imgdiv.append("<img class='GM_Mbimg' src='" + mzImg.p + "'>");
-            }
-        }
-    }
-
 }
 
 function getTrainingGraphs(pid, pdom, GraphsType) {
@@ -1726,8 +1600,7 @@ function OpenSetting() {
     let lang = GM_getValue("mylanguage", "en");
     let xml_mode = GM_getValue("xml_mode", 0);
     let autoRun = GM_getValue("autoRun1", 1);
-    let tmphtml;
-    tmphtml = '<div><b>' + now_language.Language + ':</b></div><div><select id="gm_language">';
+    let tmphtml = '<div><b>' + now_language.Language + ':</b></div><div><select id="gm_language">';
     for (let l in gm_mzlanguage) {
         tmphtml += '<option value="' + l + '"' + (lang == l ? ' selected="selected" ' : '') + '>' + gm_mzlanguage[l].Name + '</option>';
     }
@@ -1807,735 +1680,6 @@ function MatchEvent() {
             return a.m_frame - b.m_frame;
         });
     };
-}
-function MatchEvent2() {
-    //格式status->player->array
-    this.data = {};
-    //格式player->array
-    this.dataByPlayer = {};
-    //格式player->{frame_count,[{start,end}]}
-    this.playerFool = {};
-
-    this.longPass = {};
-
-
-    this.setData = function (match) {
-        this.match = match;
-        //构建临时数据(不合并连续帧)
-        let matchBuffer = match.matchBuffer;
-        //player->frame->{}
-        let playersMatchBuffer = {};
-        //格式status->player->array
-        let tmp = {};
-        let tmpKey = {};
-        let tmpLastPosition = {};
-        let playerFool = {};
-        out_of_play.resetIndex();
-        let ball_move;
-        let ballz = 0;
-        longPass = {};
-        let LPtmp = {
-            flag: false,
-            data: {},
-            begindown: false,
-            state: 0,//0 初始 1开始上升 2开始下降,
-            owner: false
-        };
-        for (let i = 0; i < matchBuffer.length; i++) {
-            ball_move = false;
-            ballz = 0;
-            if (i - 1 >= 0) {
-                if (matchBuffer[i].ball.x == matchBuffer[i - 1].ball.x
-                    &&
-                    matchBuffer[i].ball.y == matchBuffer[i - 1].ball.y
-                    &&
-                    matchBuffer[i].ball.z == matchBuffer[i - 1].ball.z
-                ) {
-                    ball_move = false;
-                }
-                else {
-                    ball_move = true;
-
-                    ballz = matchBuffer[i].ball.z - matchBuffer[i - 1].ball.z;
-                }
-            }
-
-
-            let players = matchBuffer[i].players;
-            for (let j = 0; j < players.length; j++) {
-                if (players[j].status != undefined) {
-                    if (ball_move && out_of_play.notin(i)) {
-                        if (tmpLastPosition[players[j].id] == undefined) {
-                            tmpLastPosition[players[j].id] = {};
-                            tmpLastPosition[players[j].id].FoolStart = -1;
-                        } else {
-                            if (tmpLastPosition[players[j].id].x == players[j].position.x
-                                &&
-                                tmpLastPosition[players[j].id].y == players[j].position.y
-                                &&
-                                tmpLastPosition[players[j].id].z == players[j].position.z) {
-                                if (tmpLastPosition[players[j].id].FoolStart == -1) {
-                                    tmpLastPosition[players[j].id].FoolStart = i - 1;
-                                    tmpLastPosition[players[j].id].frame_count = 0;
-                                }
-                                tmpLastPosition[players[j].id].frame_count++;
-                            } else {
-                                if (tmpLastPosition[players[j].id].FoolStart > 0) {
-                                    if (playerFool[players[j].id] == undefined) {
-                                        playerFool[players[j].id] = {};
-                                        playerFool[players[j].id].frame_count = 0;
-                                        playerFool[players[j].id].data = new Array();
-                                    }
-                                    let tmpd = {
-                                        start: tmpLastPosition[players[j].id].FoolStart,
-                                        end: i - 1,
-                                        frame_count: tmpLastPosition[players[j].id].frame_count
-                                    };
-                                    playerFool[players[j].id].data.push(tmpd);
-                                    playerFool[players[j].id].frame_count += tmpd.frame_count;
-                                    tmpLastPosition[players[j].id].FoolStart = -1;
-                                    tmpLastPosition[players[j].id].frame_count = 0;
-                                }
-                            }
-                        }
-                        tmpLastPosition[players[j].id].x = players[j].position.x;
-                        tmpLastPosition[players[j].id].y = players[j].position.y;
-                        tmpLastPosition[players[j].id].z = players[j].position.z;
-                    }
-
-
-                    if (LPtmp.flag && LPtmp.owner.m_id == players[j].id) {
-
-                        if (ballz < 0) {
-                            LPtmp.begindown = true;
-                            LPtmp.data.data.push(matchBuffer[i].ball);
-                            LPtmp.data.end = i;
-                        } else if (
-                            (ballz == 0 && matchBuffer[i].ball.z < 22) ||
-                            (LPtmp.begindown && (ballz > 0 || matchBuffer[i].ball.z < 22))
-                        ) {
-                            //球平移且小于22
-                            //开始下落后又上升或小于22说明落点结束了
-                            LPtmp.flag = false;
-
-
-                            let gball = matchBuffer[LPtmp.data.end].ball;
-                            //找落点附近最近的球员
-                            let distance1 = 20000, distance2 = 20000;
-                            LPtmp.data.team = LPtmp.data.other = false;
-                            for (let g = 0; g < matchBuffer[LPtmp.data.end].players.length; g++) {
-                                let gp = matchBuffer[LPtmp.data.end].players[g];
-                                if (gp.position) {
-                                    let xd;
-                                    if (LPtmp.data.end >= m_ko2Frame) {
-                                        xd = gball.x - gp.position.x;//+ 5;
-                                    } else {
-                                        xd = gball.x - gp.position.x;// - 5;
-                                    }
-                                    let yd = gball.y - gp.position.y;
-                                    let distance = Math.sqrt(xd * xd + yd * yd);
-                                    if (dit_player[gp.id].m_side == LPtmp.owner.m_side) {
-                                        if (distance < distance1) {
-                                            distance1 = distance;
-                                            LPtmp.data.team = {
-                                                player: dit_player[gp.id],
-                                                gp: gp,
-                                                distance: distance
-                                            };
-                                        }
-                                    } else {
-                                        if (distance < distance2) {
-                                            distance2 = distance;
-                                            LPtmp.data.other = {
-                                                player: dit_player[gp.id],
-                                                gp: gp,
-                                                distance: distance
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (LPtmp.data.end >= m_ko2Frame) {
-
-                                LPtmp.data.b = (750 - matchBuffer[LPtmp.data.end].ball.x) + "," + (1000 - matchBuffer[LPtmp.data.end].ball.y) + "," + matchBuffer[LPtmp.data.end].ball.z;
-                            } else {
-
-                                LPtmp.data.b = matchBuffer[LPtmp.data.end].ball.x + "," + matchBuffer[LPtmp.data.end].ball.y + "," + matchBuffer[LPtmp.data.end].ball.z;
-                            }
-
-                        }
-                        else {
-                            LPtmp.data.data.push(matchBuffer[i].ball);
-                            LPtmp.data.end = i;
-                        }
-                    }
-
-                    if (players[j].status != MatchStatus.BA_NORMAL) {
-
-                        let p = dit_player[players[j].id];
-                        let isHome = p.m_side == "home" ? true : false;
-                        if (LPtmp.flag == false) {
-                            if (players[j].status == MatchStatus.BA_LEFT_FOOT_SHOT_FWD || players[j].status == MatchStatus.BA_RIGHT_FOOT_SHOT_FWD) {
-                                //判断与上一个是否连续，
-                                if (LPtmp.data.end == i - 1 && LPtmp.owner == p) {
-                                    //如果连续则合并
-                                    LPtmp.flag = true;
-                                    LPtmp.data.data.push(matchBuffer[i].ball);
-                                    LPtmp.data.end = i;
-                                } else {
-
-                                    //开始统计新的长传
-                                    if (i >= m_ko2Frame) {
-                                        LPtmp.data = {
-                                            h: "",
-                                            a: (750 - matchBuffer[i].ball.x) + "," + (1000 - matchBuffer[i].ball.y) + "," + matchBuffer[i].ball.z,
-                                            b: (750 - matchBuffer[i].ball.x) + "," + (1000 - matchBuffer[i].ball.y) + "," + matchBuffer[i].ball.z,
-                                            start: i, end: i, data: [matchBuffer[i].ball]
-                                        };
-                                    } else {
-                                        LPtmp.data = {
-                                            h: "",
-                                            a: matchBuffer[i].ball.x + "," + matchBuffer[i].ball.y + "," + matchBuffer[i].ball.z,
-                                            b: matchBuffer[i].ball.x + "," + matchBuffer[i].ball.y + "," + matchBuffer[i].ball.z,
-                                            start: i, end: i, data: [matchBuffer[i].ball]
-                                        };
-                                    }
-                                    LPtmp.state = 0;
-                                    LPtmp.begindown = false;
-                                    LPtmp.flag = true;
-                                    LPtmp.owner = p;
-                                    if (longPass[players[j].id] == undefined) {
-                                        longPass[players[j].id] = new Array();
-                                    }
-                                    longPass[players[j].id].push(LPtmp.data);
-                                    longPass[players[j].id].owner = p;
-                                }
-                            }
-                        }
-
-
-                        let arr;
-                        if (tmp[players[j].status] == undefined) {
-                            tmp[players[j].status] = {};
-                            tmp[players[j].status][players[j].id] = arr = new Array();
-                        } else if (tmp[players[j].status][players[j].id] == undefined) {
-                            tmp[players[j].status][players[j].id] = arr = new Array();
-                        } else {
-                            arr = tmp[players[j].status][players[j].id];
-                        }
-
-                        let key = players[j].id + "_" + players[j].status + "_" + i;
-                        if (tmpKey[key] == undefined) {
-
-                            arr.push({
-                                m_frame: i,
-                                status: players[j].status,
-                                owner: p,
-                                isHome: isHome
-                            });
-                            tmpKey[key] = 1;
-                        } else {
-                            tmpKey[key] += 1;
-                        }
-                    }
-
-                    if (playersMatchBuffer[players[j].id] == undefined) {
-                        playersMatchBuffer[players[j].id] = {};
-                    }
-                    if (playersMatchBuffer[players[j].id][i] == undefined) {
-                        playersMatchBuffer[players[j].id][i] = {};
-                    }
-                    playersMatchBuffer[players[j].id][i].data = players[j];
-                    playersMatchBuffer[players[j].id][i].ball_move = ball_move;
-                    playersMatchBuffer[players[j].id][i].owner = matchBuffer[i];
-
-                }
-            }
-        }
-        this.playerFool = playerFool;
-
-        //合并连续帧
-        //tmpStart为合并临时数据
-        let tmpStart = {};
-        let dataByPlayer = {};
-        this.data = {};
-        for (let status in tmp) {
-            if (tmpStart[status] == undefined) {
-                tmpStart[status] = {};
-            }
-            if (this.data[status] == undefined) {
-                this.data[status] = {};
-            }
-            for (let pid in tmp[status]) {
-                if (dataByPlayer[pid] == undefined) {
-                    dataByPlayer[pid] = {};
-                    dataByPlayer[pid].status = new Array();
-                    dataByPlayer[pid].data = new Array();
-                }
-                for (let k = 0; k < tmp[status][pid].length; k++) {
-                    if (tmpStart[status][pid] == undefined) {
-                        tmpStart[status][pid] = { start: tmp[status][pid][k].m_frame, last: tmp[status][pid][k].m_frame, owner: tmp[status][pid][k].owner, isHome: tmp[status][pid][k].isHome };
-                    } else {
-                        if (tmpStart[status][pid].last == tmp[status][pid][k].m_frame - 1) {
-                            tmpStart[status][pid].last = tmp[status][pid][k].m_frame;
-                        } else {
-                            if (this.data[status][pid] == undefined) {
-                                this.data[status][pid] = new Array();
-                            }
-                            this.data[status][pid].push({
-                                m_frame_start: tmpStart[status][pid].start,
-                                m_frame_end: tmpStart[status][pid].last,
-                                owner: tmpStart[status][pid].owner
-                            });
-                            dataByPlayer[pid].data.push({
-                                m_frame_start: tmpStart[status][pid].start,
-                                m_frame_end: tmpStart[status][pid].last,
-                                status: parseInt(status)
-                            });
-                            tmpStart[status][pid] = { start: tmp[status][pid][k].m_frame, last: tmp[status][pid][k].m_frame, owner: tmp[status][pid][k].owner, isHome: tmp[status][pid][k].isHome };
-                        }
-                    }
-                }
-
-            }
-        };
-        //合并连续帧(tmpStart结束处理)
-        for (let status in tmpStart) {
-            if (this.data[status] == undefined) {
-                this.data[status] = {};
-            }
-            for (let pid in tmpStart[status]) {
-                dataByPlayer[pid].status.push(parseInt(status));
-
-                if (this.data[status][pid] == undefined) {
-                    this.data[status][pid] = new Array();
-                }
-                dataByPlayer[pid].owner = tmpStart[status][pid].owner;
-                dataByPlayer[pid].isHome = tmpStart[status][pid].isHome;
-                this.data[status][pid].push({
-                    m_frame_start: tmpStart[status][pid].start,
-                    m_frame_end: tmpStart[status][pid].last,
-                    owner: tmpStart[status][pid].owner
-                });
-                dataByPlayer[pid].data.push({
-                    m_frame_start: tmpStart[status][pid].start,
-                    m_frame_end: tmpStart[status][pid].last,
-                    status: parseInt(status)
-                });
-
-                dataByPlayer[pid].data.sort(function (a, b) {
-                    return a.m_frame_start - b.m_frame_start;
-                });
-            }
-        }
-        //更改统计帧
-        this.dataByPlayer = {};
-        for (let pid in dataByPlayer) {
-            this.dataByPlayer[pid] = {};
-            this.dataByPlayer[pid].isHome = dataByPlayer[pid].isHome;
-            this.dataByPlayer[pid].owner = dataByPlayer[pid].owner;
-            this.dataByPlayer[pid].status = dataByPlayer[pid].status;
-            this.dataByPlayer[pid].data = new Array();
-
-            let arr = dataByPlayer[pid].data;
-            for (let q = 0; q < arr.length; q++) {
-                //接下来还有
-                if (q + 1 < arr.length) {
-                    //连续动作判断
-                    if (arr[q].m_frame_end + 1 == arr[q + 1].m_frame_start) {
-                        //头球时判断接下来的动作
-                        if (arr[q].status == MatchStatus.BA_HEADER) {
-                            //接下来动作是射门
-                            if (arr[q + 1].status == MatchStatus.BA_LEFT_FOOT_SHOT_FWD) {
-                                this.dataByPlayer[pid].data.push({
-                                    m_frame_start: arr[q].m_frame_start,
-                                    m_frame_end: arr[q + 1].m_frame_end,
-                                    status: 1001,
-                                    old_arr: [arr[q], arr[q + 1]]
-                                });
-                                q += 1;
-                                continue;
-                            } else if (arr[q + 1].status == MatchStatus.BA_RIGHT_FOOT_SHOT_FWD) {
-                                this.dataByPlayer[pid].data.push({
-                                    m_frame_start: arr[q].m_frame_start,
-                                    m_frame_end: arr[q + 1].m_frame_end,
-                                    status: 1002,
-                                    old_arr: [arr[q], arr[q + 1]]
-                                });
-                                q += 1;
-                                continue;
-                            }
-                            //接下来是持球
-                            else if (arr[q + 1].status == MatchStatus.BA_BALL_OWNER) {
-                                this.dataByPlayer[pid].data.push({
-                                    m_frame_start: arr[q].m_frame_start,
-                                    m_frame_end: arr[q + 1].m_frame_end,
-                                    status: 1003,
-                                    old_arr: [arr[q], arr[q + 1]]
-                                });
-                                q += 1;
-                                continue;
-                            }
-                        }
-                        //上抢
-                        if (arr[q].status == MatchStatus.BA_TACKLE) {
-                            if (arr[q + 1].status == MatchStatus.BA_LEFT_FOOT_SHOT_FWD
-                                || arr[q + 1].status == MatchStatus.BA_RIGHT_FOOT_SHOT_FWD
-                                || arr[q + 1].status == MatchStatus.BA_BALL_OWNER
-                            ) {
-                                //上抢(成功)
-                                this.dataByPlayer[pid].data.push({
-                                    m_frame_start: arr[q].m_frame_start,
-                                    m_frame_end: arr[q].m_frame_end,
-                                    status: 1011,
-                                    old_arr: [arr[q]]
-                                });
-                                continue;
-                            }
-                        }
-                    }
-                }
-                this.dataByPlayer[pid].data.push(arr[q]);
-            }
-
-            this.dataByPlayer[pid].FoolCount = 0;
-            for (let n = 0; n < this.dataByPlayer[pid].data.length; n++) {
-
-                let item = this.dataByPlayer[pid].data[n];
-                item.FoolCount = 0;
-
-                if (n + 1 < this.dataByPlayer[pid].data.length
-                    &&
-                    this.dataByPlayer[pid].data[n + 1].m_frame_start == item.m_frame_end + 1
-                ) {
-                    //连续动作 下一个再判断
-                    continue;
-                }
-
-                let m_index = item.m_frame_start;
-                let last = playersMatchBuffer[pid][m_index];
-                m_index++;
-                while (last != undefined && playersMatchBuffer[pid][m_index] != undefined) {
-                    if (playersMatchBuffer[pid][m_index].data.position.x == last.data.position.x
-                        &&
-                        playersMatchBuffer[pid][m_index].data.position.y == last.data.position.y
-                        //&&
-                        //playersMatchBuffer[pid][m_index].data.position.z == last.data.position.z
-                    ) {
-                        item.FoolCount++;
-                        last = playersMatchBuffer[pid][m_index];
-                        m_index++;
-                    } else {
-                        break;
-                    }
-                }
-                this.dataByPlayer[pid].FoolCount += item.FoolCount;
-            }
-        }
-
-        this.longPass = longPass;
-    };
-
-    this.tolog = function () {
-
-        let headArr = new Array();
-        for (let pid in this.longPass) {
-            this.longPass[pid].mstat = {};
-            for (let i = 0; i < this.longPass[pid].length; i++) {
-
-                let data = this.longPass[pid][i];
-                if (data.team) {
-                    data.h = "[";
-                    data.team.events = this.getPlayerEventById(data.team.player.m_id, data.start, data.end);
-                    for (let k = 0; k < data.team.events.length; k++) {
-                        if (k > 0) {
-                            data.h += ",";
-                        }
-                        data.h += getMatchStatusName(data.team.events[k].status);
-                        if (data.team.events[k].status == 1001 || data.team.events[k].status == 1002) {
-                            let d = 0;
-                            if (data.end <= m_htFrame) {
-                                d = 1;
-                            } else if (data.end >= m_ko2Frame && data.end <= m_ht2Frame) {
-                                d = 2;
-                            } else if (data.end >= m_ko3Frame && data.end <= m_ht3Frame) {
-                                d = 3;
-                            } else if (data.end >= m_ko4Frame && data.end <= m_ht4Frame) {
-                                d = 4;
-                            }
-                            headArr.push({
-                                h: data.team.player.m_side,
-                                d: d,
-                                s: data.team.events[k].status,
-                                b: this.match.matchBuffer[data.end].ball,
-                                p: data.team.gp.position
-                            });
-                        }
-                    }
-
-                    data.h += "|";
-                    data.other.events = this.getPlayerEventById(data.other.player.m_id, data.start, data.end);
-                    for (let k = 0; k < data.other.events.length; k++) {
-                        if (k > 0) {
-                            data.h += ",";
-                        }
-                        data.h += getMatchStatusName(data.other.events[k].status);
-                    }
-                    data.h += "][";
-
-                    let gball = this.match.matchBuffer[data.end].ball;
-                    let sball = this.match.matchBuffer[data.start].ball;
-                    let dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
-                    if (data.end >= m_ko2Frame) {
-                        dx1 = data.team.gp.position.x - gball.x;
-                        dy1 = data.team.gp.position.y - gball.y;
-
-                        dx2 = data.other.gp.position.x - gball.x;
-                        dy2 = data.other.gp.position.y - gball.y;
-                    } else {
-                        dx1 = gball.x - data.team.gp.position.x;
-                        dy1 = gball.y - data.team.gp.position.y;
-
-                        dx2 = gball.x - data.other.gp.position.x;
-                        dy2 = gball.y - data.other.gp.position.y;
-
-                    }
-                    data.h +=
-                        dx1 + "," + dy1 + "," + data.team.distance.toFixed(2) + ";"
-                        + dx2 + "," + dy2 + "," + data.other.distance.toFixed(2) + "]"
-                        + (sball.x - gball.x) + ","
-                        + (sball.y - gball.y) + ","
-                        + (sball.z - gball.z);
-
-                    if (this.longPass[pid].mstat[data.team.player.m_id] == undefined) {
-                        this.longPass[pid].mstat[data.team.player.m_id] = {
-                            X: new MyMathArr(),
-                            Y: new MyMathArr()
-                        };
-                    }
-                    this.longPass[pid].mstat[data.team.player.m_id].X.data.push(dx1);
-                    this.longPass[pid].mstat[data.team.player.m_id].Y.data.push(dy1);
-                }
-
-            }
-            for (let pp in this.longPass[pid].mstat) {
-
-                this.longPass[pid].mstat[pp].X.cal();
-                this.longPass[pid].mstat[pp].Y.cal();
-            }
-        }
-
-        console.log(this.longPass);
-
-        let str = "";
-        for (let f = 0; f < headArr.length; f++) {
-            str += headArr[f].h + "\t" + headArr[f].d + "\t" + headArr[f].s + "\t" + headArr[f].b.x + "\t" + headArr[f].b.y + "\t" + headArr[f].b.z + "\t" + headArr[f].p.x + "\t" + headArr[f].p.y + "\t" + headArr[f].p.z + "\n";
-        }
-        console.log(str);
-    }
-    this.getPlayerEventById = function (pid, start, end) {
-
-        let arr = new Array();
-        //找关联球员的动作
-        if (this.dataByPlayer[pid]) {
-            for (let j = 0; j < this.dataByPlayer[pid].data.length; j++) {
-                let dz = this.dataByPlayer[pid].data[j];
-
-                if (start <= dz.m_frame_start && dz.m_frame_start <= end) {
-                    arr.push(dz);
-                }
-                if (end < dz.m_frame_start) {
-                    return arr;
-                }
-            }
-        }
-        return arr;
-    };
-};
-
-function MyMathArr() {
-    this.data = new Array();
-
-    let sum = function (x, y) { return x + y; };　　//求和函数
-    let square = function (x) { return x * x; };　　//数组中每个元素求它的平方
-
-    this.cal = function () {
-
-        let avg = this.data.reduce(sum) / this.data.length;
-        this.avg = avg;
-        ///偏差
-        this.deviations = this.data.map(function (x) { return x - avg; });
-
-        ///标准差
-        this.stddev = Math.sqrt(this.deviations.map(square).reduce(sum) / (this.data.length - 1));
-        this.max = Math.max.apply(null, this.data);
-        this.min = Math.min.apply(null, this.data);
-        //变异系数
-        this.CV = this.stddev / this.avg;
-    };
-
-}
-function PlayerPos() {
-    this.data = {};
-    this.stat = new Array();
-
-    this.setData = function (match, pids) {
-        //构建临时数据(不合并连续帧)
-        let matchBuffer = match.matchBuffer;
-        let tmpP = {
-        };
-        for (let i = 0; i < pids.length; i++) {
-            tmpP[pids[i]] = {};
-        }
-        let dl = 10;
-        let nowItem;
-        let lastKey = false;
-        let tmpdata = {};
-        for (let i = 0; i < matchBuffer.length; i++) {
-
-            let players = matchBuffer[i].players;
-
-            for (let j = 0; j < players.length; j++) {
-                if (players[j].status != undefined) {
-
-                    //移动判断
-                    if (tmpP[players[j].id] != undefined) {
-                        tmpP[players[j].id] = players[j];
-                    }
-                }
-            }
-            let key = "";
-            for (let k = 1; k < pids.length; k++) {
-                let p1 = tmpP[pids[k - 1]];
-                let p2 = tmpP[pids[k]];
-                if (p1.position == undefined || p2.position == undefined) {
-                    key = false;
-                    break;
-                }
-                let dx = p2.position.x - p1.position.x
-                let dy = p2.position.y - p1.position.y;
-                let dz = p2.position.z - p1.position.z;
-                key += dx + "_" + dy + "_";//+ "_" + dz;
-                tmpP[pids[k - 1]] = {};
-            }
-            tmpP[pids[pids.length - 1]] = {};
-            if (key) {
-
-                if (tmpdata[key] == undefined) {
-                    tmpdata[key] = new Array();
-                }
-                tmpdata[key].push(i);
-
-                if (key != lastKey) {
-                    //结束
-                    if (nowItem) {
-                        let dframe = nowItem.end - nowItem.start;
-                        if (dframe > 1) {
-                            this.stat.push(nowItem);
-                        }
-                        nowItem = false;
-                    }
-                } else {
-
-                    if (nowItem) {
-                        nowItem.end = i;
-                    } else {
-                        nowItem = {
-                            start: i - 1, end: i, key: key
-                        };
-                    }
-                }
-            }
-            lastKey = key;
-
-        }
-        for (let kk in tmpdata) {
-            if (tmpdata[kk].length > dl) {
-                this.data[kk] = tmpdata[kk];
-            }
-        }
-    };
-
-    //this.setData = function (match, pids) {
-    //    //构建临时数据(不合并连续帧)
-    //    let matchBuffer = match.matchBuffer;
-    //    let tmpPos = {
-    //        last: {}
-    //    };
-    //    let nowItem;
-    //    for (let i = 0; i < matchBuffer.length; i++) {
-
-    //        let nowkey = false;
-    //        let players = matchBuffer[i].players;
-
-    //        let flag = true;
-    //        let len = pids.length;
-    //        for (let j = 0; j < players.length; j++) {
-    //            if (players[j].status != undefined) {
-
-    //                //移动判断
-    //                if (pids[players[j].id] != undefined) {
-    //                    let pos = tmpPos.last[players[j].id];
-    //                    tmpPos.last[players[j].id] = players[j];
-    //                    if (pos != undefined) {
-
-    //                        let dx = players[j].position.x - pos.position.x;
-    //                        let dy = players[j].position.y - pos.position.y;
-    //                        let dz = players[j].position.z - pos.position.z;
-
-    //                        let key = dx + "_" + dy;//+ "_" + dz;
-    //                        //已不符合 不需要再判断
-    //                        if (flag) {
-    //                            if (nowkey) {
-    //                                //直接判断
-    //                                if (nowkey == key) {
-    //                                    len--;
-    //                                }
-    //                                else {
-    //                                    //结束
-    //                                    flag = false;
-    //                                    //不能break; 否则最后位置不更新
-    //                                }
-    //                            } else {
-    //                                //第一次直接符合
-    //                                len--;
-    //                            }
-    //                        }
-    //                        nowkey = key;
-    //                    }
-    //                }
-    //            }
-    //        }
-    //        if (flag && len <= 0) {
-    //            if (nowItem) {
-    //                nowItem.end = i;
-    //            } else {
-    //                nowItem = {
-    //                    start: i, end: i, keys: {}
-    //                };
-    //            }
-    //            if (nowItem.keys[nowkey] == undefined) {
-    //                nowItem.keys[nowkey] = 1;
-    //            }
-    //            else {
-    //                nowItem.keys[nowkey] += 1;
-    //            }
-
-
-    //        } else {
-    //            //结束
-    //            if (nowItem) {
-
-    //                let dframe = nowItem.end - nowItem.start;
-    //                if (dframe > 1) {
-    //                    this.data.push(nowItem);
-    //                }
-    //            }
-    //            nowItem = false;
-    //        }
-    //    }
-    //};
 }
 function OutOfPlay() {
     this.data = new Array();
@@ -2742,13 +1886,6 @@ function Advanced2D() {
                 mStaticEventHome = lstEventHome;
                 mStaticEventAway = lstEventAway;
 
-                let lstEvent2 = new MatchEvent2();
-                lstEvent2.setData(MyGame.prototype.mzlive.m_match);
-                mEvent = lstEvent2;
-
-                console.log(dit_bypid);
-
-                lstEvent2.tolog(MyGame.prototype.mzlive.m_match);
 
                 if ($('.gw_div_left').length == 0) {
                     $('#canvas').parent().append('<div class="gw_div_left"></div>');
@@ -3229,4 +2366,143 @@ function run_Tac() {
             }
         }
     });
+}
+
+
+function D_GetNowSeasonInfo(xPlotLines) {
+    let SeasonTraining = new playerTrainingBySkill();
+    //赛季开始时间
+    let SeasonStart = 0;
+    if (xPlotLines && xPlotLines.length) {
+        let tmps1 = xPlotLines[xPlotLines.length - 1].value;
+        if (tmps1) {
+            SeasonStart = tmps1;
+        }
+    }
+    return { Training: SeasonTraining, Start: SeasonStart };
+}
+function D_FillTraining(type, playerTS, g, NowSeasonInfo) {
+    if (type == "") {
+        fillTrainingLevel("itc", mzreg.bar_itc, playerTS, g.marker.symbol);
+        fillTrainingLevel("ycc", mzreg.bar_ycc, playerTS, g.marker.symbol);
+        fillTrainingLevel("pos", mzreg.bar_pos, playerTS, g.marker.symbol);
+        fillTrainingLevel("neg", mzreg.bar_neg, playerTS, g.marker.symbol, true);
+        if (g.x >= NowSeasonInfo.Start) {
+            fillTrainingLevel("itc", mzreg.bar_itc, NowSeasonInfo.Training, g.marker.symbol);
+            fillTrainingLevel("ycc", mzreg.bar_ycc, NowSeasonInfo.Training, g.marker.symbol);
+            fillTrainingLevel("pos", mzreg.bar_pos, NowSeasonInfo.Training, g.marker.symbol);
+            fillTrainingLevel("neg", mzreg.bar_neg, NowSeasonInfo.Training, g.marker.symbol, true);
+        }
+    }
+    else {
+        fillTrainingLevel(type, mzreg.bar_itc, playerTS, g.marker.symbol);
+        fillTrainingLevel(type, mzreg.bar_ycc, playerTS, g.marker.symbol);
+        fillTrainingLevel(type, mzreg.bar_pos, playerTS, g.marker.symbol);
+        fillTrainingLevel(type, mzreg.bar_neg, playerTS, g.marker.symbol, true);
+        if (g.x >= NowSeasonInfo.Start) {
+            fillTrainingLevel(type, mzreg.bar_itc, NowSeasonInfo.Training, g.marker.symbol);
+            fillTrainingLevel(type, mzreg.bar_ycc, NowSeasonInfo.Training, g.marker.symbol);
+            fillTrainingLevel(type, mzreg.bar_pos, NowSeasonInfo.Training, g.marker.symbol);
+            fillTrainingLevel(type, mzreg.bar_neg, NowSeasonInfo.Training, g.marker.symbol, true);
+        }
+    }
+}
+function D_NowSeasonText(pid, NowSeasonInfo, pdom) {
+    $("#GM_NSAVG_" + pid).remove();
+    let nsavgstat = "<span id='GM_NSAVG_" + pid + "'> 本季训练效率:" + NowSeasonInfo.Training.stat.all.getAvg() + "%";
+    if (NowSeasonInfo.Training.stat.camp) {
+        nsavgstat += ",营" + NowSeasonInfo.Training.stat.camp.getAvg() + "%";
+    }
+    if (NowSeasonInfo.Training.stat.coach) {
+        let avg = NowSeasonInfo.Training.stat.coach.getAvg();
+        if (avg > 4.9) {
+            nsavgstat += ",<span class='gm_s3'>教练" + avg + "%</span>";
+        }
+        else {
+            nsavgstat += ",<span>教练" + avg + "%</span>";
+        }
+    }
+    if (NowSeasonInfo.Training.stat.pos) {
+        let avg = NowSeasonInfo.Training.stat.pos.getAvg();
+        if (avg > 4.9) {
+            nsavgstat += ",<span class='gm_s3'>无教练" + avg + "%</span>";
+        }
+        else {
+            nsavgstat += ",<span>无教练" + avg + "%</span>";
+        }
+    }
+    nsavgstat += "</span>";
+    pdom.find("span.floatRight").before(nsavgstat);
+}
+function D_ShowScoutText(strSus, pid, pdom, HS, HPids, LS, LPids) {
+    strSus += "<br/><br/><a id='GM_smb_" + pid + "' herf='#'>显示球员可能的最大属性</a>";
+    showHelpLayer(strSus, now_language.scoutReport, true);
+    $("#GM_smb_" + pid)[0].addEventListener('click', function () {
+        D_ShowMaybeSkill(pdom, HS, HPids[0], HPids[1], LS, LPids[0], LPids[1]);
+    });
+    return strSus;
+}
+function D_ShowMaybeSkill(pdom, HStar, HP1, HP2, LStar, LP1, LP2) {
+
+    let imgs = pdom.find("img.skill");
+    let maxL = 4, maxN = 0;
+    let tmpMSkills = {};
+    for (let i = 0; i < 11; i++) {
+        if (imgs[i].skill == undefined) {
+            return;
+        }
+        let mskill = imgs[i].skill;
+        if (imgs[i].maxed == "green") {
+            mskill += 1;
+        }
+        tmpMSkills[i] = mskill;
+        //if (mskill < 4) {
+        //    mskill = 4;
+        //}
+        if (i == LP1 - 1 || i == LP2 - 1) {
+            if (maxL < mskill) {
+                maxL = mskill;
+            }
+        } else if (i == HP1 - 1 || i == HP2 - 1) {
+            //高星
+        } else {
+            if (maxN < mskill) {
+                maxN = mskill;
+            }
+        }
+    }
+    for (let i = 0; i < 11; i++) {
+        let mbskill = 4;
+        if (i == HP1 - 1 || i == HP2 - 1) {
+            //高星
+            if (HStar == 3) {
+                mbskill = 8;
+            } else if (HStar == 4) {
+                mbskill = 9;
+            }
+            if (mbskill < maxN) {
+                mbskill = maxN;
+            }
+            if (mbskill < maxL) {
+                mbskill = maxL;
+            }
+        } else if (i == LP1 - 1 || i == LP2 - 1) {
+            //低星
+        } else {
+            if (mbskill < maxL) {
+                mbskill = maxL;
+            }
+        }
+        if (mbskill < tmpMSkills[i]) {
+            mbskill = tmpMSkills[i];
+        }
+        if (imgs[i].skill < mbskill) {
+            let imgdiv = $(imgs[i]).parent().find("div");
+            imgdiv.find(".GM_Mbimg").remove();
+            for (let j = imgs[i].skill; j < mbskill; j++) {
+                imgdiv.append("<img class='GM_Mbimg' src='" + mzImg.p + "'>");
+            }
+        }
+    }
+
 }

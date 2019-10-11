@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      3.41
+// @version      4.0
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -13,10 +13,10 @@
 // @grant        GM_xmlhttpRequest
 // @connect      www.budeng.win
 // @require      https://cdn.jsdelivr.net/pako/1.0.5/pako.min.js
-// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/base64js.min.js
-// @require      https://cdn.jsdelivr.net/gh/blueimp/JavaScript-MD5/js/md5.min.js
 // @require      https://cdn.jsdelivr.net/npm/dexie
-// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/vanCache.js
+// @require      https://cdn.jsdelivr.net/gh/blueimp/JavaScript-MD5/js/md5.min.js
+// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/base64js.min.js
+// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/vple.min.js
 // ==/UserScript==
 
 
@@ -829,7 +829,7 @@ var isAjaxing = false;
 var trainingInfo = {};
 
 function getMax(callback) {
-    vanCache.ajax(
+    vple.ajax(
         "/?p=training",
         function (data) {
             let result = data.match(mzreg.playerMax);
@@ -959,6 +959,9 @@ function drawPlayerByTrainingGraphs(pid, data, pdom) {
     let skillBallDays = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     let allSkillTraining_tmp = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     let camp = new mzcamp();
+
+    let NowSeasonInfo = vple.D_GetNowSeasonInfo(xPlotLines);
+
     for (let i = 0; i < series.length; i++) {
         if ((series[i].type == "line" && series[i].color == "rgba(255,0,0,0.7)")) {
             if (series[i].data.length > 0) {
@@ -1040,17 +1043,7 @@ function drawPlayerByTrainingGraphs(pid, data, pdom) {
                                     break;
                             }
                         }
-                        if (type == "") {
-                            fillTrainingLevel("itc", mzreg.bar_itc, playerTS, g.marker.symbol);
-                            fillTrainingLevel("ycc", mzreg.bar_ycc, playerTS, g.marker.symbol);
-                            fillTrainingLevel("pos", mzreg.bar_pos, playerTS, g.marker.symbol);
-                            fillTrainingLevel("neg", mzreg.bar_neg, playerTS, g.marker.symbol, true);
-                        } else {
-                            fillTrainingLevel(type, mzreg.bar_itc, playerTS, g.marker.symbol);
-                            fillTrainingLevel(type, mzreg.bar_ycc, playerTS, g.marker.symbol);
-                            fillTrainingLevel(type, mzreg.bar_pos, playerTS, g.marker.symbol);
-                            fillTrainingLevel(type, mzreg.bar_neg, playerTS, g.marker.symbol, true);
-                        }
+                        vple.D_FillTraining(type, playerTS, g, NowSeasonInfo);
                     }
                 }
             }
@@ -1059,7 +1052,7 @@ function drawPlayerByTrainingGraphs(pid, data, pdom) {
     let allSkillTraining = new Array();
     for (let t1 = 0; t1 < allSkillTraining_tmp.length; t1++) {
         if (imgs[t1].nowSkill == undefined) {
-            imgs[t1].nowSkill = parseInt(imgs[t1].src.match(mzreg.img_val)[1]);;
+            imgs[t1].nowSkill = parseInt(imgs[t1].src.match(mzreg.img_val)[1]);
         }
         let tmp = {};
         for (let t2 = 0; t2 < allSkillTraining_tmp[t1].length; t2++) {
@@ -1075,6 +1068,7 @@ function drawPlayerByTrainingGraphs(pid, data, pdom) {
     for (let k = 0; k < maxeds.length; k++) {
         setSrc($(".player_share_skills").length == 0, imgs[k], imgs[k].nowSkill, maxeds[k], skillBallDays[k], pid, k);
     }
+    vple.D_NowSeasonText(pid, NowSeasonInfo, pdom);
 
     series = undefined;
     plotBands = undefined;
@@ -1101,7 +1095,7 @@ function getScoutReport(pid, pdom, showMB) {
         url = "/ajax.php?p=players&sub=scout_report&pid=null&sport=soccer";
         cache_mode = 0;
     }
-    vanCache.ajax(
+    vple.ajax(
         url,
         function (data) {
             let srdom = $($.parseHTML(data));
@@ -1169,19 +1163,19 @@ function getScoutReport(pid, pdom, showMB) {
                         strSus += "<br/><br/>" + now_language["sug_T" + plans[j].type] + now_language["Pos" + pri.Sloc.CampKey] + "<br/><br/>" + now_language.sug_PRI + str;
 
                     }
-                    showHelpLayer(strSus, now_language.scoutReport, true);
-
+                    vple.D_ShowScoutText(strSus, pid, pdom, HS, HPids, LS, LPids);
                     return false;
                 });
                 pdom.find("a.subheader").after(nsavgstat);
-
+                if (showMB) {
+                    vple.D_ShowMaybeSkill(pdom, HS, HPids[0], HPids[1], LS, LPids[0], LPids[1]);
+                }
             } else {
                 return true;
             }
 
         }, cache_mode);
 }
-
 function checkScoutLoc(lst, key, LP1, LP2, slocs) {
     if (lst[key] != undefined) {
         let sloc = lst[key];
@@ -1312,18 +1306,22 @@ function getTrainPRI(sloc, HStar, HP1, HP2, LStar, LP1, LP2) {
 }
 
 function getTrainingGraphs(pid, pdom, GraphsType) {
-    vanCache.ajax(
+    vple.ajax(
         "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=soccer&player_id=" + pid,
         function (data) {
             if (data == "") {
                 return true;
             }
             let ret = drawPlayerByTrainingGraphs(pid, data, pdom);
+
+            if (GraphsType == 2 && pdom.find(".scout_report").length > 0) {
+                getScoutReport(pid, pdom, true);
+            }
             return !ret;
         });
 }
 function getTrainingGraphsBySkill_id(pid, skill_id, callback) {
-    vanCache.ajax(
+    vple.ajax(
         "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=soccer&player_id=" + pid + "&skill_id=" + (skill_id + 2),
         function (data) {
             return !callback(data);
@@ -1441,7 +1439,7 @@ function initgw() {
             }
             else if (window.event.keyCode == 83) {
                 //alt + S
-                gw_start(1);
+                gw_start(2);
             }
             else if (window.event.keyCode == 68) {
                 //alt + D
@@ -1573,7 +1571,7 @@ function ShowMatchResult(type, matchId) {
     this.tryCounter = 1;
     this.prepareMatch();
 }
-//GraphsType 0 自动模式 1 强制训练图
+//GraphsType 0 自动模式 1 强制训练图 2 星级球员显示最大值
 function gw_start(GraphsType) {
     if ($("#players_container").width() < 660) {
         if (mzreg.shortlist_url.test(location.href)) {
@@ -1656,7 +1654,7 @@ function OpenSetting() {
         powerboxCloseAll();
     });
     $("#gm_setting_clear")[0].addEventListener('click', function () {
-        vanCache.cacheItem.clearAll();
+        vple.cacheItem.clearAll();
     });
 }
 
@@ -1681,7 +1679,6 @@ function MatchEvent() {
         });
     };
 }
-
 function OutOfPlay() {
     this.data = new Array();
     this.add = function (begin, end) {
@@ -2171,10 +2168,10 @@ function CopyXML(ishome) {
         });
     } else {
         let tmpXML = Stats2XML(ishome);
-        vanCache.ajax(
+        vple.ajax(
             "/?p=players",
             function (data2) {
-                // 
+                //
                 let myData = new FormData();
                 myData.append("xml", "9" + base64js.fromByteArray(pako.gzip(tmpXML)));
                 myData.append("html", data2);
@@ -2246,7 +2243,6 @@ var finalInitAfterLoading, processButtonPresses, Load010SetupMainSceneInstance;
 let OK_2D = false;
 (function () {
     'use strict';
-
     if (ajaxSport && ajaxSport == "soccer") {
 
         initgw();
@@ -2328,13 +2324,11 @@ let OK_2D = false;
                 };
             }
         }
-
+        vple.report();
         gw_start(0);
-        vanCache.report();
-        vanCache.autoclearCache();
+        vple.autoclearCache();
     }
 })();
-
 function run_Tac() {
     getMax(function () {
         let players = $("#playerInfoWindow");
