@@ -16,7 +16,7 @@
 // @require      https://cdn.jsdelivr.net/npm/dexie
 // @require      https://cdn.jsdelivr.net/gh/blueimp/JavaScript-MD5/js/md5.min.js
 // @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/base64js.min.js
-// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/vplev2.min.js
+// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/vplev3.min.js
 // ==/UserScript==
 
 
