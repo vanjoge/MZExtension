@@ -164,7 +164,7 @@
             }
         };
     }
-}
+};
 
 var vple = {
     cacheItem: new vpleModel.cacheByIDB(),
@@ -323,4 +323,4 @@ var vple = {
     D_ShowMaybeSkill: function (pdom, HStar, HP1, HP2, LStar, LP1, LP2) {
 
     }
-}
+};
