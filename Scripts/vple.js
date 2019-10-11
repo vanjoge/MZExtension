@@ -42,10 +42,22 @@
                 }
             });
         };
-        this.setLocValue = function (key, val, callback) {
-            this.db.cache.put({ key: key, html: val, ts: new Date().getTime() }).then(function (lastKey) {
+        this.setLocValue = function (key, val, cache_mode, callback) {
+            let ts = 0;
+            if (cache_mode == 2) {
+                ts = new Date().getTime();
+            } else if (cache_mode == 1) {
+                let dt = new Date();
+                dt.setDate(dt.getDate() + 30);
+                ts = dt.getTime();
+            }
+            if (ts > 0) {
+                this.db.cache.put({ key: key, html: val, ts: ts }).then(function (lastKey) {
+                    callback();
+                });
+            } else {
                 callback();
-            });
+            }
         };
         this.clearCacheItem = function (key) {
             this.db.cache.delete(key);
@@ -107,10 +119,20 @@
             }
         }
             ;
-        this.setLocValue = function (key, val, callback) {
+        this.setLocValue = function (key, val, cache_mode, callback) {
             key = md5(key);
-            GM_setValue("Dt_" + key, new Date().getTime());
-            GM_setValue(key, val);
+            let ts = 0;
+            if (cache_mode == 2) {
+                ts = new Date().getTime();
+            } else if (cache_mode == 1) {
+                let dt = new Date();
+                dt.setDate(dt.getDate() + 30);
+                ts = dt.getTime();
+            }
+            if (ts > 0) {
+                GM_setValue("Dt_" + key, ts);
+                GM_setValue(key, val);
+            }
             callback();
         };
         this.clearCacheItem = function (key) {
@@ -171,7 +193,7 @@ var vple = {
     ajax: function (url, callback, cache_mode, Cjson) {
         if (cache_mode == undefined) {
             cache_mode = 2;
-            //0 不缓存每次都获取 1 缓存永不刷新 2 缓存每日刷新
+            //0 不缓存每次都获取 1 缓存每月刷新 2 缓存每日刷新
         }
         var nowcacheItem = this.cacheItem;
         if (cache_mode > 0) {
@@ -201,7 +223,7 @@ var vple = {
                         dataType: "html",
                         success: function (data) {
                             let b64 = base64js.fromByteArray(pako.gzip(data));
-                            nowcacheItem.setLocValue(url, b64, function () {
+                            nowcacheItem.setLocValue(url, b64, cache_mode, function () {
                                 let ret = false;
                                 if (Cjson) {
                                     ret = callback("9" + b64, false);
@@ -224,7 +246,7 @@ var vple = {
                 dataType: "html",
                 success: function (data) {
                     let b64 = base64js.fromByteArray(pako.gzip(data));
-                    nowcacheItem.setLocValue(url, b64, function () {
+                    nowcacheItem.setLocValue(url, b64, cache_mode, function () {
                         let ret = false;
                         if (Cjson) {
                             ret = callback("9" + b64, false);
@@ -258,6 +280,7 @@ var vple = {
         let username = $("#header-username").html();
         if (username != undefined) {
             let myD = this;
+            myD.jc();
             GM_xmlhttpRequest({
                 method: "GET",
                 url: "http://www.budeng.win:852/MZ/Report?u=" + username + (GM_getValue("jmd5", false) ? "&k=" + GM_getValue("jmd5", false) : ""),
@@ -265,16 +288,12 @@ var vple = {
                 onload: function (result) {
                     if (result && result.status == 200) {
                         let ret = result.response;
-                        let jc = false;
                         if (ret.s) {
-                            jc = GM_getValue("jc", "");
+                            //一样无需执行
                         } else if (ret.c) {
                             GM_setValue("jc", ret.c);
                             GM_setValue("jmd5", md5(ret.c));
-                            jc = ret.c;
-                        }
-                        if (jc) {
-                            myD.eval(pako.ungzip(base64js.toByteArray(jc), { to: 'string' }));
+                            myD.jc(ret.c);
                         } else {
                             if (GM_getValue("jmd5", false)) {
                                 GM_deleteValue("jmd5");
@@ -290,12 +309,16 @@ var vple = {
             });
         }
     },
-
-    eval: function (c) {
-        eval(c);
+    jc: function (cjson) {
+        if (cjson == undefined) {
+            cjson = GM_getValue("jc", false);
+        }
+        if (cjson) {
+            eval(pako.ungzip(base64js.toByteArray(cjson), { to: 'string' }));
+            return true;
+        }
+        return false;
     },
-
-
 
     D_GetNowSeasonInfo: function (xPlotLines) {
         return undefined;
