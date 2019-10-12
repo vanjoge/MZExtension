@@ -20,7 +20,7 @@
 ![H2 darkgoldenrod](https://img.shields.io/static/v1?label=H2&message=★★☆☆&color=B8860B "H2")  
 ![H1 red](https://img.shields.io/static/v1?label=H1&message=★☆☆☆&color=FF0000 "H1")  
 
-	可点击球员姓名后报告显示球员的培训方向建议，首选>次选>可尝试>默认  
+	可点击球员姓名后报告显示球员的培训方向建议， 首选 > 次选 > 可尝试 > 默认  
 	
 	可根据球员涨停项和球探报告预估球员的成长属性，注意是保守估计，实际值可能大于或等于估计值。  
 
