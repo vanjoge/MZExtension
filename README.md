@@ -19,20 +19,9 @@
 ****
 
 ![H4 fuchsia](https://img.shields.io/static/v1?label=H4&message=★★★★&color=fuchsia "H4")
-
-****
-
-
-
-****
-	
-|星级|颜色名称|示例|
-|---|---|---
-|四星|fuchsia(品红)|待上传
-|三星|blue(蓝色)|待上传
-|二星|darkgoldenrod(深金菊黄)|待上传
-|一星|red(红色)|待上传
-
+![H3 blue](https://img.shields.io/static/v1?label=H3&message=★★★☆&color=blue "H3")
+![H2 darkgoldenrod](https://img.shields.io/static/v1?label=H2&message=★★☆☆&color=darkgoldenrod "H2")
+![H1 red](https://img.shields.io/static/v1?label=H1&message=★☆☆☆&color=red "H1")
 
 ****
 
