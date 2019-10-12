@@ -18,10 +18,10 @@
 
 ****
 
-![H4 fuchsia](https://img.shields.io/static/v1?label=H4&message=★★★★&color=FF00FF "H4")
-![H3 blue](https://img.shields.io/static/v1?label=H3&message=★★★☆&color=0000FF "H3")
-![H2 darkgoldenrod](https://img.shields.io/static/v1?label=H2&message=★★☆☆&color=B8860B "H2")
-![H1 red](https://img.shields.io/static/v1?label=H1&message=★☆☆☆&color=FF0000 "H1")
+![H4 fuchsia](https://img.shields.io/static/v1?label=H4&message=★★★★&color=FF00FF "H4") 
+![H3 blue](https://img.shields.io/static/v1?label=H3&message=★★★☆&color=0000FF "H3") 
+![H2 darkgoldenrod](https://img.shields.io/static/v1?label=H2&message=★★☆☆&color=B8860B "H2") 
+![H1 red](https://img.shields.io/static/v1?label=H1&message=★☆☆☆&color=FF0000 "H1") 
 
 ****
 
