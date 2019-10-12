@@ -15,16 +15,10 @@
 
 ## 球探报告
 	如果有球探报告，自动显示到姓名后，并且将属性名称变色，颜色对应如下：  
-
-****
-
-![H4 fuchsia](https://img.shields.io/static/v1?label=H4&message=★★★★&color=FF00FF "H4") 
-![H3 blue](https://img.shields.io/static/v1?label=H3&message=★★★☆&color=0000FF "H3") 
-![H2 darkgoldenrod](https://img.shields.io/static/v1?label=H2&message=★★☆☆&color=B8860B "H2") 
-![H1 red](https://img.shields.io/static/v1?label=H1&message=★☆☆☆&color=FF0000 "H1") 
-
-****
-
+	![H4 fuchsia](https://img.shields.io/static/v1?label=H4&message=★★★★&color=FF00FF "H4")  
+	![H3 blue](https://img.shields.io/static/v1?label=H3&message=★★★☆&color=0000FF "H3")  
+	![H2 darkgoldenrod](https://img.shields.io/static/v1?label=H2&message=★★☆☆&color=B8860B "H2")  
+	![H1 red](https://img.shields.io/static/v1?label=H1&message=★☆☆☆&color=FF0000 "H1")  
 
 	可点击球员姓名后报告显示球员的培训方向建议，首选>次选>可尝试>默认  
 	
