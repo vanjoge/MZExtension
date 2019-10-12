@@ -16,14 +16,21 @@
 ## 球探报告
 如果有球探报告，自动显示到姓名后，并且将属性名称变色，颜色对应如下：  
 
+****
+
+![H4 fuchsia](https://img.shields.io/static/v1?label=H4&message=★★★★&color=fuchsia "H4")
+
+****
+
+
 
 ****
 	
 |星级|颜色名称|示例|
 |---|---|---
-|四星|fuchsia(粉玫色)|待上传
+|四星|fuchsia(品红)|待上传
 |三星|blue(蓝色)|待上传
-|二星|darkgoldenrod(暗金菊色)|待上传
+|二星|darkgoldenrod(深金菊黄)|待上传
 |一星|red(红色)|待上传
 
 
