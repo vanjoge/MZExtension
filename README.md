@@ -37,5 +37,5 @@
 
 
 # 注意事项
-* 需要tampermonkey等插件引擎支持；  
+* 需要Tampermonkey等插件引擎支持；  
 * 着色只有Managerzone会员可用，否则只能看到本队的第一个球员。 
