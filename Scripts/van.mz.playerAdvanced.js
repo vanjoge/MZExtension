@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.0
+// @version      4.1
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -1631,7 +1631,7 @@ function OpenSetting() {
 </div>\
 ';
 
-    showHelpLayer(tmphtml, now_language.Setting + " v" + GM.info.script.version, true);
+    showHelpLayer(tmphtml, now_language.Setting + " v" + GM_info.script.version, true);
     $("#txtTacConf").val(GM_getValue("TacConf", ""));
     $("#gm_setting_save")[0].addEventListener('click', function () {
         setLanguage($("#gm_language").val());
