@@ -1470,7 +1470,7 @@ function initgw() {
         var mid = mth[1];
         let amatch = $("a.matchIcon.large.shadow");
         if (amatch.length > 0) {
-            amatch.eq(0).before('<a id="gw_match_result" class="matchIcon  large shadow" href="#" rel="nofollow" title="Watch match result"><i>R</i><span>&nbsp;</span></a>');
+            amatch.eq(0).before('<a id="gw_match_result" class="matchIcon  large shadow" href="javascript:void(0);" rel="nofollow" title="Watch match result"><i>R</i><span>&nbsp;</span></a>');
             $('#gw_match_result')[0].addEventListener('click', function () {
                 ShowMatchResult("2d", mid);
                 return false;
@@ -1622,10 +1622,10 @@ function OpenSetting() {
 <div><textarea style="width: 380px;height:200px;" id="txtTacConf" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>\
 </div>\
 <div>\
-<a href="#" class="mzbtn buttondiv button_account" id="gm_setting_save">\
+<a href="javascript:void(0);" class="mzbtn buttondiv button_account" id="gm_setting_save">\
 <span class="buttonClassMiddle"><span style="white-space: nowrap">'+ now_language.Save + '</span></span><span class="buttonClassRight">&nbsp;</span>\
 </a>\
-<a href="#" class="mzbtn buttondiv button_account" id="gm_setting_clear">\
+<a href="javascript:void(0);" class="mzbtn buttondiv button_account" id="gm_setting_clear">\
 <span class="buttonClassMiddle"><span style="white-space: nowrap">'+ now_language.Clear + '</span></span><span class="buttonClassRight">&nbsp;</span>\
 </a>\
 </div>\
