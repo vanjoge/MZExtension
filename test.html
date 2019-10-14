@@ -4,10 +4,27 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/dexie"></script>
-    <script type="text/javascript" src="Scripts/vanCache.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/pako/1.0.5/pako.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/blueimp/JavaScript-MD5/js/md5.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/base64js.min.js"></script>
+    <script type="text/javascript">
+        function J2C() {
+            let b64 = base64js.fromByteArray(pako.gzip(document.querySelector("#json").value));
+            document.querySelector("#cjson").value = b64;
+            document.querySelector("#cjson_md5").value = md5(b64);
+        }
+        function C2J() {
+            let _json = pako.ungzip(base64js.toByteArray(document.querySelector("#cjson").value), { to: 'string' });
+            document.querySelector("#json").value = _json;
+        }
+    </script>
 </head>
 <body>
-
+    <div>
+        <textarea id="json" rows="30" style="width:1000px"></textarea>
+        <p><input onclick="J2C();" type="button" value="编码">&nbsp; &nbsp; &nbsp; <input onclick="C2J();" type="button" value="解码"></p>
+        <textarea id="cjson" rows="30" style="width:1000px"></textarea>
+        <input type="text" id="cjson_md5" />
+    </div>
 </body>
 </html>
