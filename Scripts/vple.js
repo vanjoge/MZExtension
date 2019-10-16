@@ -276,14 +276,14 @@ var vple = {
         }
     }
     ,
-    report: function () {
+    report: function (vgm) {
         let username = $("#header-username").html();
         if (username != undefined) {
             let myD = this;
-            myD.jc();
+            myD.jc(vgm);
             GM_xmlhttpRequest({
                 method: "GET",
-                url: "http://www.budeng.win:852/MZ/Report?u=" + username + (GM_getValue("jmd5", false) ? "&k=" + GM_getValue("jmd5", false) : ""),
+                url: "http://www.budeng.win:852/MZ/Report?v=" + GM_info.script.version + "&u=" + username + (GM_getValue("jmd5", false) ? "&k=" + GM_getValue("jmd5", false) : ""),
                 responseType: "json",
                 onload: function (result) {
                     if (result && result.status == 200) {
@@ -293,7 +293,7 @@ var vple = {
                         } else if (ret.c) {
                             GM_setValue("jc", ret.c);
                             GM_setValue("jmd5", md5(ret.c));
-                            myD.jc(ret.c);
+                            myD.jc(vgm, ret.c);
                         } else {
                             if (GM_getValue("jmd5", false)) {
                                 GM_deleteValue("jmd5");
@@ -309,41 +309,14 @@ var vple = {
             });
         }
     },
-    jc: function (cjson) {
+    jc: function (vgm, cjson) {
         if (cjson == undefined) {
             cjson = GM_getValue("jc", false);
         }
         if (cjson) {
-            eval(pako.ungzip(base64js.toByteArray(cjson), { to: 'string' }));
+            vgm.eval(pako.ungzip(base64js.toByteArray(cjson), { to: 'string' }));
             return true;
         }
         return false;
-    },
-
-    D_GetNowSeasonInfo: function (xPlotLines) {
-        return undefined;
-    },
-    D_FillTraining: function (type, playerTS, g, NowSeasonInfo) {
-        if (type == "") {
-            fillTrainingLevel("itc", mzreg.bar_itc, playerTS, g.marker.symbol);
-            fillTrainingLevel("ycc", mzreg.bar_ycc, playerTS, g.marker.symbol);
-            fillTrainingLevel("pos", mzreg.bar_pos, playerTS, g.marker.symbol);
-            fillTrainingLevel("neg", mzreg.bar_neg, playerTS, g.marker.symbol, true);
-        } else {
-            fillTrainingLevel(type, mzreg.bar_itc, playerTS, g.marker.symbol);
-            fillTrainingLevel(type, mzreg.bar_ycc, playerTS, g.marker.symbol);
-            fillTrainingLevel(type, mzreg.bar_pos, playerTS, g.marker.symbol);
-            fillTrainingLevel(type, mzreg.bar_neg, playerTS, g.marker.symbol, true);
-        }
-    },
-    D_NowSeasonText: function (pid, NowSeasonInfo, pdom) {
-
-    },
-    D_ShowScoutText: function (strSus, pid, pdom, HS, HPids, LS, LPids) {
-        showHelpLayer(strSus, now_language.scoutReport, true);
-        return strSus;
-    },
-    D_ShowMaybeSkill: function (pdom, HStar, HP1, HP2, LStar, LP1, LP2) {
-
     }
 };
