@@ -16,7 +16,7 @@
 // @require      https://cdn.jsdelivr.net/npm/dexie
 // @require      https://cdn.jsdelivr.net/gh/blueimp/JavaScript-MD5/js/md5.min.js
 // @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/base64js.min.js
-// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/vplev3.min.js
+// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/vplev4.min.js
 // ==/UserScript==
 
 var vanGmMzModel = {
@@ -634,32 +634,32 @@ var vanGmMzModel = {
         //涨球时间
         this.ballDay = 0;
         //训练统计
-        this.stat = new trainingStat();
+        this.stat = new vanGmMzModel.trainingStat();
         //当前球数
         this.skill = 0;
     }
     ,
     trainingStat: function () {
         //所有 不包含掉球
-        this.all = new trainingDay();
+        this.all = new vanGmMzModel.trainingDay();
         ////普通训练 无教练
-        //this.pos = new trainingDay();
+        //this.pos = new vanGmMzModel.trainingDay();
         ////强化营
-        //this.itc = new trainingDay();
+        //this.itc = new vanGmMzModel.trainingDay();
         ////调整营
-        //this.ycc = new trainingDay();
+        //this.ycc = new vanGmMzModel.trainingDay();
         ////掉球
-        //this.neg = new trainingDay();
+        //this.neg = new vanGmMzModel.trainingDay();
         ////理疗
-        //this.physio = new trainingDay();
+        //this.physio = new vanGmMzModel.trainingDay();
         ////有教练
-        //this.coach = new trainingDay();
+        //this.coach = new vanGmMzModel.trainingDay();
         ////训练营
-        //this.camp = new trainingDay();
+        //this.camp = new vanGmMzModel.trainingDay();
         //对某类型加1
         this.add = function (type, tn) {
             if (!this[type]) {
-                this[type] = new trainingDay();
+                this[type] = new vanGmMzModel.trainingDay();
             }
             this[type][tn] += 1;
         };
@@ -1915,6 +1915,10 @@ var vanGmMz = {
                     vanGmMz.mStaticEventHome = lstEventHome;
                     vanGmMz.mStaticEventAway = lstEventAway;
 
+                    let lstEvent2 = new vpleModel.MatchEvent2();
+                    lstEvent2.setData(MyGame.prototype.mzlive.m_match, vanGmMz);
+                    vanGmMz.mEvent = lstEvent2;
+
 
                     if ($('.gw_div_left').length == 0) {
                         $('#canvas').parent().append('<div class="gw_div_left"></div>');
@@ -2314,6 +2318,9 @@ var vanGmMz = {
         });
     }
     ,
+    eval: function (a) {
+        eval(a);
+    },
     PLoad: function () {
 
         if (ajaxSport && ajaxSport == "soccer") {
