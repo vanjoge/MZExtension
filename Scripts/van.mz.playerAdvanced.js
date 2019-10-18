@@ -2430,7 +2430,7 @@ var vanGmMz = {
 
     },
     D_ShowScoutText: function (strSus, pid, pdom, HS, HPids, LS, LPids) {
-        showHelpLayer(strSus, now_language.scoutReport, true);
+        showHelpLayer(strSus, vanGmMz.now_language.scoutReport, true);
         return strSus;
     },
     D_ShowMaybeSkill: function (pdom, HStar, HP1, HP2, LStar, LP1, LP2) {
