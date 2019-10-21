@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.2
+// @version      4.3
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -1583,7 +1583,7 @@ var vanGmMz = {
                                 }
 
                                 let g1 = homeS.getAttribute("goals");
-                                if (g1 > 10) {
+                                if (g1 >= 10) {
                                     imgs[0].src = nocacheUrl + "/img/score/" + parseInt(g1 / 10) + ".gif";
                                 } else {
                                     imgs[0].src = nocacheUrl + "/img/score/null.gif";
@@ -1592,7 +1592,7 @@ var vanGmMz = {
 
 
                                 let g2 = awayS.getAttribute("goals");
-                                if (g2 > 10) {
+                                if (g2 >= 10) {
                                     imgs[3].src = nocacheUrl + "/img/score/" + parseInt(g2 / 10) + ".gif";
                                     imgs[4].src = nocacheUrl + "/img/score/" + g2 % 10 + ".gif";
                                 } else {
