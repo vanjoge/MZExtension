@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.3
+// @version      4.4
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -1572,6 +1572,8 @@ var vanGmMz = {
                             dataType: "xml",
                             success: function (data) {
                                 let teams = data.documentElement.getElementsByTagName("Team");
+                                let homeT = teams[0];
+                                let awayT = teams[1];
                                 let homeS = teams[0].getElementsByTagName("Statistics")[0];
                                 let awayS = teams[1].getElementsByTagName("Statistics")[0];
 
@@ -1630,6 +1632,29 @@ var vanGmMz = {
                                 td.eq(25).html(homeS.getAttribute("possession") + "%");
                                 td.eq(26).html(awayS.getAttribute("possession") + "%");
 
+                                $(".gm_timeline").remove();
+                                let events = data.documentElement.getElementsByTagName("Events");
+                                if (events.length) {
+                                    let tacs = events[0].getElementsByTagName("Tactic");
+                                    let trclass = false;
+                                    let timeline = $("table.timeline.hitlist.marker");
+                                    if (timeline.length) {
+                                        for (let i = tacs.length - 1; i >= 0; i--) {
+                                            if (tacs[i].getAttribute("teamId") == homeT.getAttribute("id")) {
+                                                timeline.find("tr:first").before("<tr class='gm_timeline " + (trclass ? "even" : "odd") + "'><td align='right' width='50%'><span style='white-space: nowrap'><strong>" + tacs[i].getAttribute("type") + "->" + tacs[i].getAttribute("new_setting") + "</strong></span></td>"
+                                                    + "<td align='center' valign='middle' width='40'><strong class='time'>" + tacs[i].getAttribute("time").split(":")[0] + "'</strong></td>"
+                                                    + "<td align='left' width='50%'>&nbsp;</td></tr>");
+                                            } else {
+                                                timeline.find("tr:first").before("<tr class='gm_timeline " + (trclass ? "even" : "odd") + "'><td align='right' width='50%'>&nbsp;</td>"
+                                                    + "<td align='center' valign='middle' width='40'><strong class='time'>" + tacs[i].getAttribute("time").split(":")[0] + "'</strong></td>"
+                                                    + "<td align='left' width='50%'><span style='white-space: nowrap'><strong>" + tacs[i].getAttribute("type") + "->" + tacs[i].getAttribute("new_setting") + "</strong></span></td></tr>");
+
+                                            }
+                                            trclass = !trclass;
+                                        }
+                                        timeline.find("tr:first").before("<tr class='gm_timeline " + (trclass ? "even" : "odd") + "'><td align='right' width='50%'><span style='white-space: nowrap'><strong>" + homeT.getAttribute("tactic") + "</strong><strong>" + homeT.getAttribute("playstyle") + "</strong><strong>" + homeT.getAttribute("aggression") + "</strong></span></td><td align='center' valign='middle' width='40'><strong class='time'>0'</strong></td><td align='left' width='50%'><span style='white-space: nowrap'><strong>" + awayT.getAttribute("tactic") + "</strong><strong>" + awayT.getAttribute("playstyle") + "</strong><strong>" + awayT.getAttribute("aggression") + "</strong></span></td></tr>");
+                                    }
+                                }
                             }
                         });
 
@@ -1639,7 +1664,7 @@ var vanGmMz = {
                         if (_overlay.tryCounter > 5) {
                             return false;
                         }
-                        setTimeout(function () { _overlay.prepareMatch() }, 3000);
+                        setTimeout(function () { _overlay.prepareMatch(); }, 3000);
                         break;
                     case "walkover":
                     case "blocked":
@@ -2282,12 +2307,15 @@ var vanGmMz = {
     finalInitAfterLoading: undefined, processButtonPresses: undefined, Load010SetupMainSceneInstance: undefined,
     OK_2D: false,
 
-    run_Tac: function () {
+    run_Tac: function (playerid) {
         vanGmMz.getMax(function () {
             let players = $("#playerInfoWindow");
             if (players.length > 0) {
                 let pdom = players.eq(0);
                 let pid = pdom.html().match(vanGmMzModel.mzreg.playerId_tac)[1];
+                if (pid != playerid) {
+                    return;
+                }
                 let player = vanGmMz.pmax[pid];
                 let imgs = pdom.find("img.skill");
 
@@ -2398,7 +2426,7 @@ var vanGmMz = {
 
                         vgm._getPlayerInfo.apply(this, arguments);
                         if (GM_getValue("autoRun1", 1) == 1) {
-                            vgm.run_Tac();
+                            vgm.run_Tac(arguments[0]);
                         }
                     };
                 }
