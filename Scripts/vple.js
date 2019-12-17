@@ -43,10 +43,8 @@
             });
         };
         this.setLocValue = function (key, val, cache_mode, callback) {
-            let ts = 0;
-            if (cache_mode == 2) {
-                ts = new Date().getTime();
-            } else if (cache_mode == 1) {
+            let ts = new Date().getTime();
+            if (cache_mode == 1) {
                 let dt = new Date();
                 dt.setDate(dt.getDate() + 30);
                 ts = dt.getTime();
