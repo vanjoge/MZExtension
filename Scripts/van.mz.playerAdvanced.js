@@ -16,7 +16,7 @@
 // @require      https://cdn.jsdelivr.net/npm/dexie
 // @require      https://cdn.jsdelivr.net/gh/blueimp/JavaScript-MD5/js/md5.min.js
 // @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/base64js.min.js
-// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/vplev4.min.js
+// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/vple.min.js
 // ==/UserScript==
 
 var vanGmMzModel = {
@@ -24,6 +24,8 @@ var vanGmMzModel = {
     language: {
         zh: {
             Name: "中文",
+            GetPlayersHtml: "获取球员页面HTML",
+            GetPlayersHtml2: "获取球员页面HTML(不用缓存)",
             Clear: "清空缓存",
             Save: "保存",
             Setting: "设置",
@@ -47,6 +49,7 @@ var vanGmMzModel = {
             dongzuo: "球员动作",
             Copyxml1: "复制主队战术",
             Copyxml2: "复制客队战术",
+            CopyXml: "数据已复制到剪切板",
             CopyXmlMsg: "战术已复制到剪切板",
             CopyXmlMsgError: "战术复制失败",
             BA_NORMAL: "BA_NORMAL",
@@ -157,6 +160,8 @@ var vanGmMzModel = {
 
         en: {
             Name: "English",
+            GetPlayersHtml: "Get players page",
+            GetPlayersHtml2: "Get players page(No cache)",
             Clear: "Clear Cache",
             Save: "Save",
             Setting: "Setting",
@@ -179,6 +184,7 @@ var vanGmMzModel = {
             dongzuo: "PlayerStatus",
             Copyxml1: "CopyXML(home)",
             Copyxml2: "CopyXML(away)",
+            CopyXml: "The data has been copied to the clipboard!",
             CopyXmlMsg: "The tactic was copied to the Clipboard!",
             CopyXmlMsgError: "Copy error!",
             BA_NORMAL: "Normal",
@@ -288,6 +294,8 @@ var vanGmMzModel = {
         ,
         es: {
             Name: "Español",
+            GetPlayersHtml: "Página de jugadores",
+            GetPlayersHtml2: "Página de jugadores(sin caché)",
             Clear: "Vaciar el caché",
             Save: "Guardar",
             Setting: "Ajustes",
@@ -311,6 +319,7 @@ var vanGmMzModel = {
             dongzuo: "PlayerStatus",
             Copyxml1: "CopiarXML(local)",
             Copyxml2: "CopiarXML(visitante)",
+            CopyXml: "Los datos se han copiado al portapapeles",
             CopyXmlMsg: "La táctica fue copiada al portapapeles",
             CopyXmlMsgError: "¡Error al copiar!",
             BA_NORMAL: "Normal",
@@ -418,6 +427,8 @@ var vanGmMzModel = {
 
         br: {
             Name: "Português",
+            GetPlayersHtml: "Página de jogadores",
+            GetPlayersHtml2: "Página de jugadores(sem cache)",
             Clear: "Esvaziar o cache",
             Save: "Salvar",
             Setting: "Configurações",
@@ -440,6 +451,7 @@ var vanGmMzModel = {
             dongzuo: "Status do jogador",
             Copyxml1: "Copiar XML(mandante)",
             Copyxml2: "Copiar XML(visitante)",
+            CopyXml: "Os dados foram copiados para a área de transferência!",
             CopyXmlMsg: "A tática foi copiada para a área de transferências!",
             CopyXmlMsgError: "Erro na cópia!",
             BA_NORMAL: "Normal",
@@ -1732,7 +1744,13 @@ var vanGmMz = {
 <div>\
 <a href="javascript:void(0);" class="mzbtn buttondiv button_account" id="gm_setting_save">\
 <span class="buttonClassMiddle"><span style="white-space: nowrap">'+ vanGmMz.now_language.Save + '</span></span><span class="buttonClassRight">&nbsp;</span>\
+</a><hr />\
+<a href="javascript:void(0);" class="mzbtn buttondiv button_account" id="gm_setting_players_html">\
+<span class="buttonClassMiddle"><span style="white-space: nowrap">'+ vanGmMz.now_language.GetPlayersHtml + '</span></span><span class="buttonClassRight">&nbsp;</span>\
 </a>\
+<a href="javascript:void(0);" class="mzbtn buttondiv button_account" id="gm_setting_players_html2">\
+<span class="buttonClassMiddle"><span style="white-space: nowrap">'+ vanGmMz.now_language.GetPlayersHtml2 + '</span></span><span class="buttonClassRight">&nbsp;</span>\
+</a><hr />\
 <a href="javascript:void(0);" class="mzbtn buttondiv button_account" id="gm_setting_clear">\
 <span class="buttonClassMiddle"><span style="white-space: nowrap">'+ vanGmMz.now_language.Clear + '</span></span><span class="buttonClassRight">&nbsp;</span>\
 </a>\
@@ -1764,6 +1782,25 @@ var vanGmMz = {
         $("#gm_setting_clear")[0].addEventListener('click', function () {
             vple.cacheItem.clearAll();
         });
+
+        $("#gm_setting_players_html")[0].addEventListener('click', function () {
+            vanGmMz.GetPlayerHtml(true);
+        });
+        $("#gm_setting_players_html2")[0].addEventListener('click', function () {
+            vanGmMz.GetPlayerHtml(false);
+        });
+    },
+    GetPlayerHtml: function (useCache) {
+        let mode = 0;
+        if (useCache) {
+            mode = 2;
+        }
+        vple.ajax(
+            "/?p=players",
+            function (data2) {
+                GM_setClipboard(data2);
+                alert(vanGmMz.now_language.CopyXml);
+            }, mode, false);
     }
     ,
 
