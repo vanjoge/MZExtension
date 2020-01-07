@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.4
+// @version      4.5
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -693,8 +693,11 @@ var vanGmMzModel = {
             //let ret = this.getSum() / (this.t1 * 1 + this.t2 * 1 + this.t3 * 1 + this.t4 * 1 + this.t5 * 1 + this.t6 * 1 + this.t7 * 1 + this.t8 * 1 + this.t9 * 1 + this.t10 * 1);
             //ret = parseFloat(ret).toFixed(1);
             //return ret;
-
-            return this.all.getAvg();
+            if (this.neg) {
+                return -this.neg.getAvg();
+            } else {
+                return this.all.getAvg();
+            }
         };
         this.getTnText = function (now_language) {
             let str = "";
@@ -956,7 +959,9 @@ var vanGmMz = {
                     extmp.remove();
                 }
                 let sum = 0;
-                if (vanGmMz.trainingInfo[pid][k][skill]) {
+                if (vanGmMz.trainingInfo[pid][k].neg && vanGmMz.trainingInfo[pid][k].neg[skill + 1]) {
+                    sum = vanGmMz.trainingInfo[pid][k].neg[skill + 1].stat.getSum();
+                } else if (vanGmMz.trainingInfo[pid][k][skill]) {
                     sum = vanGmMz.trainingInfo[pid][k][skill].stat.getSum();
                 }
                 $(img).parent().parent().append("<td class='skill_exact2'><div><span id=" + pid + "_" + k + "_" + skill + " class='skillval skill_exact_van'>" + sum + "%</span></div></td>");
@@ -1081,7 +1086,6 @@ var vanGmMz = {
                                 allSkillTraining_tmp[index] = new Array();
                                 allSkillTraining_tmp[index].push(new vanGmMzModel.playerTrainingBySkill());
                             }
-                            let playerTS = allSkillTraining_tmp[index][allSkillTraining_tmp[index].length - 1];
                             if (/training_camp/.test(g.marker.symbol)) {
                                 //训练营 判断是否是ytc
                                 if (camp.inYTC(g.x)) {
@@ -1089,11 +1093,34 @@ var vanGmMz = {
                                 }
 
                             }
-                            if (/_ball/.test(g.marker.symbol)) {
-                                if (skillBallDays[index] < g.x) {
-                                    skillBallDays[index] = g.x;
-                                    playerTS.ballDay = g.x;
-                                    allSkillTraining_tmp[index].push(new vanGmMzModel.playerTrainingBySkill());
+
+                            let playerTS;
+                            //掉球单独列
+                            if (/bar_neg/.test(g.marker.symbol)) {
+                                if (allSkillTraining_tmp[index].neg == undefined) {
+                                    allSkillTraining_tmp[index].neg = new Array();
+                                }
+                                if (/_ball/.test(g.marker.symbol)) {
+                                    if (skillBallDays[index] < g.x) {
+                                        skillBallDays[index] = g.x;
+                                        playerTS = new vanGmMzModel.playerTrainingBySkill();
+                                        playerTS.ballDay = g.x;
+                                        allSkillTraining_tmp[index].neg.push(playerTS);
+                                    }
+                                } else if (allSkillTraining_tmp[index].neg.length == 0) {
+                                    playerTS = new vanGmMzModel.playerTrainingBySkill();
+                                    allSkillTraining_tmp[index].neg.push(playerTS);
+                                } else {
+                                    playerTS = allSkillTraining_tmp[index].neg[allSkillTraining_tmp[index].neg.length - 1];
+                                }
+                            } else {
+                                playerTS = allSkillTraining_tmp[index][allSkillTraining_tmp[index].length - 1];
+                                if (/_ball/.test(g.marker.symbol)) {
+                                    if (skillBallDays[index] < g.x) {
+                                        skillBallDays[index] = g.x;
+                                        playerTS.ballDay = g.x;
+                                        allSkillTraining_tmp[index].push(new vanGmMzModel.playerTrainingBySkill());
+                                    }
                                 }
                             }
                             let result = g.marker.symbol.match(vanGmMzModel.mzreg.trainingType);
@@ -1138,14 +1165,28 @@ var vanGmMz = {
                 imgs[t1].nowSkill = parseInt(imgs[t1].src.match(vanGmMzModel.mzreg.img_val)[1]);
             }
             let tmp = {};
+            let negCount = 0;
+            if (allSkillTraining_tmp[t1].neg) {
+                negCount = allSkillTraining_tmp[t1].neg.length;
+                tmpNeg = {};
+                for (let t3 = 0; t3 < allSkillTraining_tmp[t1].neg.length; t3++) {
+                    let tmp3 = allSkillTraining_tmp[t1].neg[t3];
+                    if (tmp3.stat.getSum() != 0) {
+                        tmp3.skill = imgs[t1].nowSkill + negCount - t3;
+                        tmpNeg[tmp3.skill] = tmp3;
+                    }
+                }
+                tmp.neg = tmpNeg;
+            }
             for (let t2 = 0; t2 < allSkillTraining_tmp[t1].length; t2++) {
                 let tmp2 = allSkillTraining_tmp[t1][t2];
                 if (tmp2.stat.getSum() != 0) {
-                    tmp2.skill = imgs[t1].nowSkill + 1 - allSkillTraining_tmp[t1].length + t2;
+                    tmp2.skill = imgs[t1].nowSkill + negCount + 1 - allSkillTraining_tmp[t1].length + t2;
                     tmp[tmp2.skill] = tmp2;
                 }
             }
             allSkillTraining[t1] = tmp;
+
         }
         vanGmMz.trainingInfo[pid] = allSkillTraining;
         for (let k = 0; k < maxeds.length; k++) {
@@ -1428,7 +1469,12 @@ var vanGmMz = {
         let str = "";
         let sum = 0;
         if (playTS[tmpArr[2]]) {
-            let training = playTS[tmpArr[2]].stat;
+            let training;
+            if (playTS.neg) {
+                training = playTS.neg[parseInt(tmpArr[2]) + 1].stat;
+            } else {
+                training = playTS[tmpArr[2]].stat;
+            }
             str = vanGmMz.now_language.training_avg + " " + training.getAvg() + "%" + training.getTnText(vanGmMz.now_language) + "<br/><br/>" + vanGmMz.now_language.training_ball_day + ":<br/>";
             if (training.camp) {
                 str += training.getDayByAvg(training.camp.getAvg()) + "(" + vanGmMz.now_language.training_camp + ") ";
@@ -1451,6 +1497,16 @@ var vanGmMz = {
                 str += "<br/>" + i + "-" + (i + 1) + " " + vanGmMz.now_language.training_total + ":"
                     + playTS[i].stat.getSum(true) + "%"
                     + " " + vanGmMz.now_language.training_avg + ":" + playTS[i].stat.getAvg() + "%<br/>" + playTS[i].stat.getTnText(vanGmMz.now_language);
+            }
+        }
+        if (playTS.neg) {
+            for (let i = 10; i > 0; i--) {
+                if (playTS.neg[i]) {
+                    flag = true;
+                    str += "<br/>" + i + "-" + (i - 1) + " " + vanGmMz.now_language.training_total + ":"
+                        + playTS.neg[i].stat.getSum(true) + "%"
+                        + " " + vanGmMz.now_language.training_avg + ":" + playTS.neg[i].stat.getAvg() + "%<br/>" + playTS.neg[i].stat.getTnText(vanGmMz.now_language);
+                }
             }
         }
 
