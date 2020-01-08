@@ -649,6 +649,8 @@ var vanGmMzModel = {
         this.stat = new vanGmMzModel.trainingStat();
         //当前球数
         this.skill = 0;
+        //最后一次训练
+        this.lt = 0;
     }
     ,
     trainingStat: function () {
@@ -674,6 +676,7 @@ var vanGmMzModel = {
                 this[type] = new vanGmMzModel.trainingDay();
             }
             this[type][tn] += 1;
+
         };
         this.getSum = function (canOver100) {
             let ret = 0;
@@ -1119,7 +1122,9 @@ var vanGmMz = {
                                     if (skillBallDays[index] < g.x) {
                                         skillBallDays[index] = g.x;
                                         playerTS.ballDay = g.x;
-                                        allSkillTraining_tmp[index].push(new vanGmMzModel.playerTrainingBySkill());
+                                        let next_playerTS = new vanGmMzModel.playerTrainingBySkill();
+                                        next_playerTS.last = playerTS;
+                                        allSkillTraining_tmp[index].push(next_playerTS);
                                     }
                                 }
                             }
@@ -1203,6 +1208,7 @@ var vanGmMz = {
         let result = url.match(reg);
         if (result && result.length > 0) {
             let stat = playerTS.stat;
+            playerTS.lt = parseInt(result[1]);
             if (isneg) {
                 stat.add(type, "t" + result[1]);
             } else {
