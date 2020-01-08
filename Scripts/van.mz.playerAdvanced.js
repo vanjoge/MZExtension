@@ -1168,15 +1168,14 @@ var vanGmMz = {
             let negCount = 0;
             if (allSkillTraining_tmp[t1].neg) {
                 negCount = allSkillTraining_tmp[t1].neg.length;
-                tmpNeg = {};
+                tmp.neg = {};
                 for (let t3 = 0; t3 < allSkillTraining_tmp[t1].neg.length; t3++) {
                     let tmp3 = allSkillTraining_tmp[t1].neg[t3];
                     if (tmp3.stat.getSum() != 0) {
                         tmp3.skill = imgs[t1].nowSkill + negCount - t3;
-                        tmpNeg[tmp3.skill] = tmp3;
+                        tmp.neg[tmp3.skill] = tmp3;
                     }
                 }
-                tmp.neg = tmpNeg;
             }
             for (let t2 = 0; t2 < allSkillTraining_tmp[t1].length; t2++) {
                 let tmp2 = allSkillTraining_tmp[t1][t2];
