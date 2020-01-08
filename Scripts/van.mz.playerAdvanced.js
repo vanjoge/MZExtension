@@ -781,7 +781,7 @@ var vanGmMzModel = {
         this.t9 = 0;
         this.t10 = 0;
         this.getSum = function () {
-            let ret = this.t1 * 0.4 * 1 + this.t2 * 0.55 * 2 + this.t3 * 0.7 * 3 + this.t4 * 0.85 * 4 + this.t5 * 1 * 5 + this.t6 * 1.15 * 6 + this.t7 * 1.3 * 7 + this.t8 * 1.55 * 8 + this.t9 * 1.8 * 9 + this.t10 * 2 * 10;
+            let ret = this.t1 * 0.645 * 1 + this.t2 * 0.55 * 2 + this.t3 * 0.7 * 3 + this.t4 * 0.85 * 4 + this.t5 * 0.96 * 5 + this.t6 * 1.111 * 6 + this.t7 * 1.3 * 7 + this.t8 * 1.6 * 8 + this.t9 * 2.02 * 9 + this.t10 * 2.4 * 10;
             ret = parseFloat(ret).toFixed(1);
             return ret;
         };
@@ -1188,6 +1188,9 @@ var vanGmMz = {
                     tmp2.skill = imgs[t1].nowSkill + negCount + 1 - allSkillTraining_tmp[t1].length + t2;
                     tmp[tmp2.skill] = tmp2;
                 }
+
+                //test
+                vanGmMz.vanlog(pid, tmp2, t1, t2);
             }
             allSkillTraining[t1] = tmp;
 
@@ -1204,6 +1207,8 @@ var vanGmMz = {
         return true;
     }
     ,
+    vanlog: function (pid, pt, t1, t2) {
+    },
     fillTrainingLevel: function (type, reg, playerTS, url, isneg) {
         let result = url.match(reg);
         if (result && result.length > 0) {
