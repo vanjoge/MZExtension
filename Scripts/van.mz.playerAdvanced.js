@@ -778,7 +778,7 @@ var vanGmMzModel = {
         this.t9 = 0;
         this.t10 = 0;
         this.getSum = function () {
-            let ret = this.t1 * 0.4 * 1 + this.t2 * 0.55 * 2 + this.t3 * 0.7 * 3 + this.t4 * 0.85 * 4 + this.t5 * 1 * 5 + this.t6 * 1.15 * 6 + this.t7 * 1.3 * 7 + this.t8 * 1.45 * 8 + this.t9 * 1.6 * 9 + this.t10 * 1.75 * 10;
+            let ret = this.t1 * 0.4 * 1 + this.t2 * 0.55 * 2 + this.t3 * 0.7 * 3 + this.t4 * 0.85 * 4 + this.t5 * 1 * 5 + this.t6 * 1.15 * 6 + this.t7 * 1.3 * 7 + this.t8 * 1.55 * 8 + this.t9 * 1.8 * 9 + this.t10 * 2 * 10;
             ret = parseFloat(ret).toFixed(1);
             return ret;
         };
