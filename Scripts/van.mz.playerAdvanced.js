@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.7
+// @version      4.8
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -1883,8 +1883,8 @@ var vanGmMz = {
         if (useCache) {
             mode = 2;
         }
-        vanGmMz.GetPlayerHtmlByEn(mode, false, function () {
-            GM_setClipboard(data2);
+        vanGmMz.GetPlayerHtmlByEn(mode, false, function (data) {
+            GM_setClipboard(data);
             alert(vanGmMz.now_language.CopyXml);
         });
     },
