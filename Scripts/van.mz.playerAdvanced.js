@@ -1638,104 +1638,106 @@ var vanGmMz = {
     }
     ,
     ShowMatchResult: function (type, matchId) {
+        this.GetMatchXML(matchId, function (data) {
+            let teams = data.documentElement.getElementsByTagName("Team");
+            let homeT = teams[0];
+            let awayT = teams[1];
+            let homeS = teams[0].getElementsByTagName("Statistics")[0];
+            let awayS = teams[1].getElementsByTagName("Statistics")[0];
+
+            let imgs = $("div.scoreboard.shadow img");
+            let mth = imgs[0].src.match(vanGmMzModel.mzreg.nocache);
+            let nocacheUrl = "nocache-715";
+            if (mth && mth.length > 0) {
+                nocacheUrl = mth[0];
+            }
+
+            let g1 = homeS.getAttribute("goals");
+            if (g1 >= 10) {
+                imgs[0].src = nocacheUrl + "/img/score/" + parseInt(g1 / 10) + ".gif";
+            } else {
+                imgs[0].src = nocacheUrl + "/img/score/null.gif";
+            }
+            imgs[1].src = nocacheUrl + "/img/score/" + g1 % 10 + ".gif";
+
+
+            let g2 = awayS.getAttribute("goals");
+            if (g2 >= 10) {
+                imgs[3].src = nocacheUrl + "/img/score/" + parseInt(g2 / 10) + ".gif";
+                imgs[4].src = nocacheUrl + "/img/score/" + g2 % 10 + ".gif";
+            } else {
+                imgs[3].src = nocacheUrl + "/img/score/" + g2 % 10 + ".gif";
+                imgs[4].src = nocacheUrl + "/img/score/null.gif";
+            }
+
+
+            let td = $("div#match-tactic-facts-wrapper div div table.hitlist.statsLite tbody tr td");
+
+            td.eq(1).html(g1);
+            td.eq(2).html(g2);
+
+            td.eq(4).html(homeS.getAttribute("injuries"));
+            td.eq(5).html(awayS.getAttribute("injuries"));
+
+            td.eq(7).html(homeS.getAttribute("yellowCards"));
+            td.eq(8).html(awayS.getAttribute("yellowCards"));
+
+            td.eq(10).html(homeS.getAttribute("redCards"));
+            td.eq(11).html(awayS.getAttribute("redCards"));
+
+            td.eq(13).html(homeS.getAttribute("freekicks"));
+            td.eq(14).html(awayS.getAttribute("freekicks"));
+
+            td.eq(16).html(homeS.getAttribute("penaltyshots"));
+            td.eq(17).html(awayS.getAttribute("penaltyshots"));
+
+            td.eq(19).html(homeS.getAttribute("corners"));
+            td.eq(20).html(awayS.getAttribute("corners"));
+
+            td.eq(22).html(homeS.getAttribute("shotsOnGoal"));
+            td.eq(23).html(awayS.getAttribute("shotsOnGoal"));
+
+            td.eq(25).html(homeS.getAttribute("possession") + "%");
+            td.eq(26).html(awayS.getAttribute("possession") + "%");
+
+            $(".gm_timeline").remove();
+            let events = data.documentElement.getElementsByTagName("Events");
+            if (events.length) {
+                let tacs = events[0].getElementsByTagName("Tactic");
+                let trclass = false;
+                let timeline = $("table.timeline.hitlist.marker");
+                if (timeline.length) {
+                    for (let i = tacs.length - 1; i >= 0; i--) {
+                        if (tacs[i].getAttribute("teamId") == homeT.getAttribute("id")) {
+                            timeline.find("tr:first").before("<tr class='gm_timeline " + (trclass ? "even" : "odd") + "'><td align='right' width='50%'><span style='white-space: nowrap'><strong>" + tacs[i].getAttribute("type") + "->" + tacs[i].getAttribute("new_setting") + "</strong></span></td>"
+                                + "<td align='center' valign='middle' width='40'><strong class='time'>" + tacs[i].getAttribute("time").split(":")[0] + "'</strong></td>"
+                                + "<td align='left' width='50%'>&nbsp;</td></tr>");
+                        } else {
+                            timeline.find("tr:first").before("<tr class='gm_timeline " + (trclass ? "even" : "odd") + "'><td align='right' width='50%'>&nbsp;</td>"
+                                + "<td align='center' valign='middle' width='40'><strong class='time'>" + tacs[i].getAttribute("time").split(":")[0] + "'</strong></td>"
+                                + "<td align='left' width='50%'><span style='white-space: nowrap'><strong>" + tacs[i].getAttribute("type") + "->" + tacs[i].getAttribute("new_setting") + "</strong></span></td></tr>");
+
+                        }
+                        trclass = !trclass;
+                    }
+                    timeline.find("tr:first").before("<tr class='gm_timeline " + (trclass ? "even" : "odd") + "'><td align='right' width='50%'><span style='white-space: nowrap'><strong>" + homeT.getAttribute("tactic") + "</strong><strong>" + homeT.getAttribute("playstyle") + "</strong><strong>" + homeT.getAttribute("aggression") + "</strong></span></td><td align='center' valign='middle' width='40'><strong class='time'>0'</strong></td><td align='left' width='50%'><span style='white-space: nowrap'><strong>" + awayT.getAttribute("tactic") + "</strong><strong>" + awayT.getAttribute("playstyle") + "</strong><strong>" + awayT.getAttribute("aggression") + "</strong></span></td></tr>");
+                }
+            }
+        });
+    }
+    ,
+    GetMatchXML: function (matchId, callback) {
+        let midurl = "https://www.managerzone.com/matchviewer/getMatchFiles.php?type=stats&mid=" + matchId + "&sport=soccer";
         var _overlay = this;
         this.prepareMatch = function () {
-            $.getJSON(mz.getAjaxLink("matchViewer&sub=check-match&type=" + type + "&mid=" + matchId), function (data) {
+            $.getJSON(mz.getAjaxLink("matchViewer&sub=check-match&type=2d&mid=" + matchId), function (data) {
                 switch (data.response) {
                     case "ok":
-
-                        $.ajax({
-                            type: "GET",
-                            url: "https://www.managerzone.com/matchviewer/getMatchFiles.php?type=stats&mid=" + matchId + "&sport=soccer",
-                            dataType: "xml",
-                            success: function (data) {
-                                let teams = data.documentElement.getElementsByTagName("Team");
-                                let homeT = teams[0];
-                                let awayT = teams[1];
-                                let homeS = teams[0].getElementsByTagName("Statistics")[0];
-                                let awayS = teams[1].getElementsByTagName("Statistics")[0];
-
-                                let imgs = $("div.scoreboard.shadow img");
-                                let mth = imgs[0].src.match(vanGmMzModel.mzreg.nocache);
-                                let nocacheUrl = "nocache-715";
-                                if (mth && mth.length > 0) {
-                                    nocacheUrl = mth[0];
-                                }
-
-                                let g1 = homeS.getAttribute("goals");
-                                if (g1 >= 10) {
-                                    imgs[0].src = nocacheUrl + "/img/score/" + parseInt(g1 / 10) + ".gif";
-                                } else {
-                                    imgs[0].src = nocacheUrl + "/img/score/null.gif";
-                                }
-                                imgs[1].src = nocacheUrl + "/img/score/" + g1 % 10 + ".gif";
-
-
-                                let g2 = awayS.getAttribute("goals");
-                                if (g2 >= 10) {
-                                    imgs[3].src = nocacheUrl + "/img/score/" + parseInt(g2 / 10) + ".gif";
-                                    imgs[4].src = nocacheUrl + "/img/score/" + g2 % 10 + ".gif";
-                                } else {
-                                    imgs[3].src = nocacheUrl + "/img/score/" + g2 % 10 + ".gif";
-                                    imgs[4].src = nocacheUrl + "/img/score/null.gif";
-                                }
-
-
-                                let td = $("div#match-tactic-facts-wrapper div div table.hitlist.statsLite tbody tr td");
-
-                                td.eq(1).html(g1);
-                                td.eq(2).html(g2);
-
-                                td.eq(4).html(homeS.getAttribute("injuries"));
-                                td.eq(5).html(awayS.getAttribute("injuries"));
-
-                                td.eq(7).html(homeS.getAttribute("yellowCards"));
-                                td.eq(8).html(awayS.getAttribute("yellowCards"));
-
-                                td.eq(10).html(homeS.getAttribute("redCards"));
-                                td.eq(11).html(awayS.getAttribute("redCards"));
-
-                                td.eq(13).html(homeS.getAttribute("freekicks"));
-                                td.eq(14).html(awayS.getAttribute("freekicks"));
-
-                                td.eq(16).html(homeS.getAttribute("penaltyshots"));
-                                td.eq(17).html(awayS.getAttribute("penaltyshots"));
-
-                                td.eq(19).html(homeS.getAttribute("corners"));
-                                td.eq(20).html(awayS.getAttribute("corners"));
-
-                                td.eq(22).html(homeS.getAttribute("shotsOnGoal"));
-                                td.eq(23).html(awayS.getAttribute("shotsOnGoal"));
-
-                                td.eq(25).html(homeS.getAttribute("possession") + "%");
-                                td.eq(26).html(awayS.getAttribute("possession") + "%");
-
-                                $(".gm_timeline").remove();
-                                let events = data.documentElement.getElementsByTagName("Events");
-                                if (events.length) {
-                                    let tacs = events[0].getElementsByTagName("Tactic");
-                                    let trclass = false;
-                                    let timeline = $("table.timeline.hitlist.marker");
-                                    if (timeline.length) {
-                                        for (let i = tacs.length - 1; i >= 0; i--) {
-                                            if (tacs[i].getAttribute("teamId") == homeT.getAttribute("id")) {
-                                                timeline.find("tr:first").before("<tr class='gm_timeline " + (trclass ? "even" : "odd") + "'><td align='right' width='50%'><span style='white-space: nowrap'><strong>" + tacs[i].getAttribute("type") + "->" + tacs[i].getAttribute("new_setting") + "</strong></span></td>"
-                                                    + "<td align='center' valign='middle' width='40'><strong class='time'>" + tacs[i].getAttribute("time").split(":")[0] + "'</strong></td>"
-                                                    + "<td align='left' width='50%'>&nbsp;</td></tr>");
-                                            } else {
-                                                timeline.find("tr:first").before("<tr class='gm_timeline " + (trclass ? "even" : "odd") + "'><td align='right' width='50%'>&nbsp;</td>"
-                                                    + "<td align='center' valign='middle' width='40'><strong class='time'>" + tacs[i].getAttribute("time").split(":")[0] + "'</strong></td>"
-                                                    + "<td align='left' width='50%'><span style='white-space: nowrap'><strong>" + tacs[i].getAttribute("type") + "->" + tacs[i].getAttribute("new_setting") + "</strong></span></td></tr>");
-
-                                            }
-                                            trclass = !trclass;
-                                        }
-                                        timeline.find("tr:first").before("<tr class='gm_timeline " + (trclass ? "even" : "odd") + "'><td align='right' width='50%'><span style='white-space: nowrap'><strong>" + homeT.getAttribute("tactic") + "</strong><strong>" + homeT.getAttribute("playstyle") + "</strong><strong>" + homeT.getAttribute("aggression") + "</strong></span></td><td align='center' valign='middle' width='40'><strong class='time'>0'</strong></td><td align='left' width='50%'><span style='white-space: nowrap'><strong>" + awayT.getAttribute("tactic") + "</strong><strong>" + awayT.getAttribute("playstyle") + "</strong><strong>" + awayT.getAttribute("aggression") + "</strong></span></td></tr>");
-                                    }
-                                }
-                            }
-                        });
-
+                        vple.ajax(
+                            midurl,
+                            function (data) {
+                                callback(data);
+                            }, 1, false);
                         break;
                     case "queued":
                         _overlay.tryCounter++;
@@ -1861,12 +1863,26 @@ var vanGmMz = {
         if (useCache) {
             mode = 2;
         }
+        vanGmMz.GetPlayerHtmlByEn(mode, false, function () {
+            GM_setClipboard(data2);
+            alert(vanGmMz.now_language.CopyXml);
+        });
+    },
+    GetPlayerHtmlByEn: function (mode, Cjson, callback) {
+        var plang = $("meta[name=language]").attr("content");
+        if (plang != "en") {
+            $.get("/ajax.php?p=settings&sub=lang&sport=soccer&lang=en", function (data, status) {
+            });
+        }
         vple.ajax(
             "/?p=players",
-            function (data2) {
-                GM_setClipboard(data2);
-                alert(vanGmMz.now_language.CopyXml);
-            }, mode, false);
+            function (data) {
+                callback(data);
+            }, mode, Cjson);
+        if (plang != "en") {
+            $.get("/ajax.php?p=settings&sub=lang&sport=soccer&lang=" + plang, function (data, status) {
+            });
+        }
     }
     ,
 
@@ -2334,33 +2350,31 @@ var vanGmMz = {
             });
         } else {
             let tmpXML = vanGmMz.Stats2XML(ishome);
-            vple.ajax(
-                "/?p=players",
-                function (data2) {
-                    //
-                    let myData = new FormData();
-                    myData.append("xml", "9" + base64js.fromByteArray(pako.gzip(tmpXML)));
-                    myData.append("html", data2);
-                    myData.append("tacConf", GM_getValue("TacConf", ""));
-                    GM_xmlhttpRequest({
-                        method: "POST",
-                        url: "http://www.budeng.win:852/MZ/TuneXMLByHtml",
-                        data: myData,
-                        responseType: "json",
-                        onload: function (result) {
-                            let dxml = JSON.parse(result.responseText);
-                            if (dxml.ErrorCode == 0) {
-                                GM_setClipboard(dxml.data);
-                                alert(vanGmMz.now_language.CopyXmlMsg);
-                            } else {
-                                alert(vanGmMz.now_language.CopyXmlMsgError);
-                            }
-                        },
-                        onerror: function (result) {
+            vanGmMz.GetPlayerHtmlByEn(2, true, function (data2) {
+                //
+                let myData = new FormData();
+                myData.append("xml", "9" + base64js.fromByteArray(pako.gzip(tmpXML)));
+                myData.append("html", data2);
+                myData.append("tacConf", GM_getValue("TacConf", ""));
+                GM_xmlhttpRequest({
+                    method: "POST",
+                    url: "http://www.budeng.win:852/MZ/TuneXMLByHtml",
+                    data: myData,
+                    responseType: "json",
+                    onload: function (result) {
+                        let dxml = JSON.parse(result.responseText);
+                        if (dxml.ErrorCode == 0) {
+                            GM_setClipboard(dxml.data);
+                            alert(vanGmMz.now_language.CopyXmlMsg);
+                        } else {
                             alert(vanGmMz.now_language.CopyXmlMsgError);
                         }
-                    });
-                }, 2, true);
+                    },
+                    onerror: function (result) {
+                        alert(vanGmMz.now_language.CopyXmlMsgError);
+                    }
+                });
+            });
         }
     }
     ,
