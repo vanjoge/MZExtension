@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.6
+// @version      4.7
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -16,7 +16,7 @@
 // @require      https://cdn.jsdelivr.net/npm/dexie
 // @require      https://cdn.jsdelivr.net/gh/blueimp/JavaScript-MD5/js/md5.min.js
 // @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/base64js.min.js
-// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/vple.min.js
+// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/vplev5.min.js
 // ==/UserScript==
 
 var vanGmMzModel = {
@@ -1639,6 +1639,7 @@ var vanGmMz = {
     ,
     ShowMatchResult: function (type, matchId) {
         this.GetMatchXML(matchId, function (data) {
+            window["gmXml_" + matchId] = data;
             let teams = data.documentElement.getElementsByTagName("Team");
             let homeT = teams[0];
             let awayT = teams[1];
@@ -1720,7 +1721,15 @@ var vanGmMz = {
                         }
                         trclass = !trclass;
                     }
-                    timeline.find("tr:first").before("<tr class='gm_timeline " + (trclass ? "even" : "odd") + "'><td align='right' width='50%'><span style='white-space: nowrap'><strong>" + homeT.getAttribute("tactic") + "</strong><strong>" + homeT.getAttribute("playstyle") + "</strong><strong>" + homeT.getAttribute("aggression") + "</strong></span></td><td align='center' valign='middle' width='40'><strong class='time'>0'</strong></td><td align='left' width='50%'><span style='white-space: nowrap'><strong>" + awayT.getAttribute("tactic") + "</strong><strong>" + awayT.getAttribute("playstyle") + "</strong><strong>" + awayT.getAttribute("aggression") + "</strong></span></td></tr>");
+                    timeline.find("tr:first").before("<tr class='gm_timeline " + (trclass ? "even" : "odd") + "'><td align='right' width='50%'><span style='white-space: nowrap'><strong>" + homeT.getAttribute("tactic") + "</strong><strong>" + homeT.getAttribute("playstyle") + "</strong><strong>" + homeT.getAttribute("aggression") + "</strong><p><a href='javascript:void(0);' id='gm_copy_r1'>" + vanGmMz.now_language.Copyxml1 + "</a></p></span></td><td align='center' valign='middle' width='40'><strong class='time'>0'</strong></td><td align='left' width='50%'><span style='white-space: nowrap'><strong>" + awayT.getAttribute("tactic") + "</strong><strong>" + awayT.getAttribute("playstyle") + "</strong><strong>" + awayT.getAttribute("aggression") + "</strong><p><a href='javascript:void(0);' id='gm_copy_r2'>" + vanGmMz.now_language.Copyxml2 + "</a></p></span></td></tr>");
+                    $('#gm_copy_r1')[0].addEventListener('click', function () {
+                        vanGmMz.CopyXML(matchId, true);
+                        return false;
+                    });
+                    $('#gm_copy_r2')[0].addEventListener('click', function () {
+                        vanGmMz.CopyXML(matchId, false);
+                        return false;
+                    });
                 }
             }
         });
@@ -1728,34 +1737,45 @@ var vanGmMz = {
     ,
     GetMatchXML: function (matchId, callback) {
         let midurl = "https://www.managerzone.com/matchviewer/getMatchFiles.php?type=stats&mid=" + matchId + "&sport=soccer";
-        var _overlay = this;
-        this.prepareMatch = function () {
-            $.getJSON(mz.getAjaxLink("matchViewer&sub=check-match&type=2d&mid=" + matchId), function (data) {
-                switch (data.response) {
-                    case "ok":
-                        vple.ajax(
-                            midurl,
-                            function (data) {
-                                callback(data);
-                            }, 1, false);
-                        break;
-                    case "queued":
-                        _overlay.tryCounter++;
-                        if (_overlay.tryCounter > 5) {
-                            return false;
-                        }
-                        setTimeout(function () { _overlay.prepareMatch(); }, 3000);
-                        break;
-                    case "walkover":
-                    case "blocked":
-                    case "error":
-                        return false;
-                }
-            });
-        };
 
-        this.tryCounter = 1;
-        this.prepareMatch();
+        var _overlay = this;
+        vple.getLocValue(midurl, function (flag, tdata) {
+            if (flag) {
+                let data = $.parseXML(tdata);
+                return callback(data);
+            } else {
+
+                _overlay.prepareMatch = function () {
+                    $.getJSON(mz.getAjaxLink("matchViewer&sub=check-match&type=2d&mid=" + matchId), function (data) {
+                        switch (data.response) {
+                            case "ok":
+                                vple.ajax(
+                                    midurl,
+                                    function (tdata) {
+                                        let data = $.parseXML(tdata);
+                                        return callback(data);
+                                    }, 1, false);
+                                break;
+                            case "queued":
+                                _overlay.tryCounter++;
+                                if (_overlay.tryCounter > 5) {
+                                    return false;
+                                }
+                                setTimeout(function () { _overlay.prepareMatch(); }, 3000);
+                                break;
+                            case "walkover":
+                            case "blocked":
+                            case "error":
+                                return false;
+                        }
+                    });
+                };
+
+                _overlay.tryCounter = 1;
+                _overlay.prepareMatch();
+            }
+        }, 1, false);
+
     }
     ,
     //GraphsType 0 自动模式 1 强制训练图 2 星级球员显示最大值
@@ -1901,7 +1921,7 @@ var vanGmMz = {
                 let away = MyGame.prototype.mzlive.m_match.getAwayTeam();
 
                 if (home != null && away != null) {
-
+                    window["gmXml_" + MyGame.prototype.mzlive.m_match.m_matchId] = $.parseXML(window.matchLoader.matchXml.xmlText);
                     let nl = window.matchLoader.matchXml.documentElement.evaluate('Periods/*');
                     let p;
                     while (p = nl.iterateNext()) {
@@ -2084,11 +2104,11 @@ var vanGmMz = {
                         });
 
                         $('#gw_copyxml1')[0].addEventListener('click', function () {
-                            vanGmMz.CopyXML(true);
+                            vanGmMz.CopyXML(MyGame.prototype.mzlive.m_match.m_matchId, true);
 
                         });
                         $('#gw_copyxml2')[0].addEventListener('click', function () {
-                            vanGmMz.CopyXML(false);
+                            vanGmMz.CopyXML(MyGame.prototype.mzlive.m_match.m_matchId, false);
                         });
                         $('#gw_test')[0].addEventListener('click', function () {
 
@@ -2339,17 +2359,17 @@ var vanGmMz = {
         return ret;
     }
     ,
-    CopyXML: function (ishome) {
+    CopyXML: function (mid, ishome) {
 
         let xml_mode = GM_getValue("xml_mode", 0);
         if (xml_mode == 0) {
             vanGmMz.getMax(function () {
-                let tmpXML = vanGmMz.Stats2XML(ishome, vanGmMz.pmax);
+                let tmpXML = vanGmMz.Stats2XML(mid, ishome, vanGmMz.pmax);
                 GM_setClipboard(tmpXML);
                 alert(vanGmMz.now_language.CopyXmlMsg);
             });
         } else {
-            let tmpXML = vanGmMz.Stats2XML(ishome);
+            let tmpXML = vanGmMz.Stats2XML(mid, ishome);
             vanGmMz.GetPlayerHtmlByEn(2, true, function (data2) {
                 //
                 let myData = new FormData();
@@ -2378,14 +2398,15 @@ var vanGmMz = {
         }
     }
     ,
-    Stats2XML: function (ishome, players) {
+    Stats2XML: function (mid, ishome, players) {
 
-        let team;
-        if (ishome) {
-            team = MyGame.prototype.mzlive.m_match.getHomeTeam();
-        } else {
-            team = MyGame.prototype.mzlive.m_match.getAwayTeam();
+
+        let data = window["gmXml_" + mid];
+        if (!data) {
+            return "";
         }
+        let teams = data.documentElement.getElementsByTagName("Team");
+        let team = ishome ? teams[0] : teams[1];
 
         let pidArr = new Array();
         if (players) {
@@ -2397,18 +2418,17 @@ var vanGmMz = {
             pidArr.push(0);
         }
 
-        let pl;
-        let nl = window.matchLoader.matchXml.documentElement.evaluate('Player');
-        let tmpXML = "<?xml version=\"1.0\" ?>" + "\r\n<SoccerTactics>\r\n\t<Team tactics=" + "\"" + team.getTactics() + "\" playstyle=\"" + team.getPlayStyle() + "\" aggression=\"" + team.getAggression() + "\" />\r\n"
+        let tmpXML = "<?xml version=\"1.0\" ?>" + "\r\n<SoccerTactics>\r\n\t<Team tactics=" + "\"" + team.getAttribute("tactic") + "\" playstyle=\"" + team.getAttribute("playstyle") + "\" aggression=\"" + team.getAttribute("aggression") + "\" />\r\n"
             + "\t<Pos pos=\"goalie\" pid=\"" + pidArr.shift() + "\" x=\"103\" y=\"315\" x1=\"103\" y1=\"315\" x2=\"103\" y2=\"315\" pt=\"15\" fk=\"15\" />\r\n";
 
-
-        while (pl = nl.iterateNext()) {
+        let players_xml = data.documentElement.getElementsByTagName('Player');
+        for (var i = 0; i < players_xml.length; i++) {
+            let pl = players_xml[i];
             let origin = pl.getAttribute('origin');
             let teamId = pl.getAttribute("teamId");
             if (origin != "" && origin != "375,0" && origin != "375,1000") {
                 let arr = origin.split(",");
-                if (team.getId() == teamId) {
+                if (team.getAttribute("id") == teamId) {
                     let x = vanGmMz.StatsToPos_X(arr[0], ishome);
                     let y = vanGmMz.StatsToPos_Y(arr[1], ishome);
                     tmpXML += "\t<Pos pos=\"normal\" pid=\"" + pidArr.shift() + "\" x=\"" + x + "\" y=\"" + y + "\" x1=\"" + x + "\" y1=\"" + y + "\" x2=\"" + x + "\" y2=\"" + y + "\" pt=\"1\" fk=\"1\" />\r\n";
