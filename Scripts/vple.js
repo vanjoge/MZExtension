@@ -758,6 +758,33 @@
 
 var vple = {
     cacheItem: new vpleModel.cacheByIDB(),
+    getLocValue: function (url, callback, cache_mode, Cjson) {
+        var nowcacheItem = this.cacheItem;
+        nowcacheItem.getLocValue(url, cache_mode, function (b64) {
+            if (b64) {
+                let tdata;
+                if (b64.startsWith("H4sIAA")) {
+                    if (Cjson) {
+                        tdata = "9" + b64;
+                    } else {
+                        tdata = pako.ungzip(base64js.toByteArray(b64), { to: 'string' });
+                    }
+                } else {
+                    if (Cjson) {
+                        tdata = "9" + base64js.fromByteArray(pako.gzip(b64));
+                    } else {
+                        tdata = b64;
+                    }
+                }
+                if (callback(true, tdata)) {
+                    nowcacheItem.clearCacheItem(url);
+                }
+            } else {
+                callback(false);
+            }
+        });
+    }
+    ,
     ajax: function (url, callback, cache_mode, Cjson) {
         if (cache_mode == undefined) {
             cache_mode = 2;
@@ -765,25 +792,9 @@ var vple = {
         }
         var nowcacheItem = this.cacheItem;
         if (cache_mode > 0) {
-            nowcacheItem.getLocValue(url, cache_mode, function (b64) {
-                if (b64) {
-                    let tdata;
-                    if (b64.startsWith("H4sIAA")) {
-                        if (Cjson) {
-                            tdata = "9" + b64;
-                        } else {
-                            tdata = pako.ungzip(base64js.toByteArray(b64), { to: 'string' });
-                        }
-                    } else {
-                        if (Cjson) {
-                            tdata = "9" + base64js.fromByteArray(pako.gzip(b64));
-                        } else {
-                            tdata = b64;
-                        }
-                    }
-                    if (callback(tdata, true)) {
-                        nowcacheItem.clearCacheItem(url);
-                    }
+            this.getLocValue(url, function (flag, tdata) {
+                if (flag) {
+                    return callback(tdata, true);
                 } else {
                     $.ajax({
                         type: "GET",
@@ -805,7 +816,8 @@ var vple = {
                         }
                     });
                 }
-            });
+
+            }, cache_mode, Cjson);
         } else {
 
             $.ajax({
