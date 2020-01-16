@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.9
+// @version      4.10
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -1234,7 +1234,8 @@ var vanGmMz = {
         vple.ajax(
             url,
             function (data) {
-                if ($("a[href$='" + pid + "']").length == 0) {
+
+                if (pdom.find("a[href$='" + pid + "']").length == 0 && pdom.find("#player_id_" + pid).length == 0) {
                     return;
                 }
                 let srdom = $($.parseHTML(data));
