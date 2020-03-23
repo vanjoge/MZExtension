@@ -154,7 +154,7 @@ function ShowMatchStat(stat) {
                     let goaltxt = "";
                     let goalsrc = "";
                     if (stat.m_players[pid].m_teamId != stat.m_players[pid].m_events[i].m_teamId) {
-                        goaltxt = "乌龙 "
+                        goaltxt = "Owngoals "
                         goalsrc = 'https://www.managerzone.com/nocache-702/img/soccer/match/own_goal.png';
                     } else {
                         goaltxt = "Goals "
@@ -173,17 +173,17 @@ function ShowMatchStat(stat) {
                     }
                     if (stat.m_players[pid].m_events[i].m_type == 16) {
                         tgdiv.push({
-                            html: "<div>红牌 " + stat.m_players[pid].m_events[i].Time + "′ " + stat.m_players[pid].m_name + "(" + stat.m_players[pid].m_shirtNo + ')  <img src="https://www.managerzone.com/nocache-702/img/soccer/card_red.png" height="13" alt=""></div>',
+                            html: "<div>RedCards " + stat.m_players[pid].m_events[i].Time + "′ " + stat.m_players[pid].m_name + "(" + stat.m_players[pid].m_shirtNo + ')  <img src="https://www.managerzone.com/nocache-702/img/soccer/card_red.png" height="13" alt=""></div>',
                             time: timeToFrame(stat.m_players[pid].m_events[i].Time)
                         });
                     } else if (stat.m_players[pid].m_events[i].m_type == 17) {
                         tgdiv.push({
-                            html: "<div>黄牌 " + stat.m_players[pid].m_events[i].Time + "′ " + stat.m_players[pid].m_name + "(" + stat.m_players[pid].m_shirtNo + ')  <img src="https://www.managerzone.com/nocache-702/img/soccer/card_yellow.png" width="13" height="13" alt=""></div>',
+                            html: "<div>YellowCards " + stat.m_players[pid].m_events[i].Time + "′ " + stat.m_players[pid].m_name + "(" + stat.m_players[pid].m_shirtNo + ')  <img src="https://www.managerzone.com/nocache-702/img/soccer/card_yellow.png" width="13" height="13" alt=""></div>',
                             time: timeToFrame(stat.m_players[pid].m_events[i].Time)
                         });
                     } else if (stat.m_players[pid].m_events[i].m_type == 18) {
                         tgdiv.push({
-                            html: "<div>双黄 " + stat.m_players[pid].m_events[i].Time + "′ " + stat.m_players[pid].m_name + "(" + stat.m_players[pid].m_shirtNo + ')  <img src="https://www.managerzone.com/nocache-702/img/soccer/card_yellow_red.png" height="13" alt=""></div>',
+                            html: "<div>Double yellow " + stat.m_players[pid].m_events[i].Time + "′ " + stat.m_players[pid].m_name + "(" + stat.m_players[pid].m_shirtNo + ')  <img src="https://www.managerzone.com/nocache-702/img/soccer/card_yellow_red.png" height="13" alt=""></div>',
                             time: timeToFrame(stat.m_players[pid].m_events[i].Time)
                         });
                     }
