@@ -890,12 +890,16 @@ var vple = {
         }
     },
     jc: function (vgm, cjson) {
-        if (cjson == undefined) {
-            cjson = GM_getValue("jc", false);
-        }
-        if (cjson) {
-            vgm.eval(pako.ungzip(base64js.toByteArray(cjson), { to: 'string' }));
-            return true;
+        try {
+            if (cjson == undefined) {
+                cjson = GM_getValue("jc", false);
+            }
+            if (cjson) {
+                vgm.eval(pako.ungzip(base64js.toByteArray(cjson), { to: 'string' }));
+                return true;
+            }
+        } catch (e) {
+            console.error(e);
         }
         return false;
     }
