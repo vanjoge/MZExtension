@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.10
+// @version      4.11
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -39,6 +39,9 @@ var vanGmMzModel = {
             AutoRun: "自动着色",
             AutoRun0: "仅打开页面时自动执行一次",
             AutoRun1: "随系统刷新自动着色(如果浏览器变卡请关闭此选项)",
+
+            Pay: "如果你觉得好用，可通过打赏支持作者。",
+
 
 
             NotSureEx: "挂牌后属性可能有变动，不确定转会市场显示是否是真实属性，请自行甄别。<br/>属性变动时间",
@@ -175,6 +178,7 @@ var vanGmMzModel = {
             AutoRun: "Auto Colorable",
             AutoRun0: "By page loaded(Once)",
             AutoRun1: "By MZ Refresh",
+            Pay: "Support the author.",
 
             NotSureEx: "Skills may change after entering the transfer market.<br/>Change time ",
             NotSure: "Uncertain skill",
@@ -310,6 +314,7 @@ var vanGmMzModel = {
             AutoRun: "Auto Coloreable",
             AutoRun0: "Por página cargada (sólo una vez)",
             AutoRun1: "Por recargar MZ",
+            Pay: "Apoya al autor.",
 
             NotSureEx: "Las skills pueden cambiar después de ingresar al mercado. <br/> Cambiar hora ",
             NotSure: "Skill incierta",
@@ -442,6 +447,7 @@ var vanGmMzModel = {
             AutoRun: "Auto Colorir",
             AutoRun0: "Por página carregada(Uma vez)",
             AutoRun1: "Recarregada do MZ",
+            Pay: "Apoie o autor.",
 
             NotSureEx: "Habilidades podem mudar depois de entrar no mercado de transferências.<br/>Hora da mudança ",
             NotSure: "Habilidade incerta",
@@ -913,6 +919,7 @@ var vanGmMz = {
     ,
     pmax: {},
     trainingInfo: {},
+    vv: "",
 
     getMax: function (callback) {
         vple.ajax(
@@ -1846,10 +1853,15 @@ var vanGmMz = {
 <a href="javascript:void(0);" class="mzbtn buttondiv button_account" id="gm_setting_clear">\
 <span class="buttonClassMiddle"><span style="white-space: nowrap">'+ vanGmMz.now_language.Clear + '</span></span><span class="buttonClassRight">&nbsp;</span>\
 </a>\
+<hr>'+ vanGmMz.now_language.Pay + '<div>PayPal:</div>\
+<b>wjj58201@163.com</b>\
+<hr>\
+支付宝扫码:   \
+<img style="width: 150px;" src="http://sgj.budeng.win:852/img/zfb.png">\
 </div>\
 ';
 
-        showHelpLayer(tmphtml, vanGmMz.now_language.Setting + " v" + GM_info.script.version, true);
+        showHelpLayer(tmphtml, vanGmMz.now_language.Setting + " v" + GM_info.script.version + vanGmMz.vv, true);
         $("#txtTacConf").val(GM_getValue("TacConf", ""));
         $("#gm_setting_save")[0].addEventListener('click', function () {
             vanGmMz.setLanguage($("#gm_language").val());
