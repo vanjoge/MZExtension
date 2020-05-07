@@ -855,6 +855,13 @@ var vanGmMzModel = {
         b: "data:image/gif;base64,R0lGODlhDAAKAJEDAP///5mZmQAAAP///yH5BAEAAAMALAAAAAAMAAoAAAIk3CIpYZ0BABJtxvjMgojTIVwKpl0dCQbQJX3T+jpLNDXGlDUFADs=",
         p: "data:image/gif;base64,R0lGODlhDAAKAJEDAP///5lm/5kzzP///yH5BAEAAAMALAAAAAAMAAoAAAIk3CIpYZ0BABJtxvjMgojTIVwKpl0dCQbQJX3T+jpLNDXGlDUFADs=",
         x: "data:image/gif;base64,R0lGODlhBgAKAJEDAJnMZpmZmQAAAP///yH5BAEAAAMALAAAAAAGAAoAAAIRXCRhApAMgoPtVXXS2Lz73xUAOw=="
+    },
+    hImg: {
+        g: "data:image/gif;base64,R0lGODlhDAAKAJEDAGZmzDMzzAAA/////yH5BAEAAAMALAAAAAAMAAoAAAIg3CAZYJ2fmAnwLVOhzG/zO3ACEBgktASlCbSn0ExoXAAAOw==",
+        r: "data:image/gif;base64,R0lGODlhDAAKAJEDAP8AAMxmZswzM////yH5BAEAAAMALAAAAAAMAAoAAAIg3AIpYZ2fmBHwLVOhzG/zO3BAIAWUZQqGSZJnc5wKXAAAOw==",
+        b: "data:image/gif;base64,R0lGODlhDAAKAKIFAMzMzJmZmWZmZjMzMwAAAP///wAAAAAAACH5BAEAAAUALAAAAAAMAAoAAAMnWAVEI0DJRl1UoVKoNB2X14CdKATK4IGDAgiqA51SANxAoEpYhUoJADs=",
+        p: "data:image/gif;base64,R0lGODlhDAAKAJEDAMyZzJkzzJkzmf///yH5BAEAAAMALAAAAAAMAAoAAAIg3BQpYJ2vGoKPDQotrmbHuwmCAUwKMg7lsiaNagapUQAAOw==",
+        x: "data:image/gif;base64,R0lGODlhBgAKAJEDAJnMZpmZmQAAAP///yH5BAEAAAMALAAAAAAGAAoAAAIRXCRhApAMgoPtVXXS2Lz73xUAOw=="
     }
     ,
     //以下为2D比赛辅助
@@ -914,7 +921,7 @@ var vanGmMzModel = {
 };
 
 var vanGmMz = {
-
+    now_sport: "soccer",
     now_language: vanGmMzModel.language.en
     ,
     pmax: {},
@@ -923,7 +930,7 @@ var vanGmMz = {
 
     getMax: function (callback) {
         vple.ajax(
-            "/?p=training",
+            "/?p=training&sport=" + vanGmMz.now_sport,
             function (data) {
                 let result = data.match(vanGmMzModel.mzreg.playerMax);
                 if (result) {
@@ -982,18 +989,22 @@ var vanGmMz = {
             }
         }
         let strdiv = "<div class='skill' style='font-size:0;padding: 0 0 0 4px;'>";
+        let tmpImg = vanGmMzModel.mzImg;
+        if (vanGmMz.now_sport != "soccer") {
+            tmpImg = vanGmMzModel.hImg;
+        }
         for (let i = 0; i < skill; i++) {
             if (maxed === "red") {
-                strdiv += "<img src='" + vanGmMzModel.mzImg.r + "'>";
+                strdiv += "<img src='" + tmpImg.r + "'>";
             }
             else if (maxed === "green") {
-                strdiv += "<img src='" + vanGmMzModel.mzImg.g + "'>";
+                strdiv += "<img src='" + tmpImg.g + "'>";
             } else {
-                strdiv += "<img src='" + vanGmMzModel.mzImg.b + "'>";
+                strdiv += "<img src='" + tmpImg.b + "'>";
             }
         }
         if (/blevel_/.test(img.src)) {
-            strdiv += "<img src='" + vanGmMzModel.mzImg.x + "'>";
+            strdiv += "<img src='" + tmpImg.x + "'>";
         }
         strdiv += "</div>";
         $(img).hide();
@@ -1011,22 +1022,36 @@ var vanGmMz = {
             let imgs = pdom.find("img.skill");
 
             if (GraphsType == 0 && player) {
-                if (isNaN(parseInt(player.skills.speed))) {
+                if (isNaN(parseInt(player.skills.stamina))) {
                     for (let j = 0; j < imgs.length; j++) {
                         vanGmMz.setSrc(false, imgs[j], parseInt(imgs[j].src.match(vanGmMzModel.mzreg.img_val)[1]), "");
                     }
                 } else {
-                    vanGmMz.setSrc(false, imgs[0], player.skills.speed, player.maxed.speed);
-                    vanGmMz.setSrc(false, imgs[1], player.skills.stamina, player.maxed.stamina);
-                    vanGmMz.setSrc(false, imgs[2], player.skills.gameintelligence, player.maxed.gameintelligence);
-                    vanGmMz.setSrc(false, imgs[3], player.skills.passing, player.maxed.passing);
-                    vanGmMz.setSrc(false, imgs[4], player.skills.shooting, player.maxed.shooting);
-                    vanGmMz.setSrc(false, imgs[5], player.skills.heading, player.maxed.heading);
-                    vanGmMz.setSrc(false, imgs[6], player.skills.goalkeeping, player.maxed.goalkeeping);
-                    vanGmMz.setSrc(false, imgs[7], player.skills.technique, player.maxed.technique);
-                    vanGmMz.setSrc(false, imgs[8], player.skills.tackling, player.maxed.tackling);
-                    vanGmMz.setSrc(false, imgs[9], player.skills.highpassing, player.maxed.highpassing);
-                    vanGmMz.setSrc(false, imgs[10], player.skills.situations, player.maxed.situations);
+
+                    if (vanGmMz.now_sport == "soccer") {
+                        vanGmMz.setSrc(false, imgs[0], player.skills.speed, player.maxed.speed);
+                        vanGmMz.setSrc(false, imgs[1], player.skills.stamina, player.maxed.stamina);
+                        vanGmMz.setSrc(false, imgs[2], player.skills.gameintelligence, player.maxed.gameintelligence);
+                        vanGmMz.setSrc(false, imgs[3], player.skills.passing, player.maxed.passing);
+                        vanGmMz.setSrc(false, imgs[4], player.skills.shooting, player.maxed.shooting);
+                        vanGmMz.setSrc(false, imgs[5], player.skills.heading, player.maxed.heading);
+                        vanGmMz.setSrc(false, imgs[6], player.skills.goalkeeping, player.maxed.goalkeeping);
+                        vanGmMz.setSrc(false, imgs[7], player.skills.technique, player.maxed.technique);
+                        vanGmMz.setSrc(false, imgs[8], player.skills.tackling, player.maxed.tackling);
+                        vanGmMz.setSrc(false, imgs[9], player.skills.highpassing, player.maxed.highpassing);
+                        vanGmMz.setSrc(false, imgs[10], player.skills.situations, player.maxed.situations);
+                    } else {
+                        vanGmMz.setSrc(false, imgs[1], player.skills.gameintelligence, player.maxed.gameintelligence);
+                        vanGmMz.setSrc(false, imgs[2], player.skills.power, player.maxed.power);
+                        vanGmMz.setSrc(false, imgs[3], player.skills.skating, player.maxed.skating);
+                        vanGmMz.setSrc(false, imgs[4], player.skills.passing, player.maxed.passing);
+                        vanGmMz.setSrc(false, imgs[5], player.skills.quickness, player.maxed.quickness);
+                        vanGmMz.setSrc(false, imgs[6], player.skills.shooting, player.maxed.shooting);
+                        vanGmMz.setSrc(false, imgs[7], player.skills.goalkeeping, player.maxed.goalkeeping);
+                        vanGmMz.setSrc(false, imgs[8], player.skills.puckcontrol, player.maxed.puckcontrol);
+                        vanGmMz.setSrc(false, imgs[9], player.skills.checking, player.maxed.checking);
+                        vanGmMz.setSrc(false, imgs[10], player.skills.stamina, player.maxed.stamina);
+                    }
                 }
                 if (pdom.find(".scout_report").length > 0) {
                     vanGmMz.getScoutReport(pid, pdom);
@@ -1048,14 +1073,23 @@ var vanGmMz = {
     ,
     drawPlayerByTrainingGraphs: function (pid, data, pdom) {
         let imgs = pdom.find("img.skill");
+
         var series = undefined;
         eval(data);
         if (series == undefined) {
             return false;
         }
-        let maxeds = ["green", "green", "green", "green", "green", "green", "green", "green", "green", "green", "green"];
-        let skillBallDays = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-        let allSkillTraining_tmp = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        let maxeds, skillBallDays, allSkillTraining_tmp;
+        if (vanGmMz.now_sport == "soccer") {
+            maxeds = ["green", "green", "green", "green", "green", "green", "green", "green", "green", "green", "green"];
+            skillBallDays = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+            allSkillTraining_tmp = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        } else {
+            imgs.splice(0, 1);
+            maxeds = ["green", "green", "green", "green", "green", "green", "green", "green", "green", "green"];
+            skillBallDays = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+            allSkillTraining_tmp = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        }
         let camp = new vanGmMzModel.mzcamp();
 
         let NowSeasonInfo = vanGmMz.D_GetNowSeasonInfo(xPlotLines);
@@ -1110,7 +1144,7 @@ var vanGmMz = {
                                 if (allSkillTraining_tmp[index].neg == undefined) {
                                     allSkillTraining_tmp[index].neg = new Array();
                                 }
-                                if (/_ball/.test(g.marker.symbol)) {
+                                if (/_ball/.test(g.marker.symbol) || /_puck/.test(g.marker.symbol)) {
                                     if (skillBallDays[index] < g.x) {
                                         skillBallDays[index] = g.x;
                                         playerTS = new vanGmMzModel.playerTrainingBySkill();
@@ -1125,7 +1159,7 @@ var vanGmMz = {
                                 }
                             } else {
                                 playerTS = allSkillTraining_tmp[index][allSkillTraining_tmp[index].length - 1];
-                                if (/_ball/.test(g.marker.symbol)) {
+                                if (/_ball/.test(g.marker.symbol) || /_puck/.test(g.marker.symbol)) {
                                     if (skillBallDays[index] < g.x) {
                                         skillBallDays[index] = g.x;
                                         playerTS.ballDay = g.x;
@@ -1232,10 +1266,10 @@ var vanGmMz = {
     ,
 
     getScoutReport: function (pid, pdom, showMB) {
-        let url = "/ajax.php?p=players&sub=scout_report&pid=" + pid + "&sport=soccer";
+        let url = "/ajax.php?p=players&sub=scout_report&pid=" + pid + "&sport=" + vanGmMz.now_sport;
         let cache_mode = 1;
         if (pdom.find("#discard_youth_button").length) {
-            url = "/ajax.php?p=players&sub=scout_report&pid=null&sport=soccer";
+            url = "/ajax.php?p=players&sub=scout_report&pid=null&sport=" + vanGmMz.now_sport;
             cache_mode = 0;
         }
         vple.ajax(
@@ -1459,7 +1493,7 @@ var vanGmMz = {
     ,
     getTrainingGraphs: function (pid, pdom, GraphsType) {
         vple.ajax(
-            "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=soccer&player_id=" + pid,
+            "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=" + vanGmMz.now_sport + "&player_id=" + pid,
             function (data) {
                 if (data == "") {
                     return true;
@@ -1475,7 +1509,7 @@ var vanGmMz = {
 
     getTrainingGraphsBySkill_id: function (pid, skill_id, callback) {
         vple.ajax(
-            "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=soccer&player_id=" + pid + "&skill_id=" + (skill_id + 2),
+            "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=" + vanGmMz.now_sport + "&player_id=" + pid + "&skill_id=" + (skill_id + 2),
             function (data) {
                 return !callback(data);
             });
@@ -1747,7 +1781,7 @@ var vanGmMz = {
     }
     ,
     GetMatchXML: function (matchId, callback) {
-        let midurl = "https://www.managerzone.com/matchviewer/getMatchFiles.php?type=stats&mid=" + matchId + "&sport=soccer";
+        let midurl = "https://www.managerzone.com/matchviewer/getMatchFiles.php?type=stats&mid=" + matchId + "&sport=" + vanGmMz.now_sport;
 
         var _overlay = this;
         vple.getLocValue(midurl, function (flag, tdata) {
@@ -1907,16 +1941,16 @@ var vanGmMz = {
     GetPlayerHtmlByEn: function (mode, Cjson, callback) {
         var plang = $("meta[name=language]").attr("content");
         if (plang != "en") {
-            $.get("/ajax.php?p=settings&sub=lang&sport=soccer&lang=en", function (data, status) {
+            $.get("/ajax.php?p=settings&sub=lang&sport=" + vanGmMz.now_sport + "&lang=en", function (data, status) {
             });
         }
         vple.ajax(
-            "/?p=players",
+            "/?p=players&sport=" + vanGmMz.now_sport,
             function (data) {
                 callback(data);
             }, mode, Cjson);
         if (plang != "en") {
-            $.get("/ajax.php?p=settings&sub=lang&sport=soccer&lang=" + plang, function (data, status) {
+            $.get("/ajax.php?p=settings&sub=lang&sport=" + vanGmMz.now_sport + "&lang=" + plang, function (data, status) {
             });
         }
     }
@@ -2585,6 +2619,13 @@ var vanGmMz = {
                 }
             }
             vple.report(this);
+            vgm.gw_start(0);
+            vple.autoclearCache();
+        }
+        else if (ajaxSport == "hockey") {
+            let vgm = this;
+            vgm.now_sport = "hockey";
+            vgm.initgw();
             vgm.gw_start(0);
             vple.autoclearCache();
         }
