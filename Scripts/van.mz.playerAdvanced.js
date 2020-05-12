@@ -1022,37 +1022,7 @@ var vanGmMz = {
             let imgs = pdom.find("img.skill");
 
             if (GraphsType == 0 && player) {
-                if (isNaN(parseInt(player.skills.stamina))) {
-                    for (let j = 0; j < imgs.length; j++) {
-                        vanGmMz.setSrc(false, imgs[j], parseInt(imgs[j].src.match(vanGmMzModel.mzreg.img_val)[1]), "");
-                    }
-                } else {
-
-                    if (vanGmMz.now_sport == "soccer") {
-                        vanGmMz.setSrc(false, imgs[0], player.skills.speed, player.maxed.speed);
-                        vanGmMz.setSrc(false, imgs[1], player.skills.stamina, player.maxed.stamina);
-                        vanGmMz.setSrc(false, imgs[2], player.skills.gameintelligence, player.maxed.gameintelligence);
-                        vanGmMz.setSrc(false, imgs[3], player.skills.passing, player.maxed.passing);
-                        vanGmMz.setSrc(false, imgs[4], player.skills.shooting, player.maxed.shooting);
-                        vanGmMz.setSrc(false, imgs[5], player.skills.heading, player.maxed.heading);
-                        vanGmMz.setSrc(false, imgs[6], player.skills.goalkeeping, player.maxed.goalkeeping);
-                        vanGmMz.setSrc(false, imgs[7], player.skills.technique, player.maxed.technique);
-                        vanGmMz.setSrc(false, imgs[8], player.skills.tackling, player.maxed.tackling);
-                        vanGmMz.setSrc(false, imgs[9], player.skills.highpassing, player.maxed.highpassing);
-                        vanGmMz.setSrc(false, imgs[10], player.skills.situations, player.maxed.situations);
-                    } else {
-                        vanGmMz.setSrc(false, imgs[1], player.skills.gameintelligence, player.maxed.gameintelligence);
-                        vanGmMz.setSrc(false, imgs[2], player.skills.power, player.maxed.power);
-                        vanGmMz.setSrc(false, imgs[3], player.skills.skating, player.maxed.skating);
-                        vanGmMz.setSrc(false, imgs[4], player.skills.passing, player.maxed.passing);
-                        vanGmMz.setSrc(false, imgs[5], player.skills.quickness, player.maxed.quickness);
-                        vanGmMz.setSrc(false, imgs[6], player.skills.shooting, player.maxed.shooting);
-                        vanGmMz.setSrc(false, imgs[7], player.skills.goalkeeping, player.maxed.goalkeeping);
-                        vanGmMz.setSrc(false, imgs[8], player.skills.puckcontrol, player.maxed.puckcontrol);
-                        vanGmMz.setSrc(false, imgs[9], player.skills.checking, player.maxed.checking);
-                        vanGmMz.setSrc(false, imgs[10], player.skills.stamina, player.maxed.stamina);
-                    }
-                }
+                this.setPlayerImgs(imgs, player);
                 if (pdom.find(".scout_report").length > 0) {
                     vanGmMz.getScoutReport(pid, pdom);
                 }
@@ -1071,6 +1041,40 @@ var vanGmMz = {
         return false;
     }
     ,
+
+    setPlayerImgs: function (imgs, player) {
+        if (isNaN(parseInt(player.skills.stamina))) {
+            for (let j = 0; j < imgs.length; j++) {
+                vanGmMz.setSrc(false, imgs[j], parseInt(imgs[j].src.match(vanGmMzModel.mzreg.img_val)[1]), "");
+            }
+        } else {
+            if (vanGmMz.now_sport == "soccer") {
+                vanGmMz.setSrc(false, imgs[0], player.skills.speed, player.maxed.speed);
+                vanGmMz.setSrc(false, imgs[1], player.skills.stamina, player.maxed.stamina);
+                vanGmMz.setSrc(false, imgs[2], player.skills.gameintelligence, player.maxed.gameintelligence);
+                vanGmMz.setSrc(false, imgs[3], player.skills.passing, player.maxed.passing);
+                vanGmMz.setSrc(false, imgs[4], player.skills.shooting, player.maxed.shooting);
+                vanGmMz.setSrc(false, imgs[5], player.skills.heading, player.maxed.heading);
+                vanGmMz.setSrc(false, imgs[6], player.skills.goalkeeping, player.maxed.goalkeeping);
+                vanGmMz.setSrc(false, imgs[7], player.skills.technique, player.maxed.technique);
+                vanGmMz.setSrc(false, imgs[8], player.skills.tackling, player.maxed.tackling);
+                vanGmMz.setSrc(false, imgs[9], player.skills.highpassing, player.maxed.highpassing);
+                vanGmMz.setSrc(false, imgs[10], player.skills.situations, player.maxed.situations);
+            }
+            else {
+                vanGmMz.setSrc(false, imgs[1], player.skills.gameintelligence, player.maxed.gameintelligence);
+                vanGmMz.setSrc(false, imgs[2], player.skills.power, player.maxed.power);
+                vanGmMz.setSrc(false, imgs[3], player.skills.skating, player.maxed.skating);
+                vanGmMz.setSrc(false, imgs[4], player.skills.passing, player.maxed.passing);
+                vanGmMz.setSrc(false, imgs[5], player.skills.quickness, player.maxed.quickness);
+                vanGmMz.setSrc(false, imgs[6], player.skills.shooting, player.maxed.shooting);
+                vanGmMz.setSrc(false, imgs[7], player.skills.goalkeeping, player.maxed.goalkeeping);
+                vanGmMz.setSrc(false, imgs[8], player.skills.puckcontrol, player.maxed.puckcontrol);
+                vanGmMz.setSrc(false, imgs[9], player.skills.checking, player.maxed.checking);
+                vanGmMz.setSrc(false, imgs[10], player.skills.stamina, player.maxed.stamina);
+            }
+        }
+    },
     drawPlayerByTrainingGraphs: function (pid, data, pdom) {
         let imgs = pdom.find("img.skill");
 
@@ -2519,23 +2523,8 @@ var vanGmMz = {
                 let imgs = pdom.find("img.skill");
 
                 if (player) {
-                    if (isNaN(parseInt(player.skills.speed))) {
-                        for (let j = 0; j < imgs.length; j++) {
-                            vanGmMz.setSrc(false, imgs[j], parseInt(imgs[j].src.match(vanGmMzModel.mzreg.img_val)[1]), "");
-                        }
-                    } else {
-                        vanGmMz.setSrc(false, imgs[0], player.skills.speed, player.maxed.speed);
-                        vanGmMz.setSrc(false, imgs[1], player.skills.stamina, player.maxed.stamina);
-                        vanGmMz.setSrc(false, imgs[2], player.skills.gameintelligence, player.maxed.gameintelligence);
-                        vanGmMz.setSrc(false, imgs[3], player.skills.passing, player.maxed.passing);
-                        vanGmMz.setSrc(false, imgs[4], player.skills.shooting, player.maxed.shooting);
-                        vanGmMz.setSrc(false, imgs[5], player.skills.heading, player.maxed.heading);
-                        vanGmMz.setSrc(false, imgs[6], player.skills.goalkeeping, player.maxed.goalkeeping);
-                        vanGmMz.setSrc(false, imgs[7], player.skills.technique, player.maxed.technique);
-                        vanGmMz.setSrc(false, imgs[8], player.skills.tackling, player.maxed.tackling);
-                        vanGmMz.setSrc(false, imgs[9], player.skills.highpassing, player.maxed.highpassing);
-                        vanGmMz.setSrc(false, imgs[10], player.skills.situations, player.maxed.situations);
-                    }
+                    vanGmMz.setPlayerImgs(imgs, player);
+
                     let p_age = teamTactic.tacticsData.TeamPlayers.Player[teamTactic.tacticsData.playerIndexReference[pid]]["@attributes"].age;
                     if (mz.season - p_age >= 52) {
                         vanGmMz.getScoutReport(pid, pdom);
@@ -2678,6 +2667,18 @@ var vanGmMz = {
                     }
                     vgm._ajaxSubmit.apply(this, arguments);
                 };
+            }
+            if (location.href == "https://www.managerzone.com/?p=tactics") {
+                if (unsafeWindow.teamTactic.getPlayerInfo != undefined) {
+                    vgm._getPlayerInfo = unsafeWindow.teamTactic.getPlayerInfo;
+                    unsafeWindow.teamTactic.getPlayerInfo = function () {
+
+                        vgm._getPlayerInfo.apply(this, arguments);
+                        if (GM_getValue("autoRun1", 1) == 1) {
+                            vgm.run_Tac(arguments[0]);
+                        }
+                    };
+                }
             }
 
 
