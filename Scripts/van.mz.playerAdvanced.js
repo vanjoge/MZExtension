@@ -857,10 +857,10 @@ var vanGmMzModel = {
         x: "data:image/gif;base64,R0lGODlhBgAKAJEDAJnMZpmZmQAAAP///yH5BAEAAAMALAAAAAAGAAoAAAIRXCRhApAMgoPtVXXS2Lz73xUAOw=="
     },
     hImg: {
-        g: "data:image/gif;base64,R0lGODlhDAAKAJEDAGZmzDMzzAAA/////yH5BAEAAAMALAAAAAAMAAoAAAIg3CAZYJ2fmAnwLVOhzG/zO3ACEBgktASlCbSn0ExoXAAAOw==",
-        r: "data:image/gif;base64,R0lGODlhDAAKAJEDAP8AAMxmZswzM////yH5BAEAAAMALAAAAAAMAAoAAAIg3AIpYZ2fmBHwLVOhzG/zO3BAIAWUZQqGSZJnc5wKXAAAOw==",
-        b: "data:image/gif;base64,R0lGODlhDAAKAKIFAMzMzJmZmWZmZjMzMwAAAP///wAAAAAAACH5BAEAAAUALAAAAAAMAAoAAAMnWAVEI0DJRl1UoVKoNB2X14CdKATK4IGDAgiqA51SANxAoEpYhUoJADs=",
-        p: "data:image/gif;base64,R0lGODlhDAAKAJEDAMyZzJkzzJkzmf///yH5BAEAAAMALAAAAAAMAAoAAAIg3BQpYJ2vGoKPDQotrmbHuwmCAUwKMg7lsiaNagapUQAAOw==",
+        g: "data:image/gif;base64,R0lGODlhDAAKALMNAOnt/+Xr/9ri/6/A/6G1/73L/52x/8/Z/4Wf/32Z/1x9/0Rr/x9N/////wAAAAAAACH5BAEAAA0ALAAAAAAMAAoAAAQwsDXD2FJB6sot0UnHLYckdoJ5VmmzWoi0nAuxSIEyW0qxJBrFAAAYKCoaSYgD1EQAADs=",
+        r: "data:image/gif;base64,R0lGODlhDAAKANUkAOXq//8pKunt//ZTVPz19dXZ+tzk/+NAV+bl+Ojs//4wMeWkreXp/f4tLvRMT+Dm/+Xr/7lra/4vMepKSv7///ZRUvz8/tmHhs/Z/+xKSfVeYNCJkfhFRPUxOuBUZvRsb9ri//39//hDQv8oKf///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAACQALAAAAAAMAAoAAAZCQBLpMhqJMgiLkEQoOkeDwnLzdIowwuoTlNUWDRSSF/oIkUQBZ6BRAWiEkIlopPgsEhzPMgIQCBgOEiNLQh1PB4RBADs=",
+        b: "data:image/gif;base64,R0lGODlhDAAKAMQUALW1teLi4oCAgMDAwB0dHevr6+3t7aCgoDMzM9nZ2bOzs0pKSszMzC0tLX9/f19fXz8/P5qamhISEgAAAP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABQALAAAAAAMAAoAAAU1IEUpkgQ5hahObNsAatTOTyLOMxHcOKvzvcdB1Oi9FqKCA1I6MR4RlWBgMAwEiIlKJGtFVSEAOw==",
+        p: "data:image/gif;base64,R0lGODlhDAAKALMNAOnt/+Xr/9ri/6/A/6G1/73L/52x/8/Z/4Wf/32Z/1x9/4tQ/30+/////wAAAAAAACH5BAEAAA0ALAAAAAAMAAoAAAQwsDXD2FJB6sot0UnHLYckdoJ5VmmzWoi0nAuxSIEyW0qxJBrFAAAYKCoaSYgD1EQAADs=",
         x: "data:image/gif;base64,R0lGODlhBgAKAJEDAJnMZpmZmQAAAP///yH5BAEAAAMALAAAAAAGAAoAAAIRXCRhApAMgoPtVXXS2Lz73xUAOw=="
     }
     ,
@@ -1508,8 +1508,17 @@ var vanGmMz = {
     },
 
     getTrainingGraphsBySkill_id: function (pid, skill_id, callback) {
+        if (vanGmMz.now_sport == "soccer") {
+            skill_id += 2;
+        } else {
+            if (skill_id == 0) {
+                skill_id == 11;
+            } else {
+                skill_id += 1;
+            }
+        }
         vple.ajax(
-            "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=" + vanGmMz.now_sport + "&player_id=" + pid + "&skill_id=" + (skill_id + 2),
+            "/ajax.php?p=trainingGraph&sub=getJsonTrainingHistory&sport=" + vanGmMz.now_sport + "&player_id=" + pid + "&skill_id=" + skill_id,
             function (data) {
                 return !callback(data);
             });
@@ -1722,59 +1731,62 @@ var vanGmMz = {
             td.eq(1).html(g1);
             td.eq(2).html(g2);
 
-            td.eq(4).html(homeS.getAttribute("injuries"));
-            td.eq(5).html(awayS.getAttribute("injuries"));
+            if (vanGmMz.now_sport == "soccer") {
 
-            td.eq(7).html(homeS.getAttribute("yellowCards"));
-            td.eq(8).html(awayS.getAttribute("yellowCards"));
+                td.eq(4).html(homeS.getAttribute("injuries"));
+                td.eq(5).html(awayS.getAttribute("injuries"));
 
-            td.eq(10).html(homeS.getAttribute("redCards"));
-            td.eq(11).html(awayS.getAttribute("redCards"));
+                td.eq(7).html(homeS.getAttribute("yellowCards"));
+                td.eq(8).html(awayS.getAttribute("yellowCards"));
 
-            td.eq(13).html(homeS.getAttribute("freekicks"));
-            td.eq(14).html(awayS.getAttribute("freekicks"));
+                td.eq(10).html(homeS.getAttribute("redCards"));
+                td.eq(11).html(awayS.getAttribute("redCards"));
 
-            td.eq(16).html(homeS.getAttribute("penaltyshots"));
-            td.eq(17).html(awayS.getAttribute("penaltyshots"));
+                td.eq(13).html(homeS.getAttribute("freekicks"));
+                td.eq(14).html(awayS.getAttribute("freekicks"));
 
-            td.eq(19).html(homeS.getAttribute("corners"));
-            td.eq(20).html(awayS.getAttribute("corners"));
+                td.eq(16).html(homeS.getAttribute("penaltyshots"));
+                td.eq(17).html(awayS.getAttribute("penaltyshots"));
 
-            td.eq(22).html(homeS.getAttribute("shotsOnGoal"));
-            td.eq(23).html(awayS.getAttribute("shotsOnGoal"));
+                td.eq(19).html(homeS.getAttribute("corners"));
+                td.eq(20).html(awayS.getAttribute("corners"));
 
-            td.eq(25).html(homeS.getAttribute("possession") + "%");
-            td.eq(26).html(awayS.getAttribute("possession") + "%");
+                td.eq(22).html(homeS.getAttribute("shotsOnGoal"));
+                td.eq(23).html(awayS.getAttribute("shotsOnGoal"));
 
-            $(".gm_timeline").remove();
-            let events = data.documentElement.getElementsByTagName("Events");
-            if (events.length) {
-                let tacs = events[0].getElementsByTagName("Tactic");
-                let trclass = false;
-                let timeline = $("table.timeline.hitlist.marker");
-                if (timeline.length) {
-                    for (let i = tacs.length - 1; i >= 0; i--) {
-                        if (tacs[i].getAttribute("teamId") == homeT.getAttribute("id")) {
-                            timeline.find("tr:first").before("<tr class='gm_timeline " + (trclass ? "even" : "odd") + "'><td align='right' width='50%'><span style='white-space: nowrap'><strong>" + tacs[i].getAttribute("type") + "->" + tacs[i].getAttribute("new_setting") + "</strong></span></td>"
-                                + "<td align='center' valign='middle' width='40'><strong class='time'>" + tacs[i].getAttribute("time").split(":")[0] + "'</strong></td>"
-                                + "<td align='left' width='50%'>&nbsp;</td></tr>");
-                        } else {
-                            timeline.find("tr:first").before("<tr class='gm_timeline " + (trclass ? "even" : "odd") + "'><td align='right' width='50%'>&nbsp;</td>"
-                                + "<td align='center' valign='middle' width='40'><strong class='time'>" + tacs[i].getAttribute("time").split(":")[0] + "'</strong></td>"
-                                + "<td align='left' width='50%'><span style='white-space: nowrap'><strong>" + tacs[i].getAttribute("type") + "->" + tacs[i].getAttribute("new_setting") + "</strong></span></td></tr>");
+                td.eq(25).html(homeS.getAttribute("possession") + "%");
+                td.eq(26).html(awayS.getAttribute("possession") + "%");
 
+                $(".gm_timeline").remove();
+                let events = data.documentElement.getElementsByTagName("Events");
+                if (events.length) {
+                    let tacs = events[0].getElementsByTagName("Tactic");
+                    let trclass = false;
+                    let timeline = $("table.timeline.hitlist.marker");
+                    if (timeline.length) {
+                        for (let i = tacs.length - 1; i >= 0; i--) {
+                            if (tacs[i].getAttribute("teamId") == homeT.getAttribute("id")) {
+                                timeline.find("tr:first").before("<tr class='gm_timeline " + (trclass ? "even" : "odd") + "'><td align='right' width='50%'><span style='white-space: nowrap'><strong>" + tacs[i].getAttribute("type") + "->" + tacs[i].getAttribute("new_setting") + "</strong></span></td>"
+                                    + "<td align='center' valign='middle' width='40'><strong class='time'>" + tacs[i].getAttribute("time").split(":")[0] + "'</strong></td>"
+                                    + "<td align='left' width='50%'>&nbsp;</td></tr>");
+                            } else {
+                                timeline.find("tr:first").before("<tr class='gm_timeline " + (trclass ? "even" : "odd") + "'><td align='right' width='50%'>&nbsp;</td>"
+                                    + "<td align='center' valign='middle' width='40'><strong class='time'>" + tacs[i].getAttribute("time").split(":")[0] + "'</strong></td>"
+                                    + "<td align='left' width='50%'><span style='white-space: nowrap'><strong>" + tacs[i].getAttribute("type") + "->" + tacs[i].getAttribute("new_setting") + "</strong></span></td></tr>");
+
+                            }
+                            trclass = !trclass;
                         }
-                        trclass = !trclass;
+                        timeline.find("tr:first").before("<tr class='gm_timeline " + (trclass ? "even" : "odd") + "'><td align='right' width='50%'><span style='white-space: nowrap'><strong>" + homeT.getAttribute("tactic") + "</strong><strong>" + homeT.getAttribute("playstyle") + "</strong><strong>" + homeT.getAttribute("aggression") + "</strong><p><a href='javascript:void(0);' id='gm_copy_r1'>" + vanGmMz.now_language.Copyxml1 + "</a></p></span></td><td align='center' valign='middle' width='40'><strong class='time'>0'</strong></td><td align='left' width='50%'><span style='white-space: nowrap'><strong>" + awayT.getAttribute("tactic") + "</strong><strong>" + awayT.getAttribute("playstyle") + "</strong><strong>" + awayT.getAttribute("aggression") + "</strong><p><a href='javascript:void(0);' id='gm_copy_r2'>" + vanGmMz.now_language.Copyxml2 + "</a></p></span></td></tr>");
+                        $('#gm_copy_r1')[0].addEventListener('click', function () {
+                            vanGmMz.CopyXML(matchId, true);
+                            return false;
+                        });
+                        $('#gm_copy_r2')[0].addEventListener('click', function () {
+                            vanGmMz.CopyXML(matchId, false);
+                            return false;
+                        });
                     }
-                    timeline.find("tr:first").before("<tr class='gm_timeline " + (trclass ? "even" : "odd") + "'><td align='right' width='50%'><span style='white-space: nowrap'><strong>" + homeT.getAttribute("tactic") + "</strong><strong>" + homeT.getAttribute("playstyle") + "</strong><strong>" + homeT.getAttribute("aggression") + "</strong><p><a href='javascript:void(0);' id='gm_copy_r1'>" + vanGmMz.now_language.Copyxml1 + "</a></p></span></td><td align='center' valign='middle' width='40'><strong class='time'>0'</strong></td><td align='left' width='50%'><span style='white-space: nowrap'><strong>" + awayT.getAttribute("tactic") + "</strong><strong>" + awayT.getAttribute("playstyle") + "</strong><strong>" + awayT.getAttribute("aggression") + "</strong><p><a href='javascript:void(0);' id='gm_copy_r2'>" + vanGmMz.now_language.Copyxml2 + "</a></p></span></td></tr>");
-                    $('#gm_copy_r1')[0].addEventListener('click', function () {
-                        vanGmMz.CopyXML(matchId, true);
-                        return false;
-                    });
-                    $('#gm_copy_r2')[0].addEventListener('click', function () {
-                        vanGmMz.CopyXML(matchId, false);
-                        return false;
-                    });
                 }
             }
         });
@@ -2626,6 +2638,50 @@ var vanGmMz = {
             let vgm = this;
             vgm.now_sport = "hockey";
             vgm.initgw();
+
+            if (unsafeWindow.prepareTransferData != undefined) {
+                vgm._prepareTransferData = unsafeWindow.prepareTransferData;
+                unsafeWindow.prepareTransferData = function (readyState, response, responseParameter) {
+
+                    vgm._prepareTransferData.apply(this, arguments);
+                    if (GM_getValue("autoRun1", 1) == 1) {
+                        if (typeof (responseParameter) === "undefined" || !responseParameter) {
+                            vgm.gw_start(0);
+                        }
+                    }
+                };
+            }
+
+            if (unsafeWindow.centerPowerbox != undefined) {
+                vgm._centerPowerbox = unsafeWindow.centerPowerbox;
+                unsafeWindow.centerPowerbox = function () {
+
+                    vgm._centerPowerbox.apply(this, arguments);
+                    if (GM_getValue("autoRun1", 1) == 1) {
+                        vgm.gw_start(0);
+                    }
+                };
+            }
+
+            if ($.fn.ajaxSubmit != undefined) {
+                vgm._ajaxSubmit = $.fn.ajaxSubmit;
+                $.fn.ajaxSubmit = function (options) {
+                    if (options.gm_success_is == undefined) {
+                        options.gm_success_is = true;
+                        options.gm_success = options.success;
+                        options.success = function () {
+                            options.gm_success.apply(this, arguments);
+                            if (GM_getValue("autoRun1", 1) == 1) {
+                                vgm.gw_start(0);
+                            }
+                        };
+                    }
+                    vgm._ajaxSubmit.apply(this, arguments);
+                };
+            }
+
+
+
             vgm.gw_start(0);
             vple.autoclearCache();
         }
