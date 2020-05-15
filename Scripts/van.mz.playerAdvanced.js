@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.11
+// @version      4.12
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -1903,8 +1903,7 @@ var vanGmMz = {
 <a href="javascript:void(0);" class="mzbtn buttondiv button_account" id="gm_setting_clear">\
 <span class="buttonClassMiddle"><span style="white-space: nowrap">'+ vanGmMz.now_language.Clear + '</span></span><span class="buttonClassRight">&nbsp;</span>\
 </a>\
-<hr>'+ vanGmMz.now_language.Pay + '<div>PayPal:</div>\
-<b>wjj58201@163.com</b>\
+<hr>'+ vanGmMz.now_language.Pay + '<hr>PayPal:<div><a href="https://www.paypal.me/vanjoge">paypal.me/vanjoge</a> or <b>wjj58201@163.com</b></div>\
 <hr>\
 支付宝扫码:   \
 <img style="width: 150px;" src="http://sgj.budeng.win:852/img/zfb.png">\
