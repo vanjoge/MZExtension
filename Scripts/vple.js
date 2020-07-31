@@ -754,6 +754,55 @@
         };
 
     }
+    ,
+    tacCof: { "GK": { "ID": 6, "Name": "门将", "SubCB": false, "SubAtt": false, "SubMF": false, "SubExt": false, "PRI": 19, "XMin": 0, "YMin": 0, "XMax": 0, "YMax": 0, "Speed": { "90": 15, "100": 20 }, "Stamina": { "90": 20, "100": 25 }, "Gameintelligence": { "90": 20, "100": 25 }, "Passing": { "100": 1 }, "Shooting": {}, "Heading": {}, "Goalkeeping": { "90": 40, "100": 50 }, "Technique": { "100": 3 }, "Tackling": {}, "Highpassing": { "100": 3 }, "Situations": { "100": 12 }, "Experience": { "100": 30 }, "Form": { "100": 15 } }, "CB": { "ID": 7, "Name": "中卫", "SubCB": true, "SubAtt": false, "SubMF": false, "SubExt": false, "PRI": 16, "XMin": 281, "YMin": 658, "XMax": 715, "YMax": 1200, "Speed": { "100": 18 }, "Stamina": { "100": 18 }, "Gameintelligence": { "100": 18 }, "Passing": { "100": 8 }, "Shooting": {}, "Heading": { "100": 15 }, "Goalkeeping": {}, "Technique": { "100": 13 }, "Tackling": { "80": 50, "90": 55, "100": 60 }, "Highpassing": { "100": 10 }, "Situations": {}, "Experience": { "100": 30 }, "Form": { "100": 15 } }, "RSB": { "ID": 9, "Name": "右边卫", "SubCB": false, "SubAtt": false, "SubMF": false, "SubExt": false, "PRI": 13, "XMin": 716, "YMin": 658, "XMax": 1200, "YMax": 1200, "Speed": { "100": 18 }, "Stamina": { "100": 18 }, "Gameintelligence": { "100": 15 }, "Passing": { "100": 10 }, "Shooting": {}, "Heading": { "100": 15 }, "Goalkeeping": {}, "Technique": { "100": 15 }, "Tackling": { "100": 40 }, "Highpassing": { "100": 20 }, "Situations": {}, "Experience": { "100": 30 }, "Form": { "100": 15 } }, "LSB": { "ID": 8, "Name": "左边卫", "SubCB": false, "SubAtt": false, "SubMF": false, "SubExt": false, "PRI": 13, "XMin": 0, "YMin": 658, "XMax": 280, "YMax": 1200, "Speed": { "100": 18 }, "Stamina": { "100": 18 }, "Gameintelligence": { "100": 15 }, "Passing": { "100": 10 }, "Shooting": {}, "Heading": { "100": 15 }, "Goalkeeping": {}, "Technique": { "100": 15 }, "Tackling": { "100": 40 }, "Highpassing": { "100": 20 }, "Situations": {}, "Experience": { "100": 30 }, "Form": { "100": 15 } }, "RM": { "ID": 12, "Name": "右边中场", "SubCB": false, "SubAtt": false, "SubMF": false, "SubExt": false, "PRI": 12, "XMin": 800, "YMin": 502, "XMax": 1200, "YMax": 657, "Speed": { "100": 18 }, "Stamina": { "100": 18 }, "Gameintelligence": { "100": 18 }, "Passing": { "100": 15 }, "Shooting": { "100": 1 }, "Heading": { "100": 10 }, "Goalkeeping": {}, "Technique": { "100": 15 }, "Tackling": { "100": 40 }, "Highpassing": { "100": 40 }, "Situations": {}, "Experience": { "100": 30 }, "Form": { "100": 15 } }, "LM": { "ID": 12, "Name": "左边中场", "SubCB": false, "SubAtt": false, "SubMF": false, "SubExt": false, "PRI": 12, "XMin": 0, "YMin": 502, "XMax": 201, "YMax": 657, "Speed": { "100": 18 }, "Stamina": { "100": 18 }, "Gameintelligence": { "100": 18 }, "Passing": { "100": 15 }, "Shooting": { "100": 1 }, "Heading": { "100": 10 }, "Goalkeeping": {}, "Technique": { "100": 15 }, "Tackling": { "100": 40 }, "Highpassing": { "100": 40 }, "Situations": {}, "Experience": { "100": 30 }, "Form": { "100": 15 } }, "CDM": { "ID": 10, "Name": "后腰", "SubCB": false, "SubAtt": false, "SubMF": false, "SubExt": true, "PRI": 15, "XMin": 202, "YMin": 502, "XMax": 799, "YMax": 657, "Speed": { "100": 18 }, "Stamina": { "100": 20 }, "Gameintelligence": { "100": 30 }, "Passing": { "100": 15 }, "Shooting": { "100": 3 }, "Heading": { "100": 15 }, "Goalkeeping": {}, "Technique": { "100": 20 }, "Tackling": { "100": 40 }, "Highpassing": { "100": 40 }, "Situations": {}, "Experience": { "100": 30 }, "Form": { "100": 15 } }, "LMF": { "ID": 13, "Name": "左边前卫", "SubCB": false, "SubAtt": false, "SubMF": false, "SubExt": false, "PRI": 11, "XMin": 0, "YMin": 347, "XMax": 201, "YMax": 501, "Speed": { "100": 25 }, "Stamina": { "100": 18 }, "Gameintelligence": { "100": 15 }, "Passing": { "100": 20 }, "Shooting": { "100": 10 }, "Heading": { "100": 2 }, "Goalkeeping": {}, "Technique": { "100": 20 }, "Tackling": { "100": 10 }, "Highpassing": { "100": 30 }, "Situations": {}, "Experience": { "100": 30 }, "Form": { "100": 15 } }, "RMF": { "ID": 14, "Name": "右边前卫", "SubCB": false, "SubAtt": false, "SubMF": false, "SubExt": false, "PRI": 11, "XMin": 800, "YMin": 347, "XMax": 1200, "YMax": 501, "Speed": { "100": 25 }, "Stamina": { "100": 18 }, "Gameintelligence": { "100": 15 }, "Passing": { "100": 20 }, "Shooting": { "100": 10 }, "Heading": { "100": 2 }, "Goalkeeping": {}, "Technique": { "100": 20 }, "Tackling": { "100": 10 }, "Highpassing": { "100": 30 }, "Situations": {}, "Experience": { "100": 30 }, "Form": { "100": 15 } }, "CMF": { "ID": 15, "Name": "中前卫", "SubCB": false, "SubAtt": false, "SubMF": true, "SubExt": false, "PRI": 14, "XMin": 202, "YMin": 347, "XMax": 799, "YMax": 501, "Speed": { "100": 15 }, "Stamina": { "100": 15 }, "Gameintelligence": { "100": 20 }, "Passing": { "100": 50 }, "Shooting": { "100": 20 }, "Heading": { "100": 3 }, "Goalkeeping": {}, "Technique": { "100": 20 }, "Tackling": { "100": 5 }, "Highpassing": { "100": 30 }, "Situations": {}, "Experience": { "100": 30 }, "Form": { "100": 15 } }, "LWF": { "ID": 17, "Name": "左边锋", "SubCB": false, "SubAtt": false, "SubMF": false, "SubExt": false, "PRI": 17, "XMin": 0, "YMin": 0, "XMax": 201, "YMax": 346, "Speed": { "100": 25 }, "Stamina": { "100": 18 }, "Gameintelligence": { "100": 15 }, "Passing": { "100": 20 }, "Shooting": { "100": 10 }, "Heading": {}, "Goalkeeping": {}, "Technique": { "90": 20, "100": 30 }, "Tackling": { "100": 5 }, "Highpassing": { "90": 50, "100": 60 }, "Situations": {}, "Experience": { "100": 30 }, "Form": { "100": 15 } }, "RWF": { "ID": 18, "Name": "右边锋", "SubCB": false, "SubAtt": false, "SubMF": false, "SubExt": false, "PRI": 17, "XMin": 800, "YMin": 0, "XMax": 1200, "YMax": 346, "Speed": { "100": 25 }, "Stamina": { "100": 18 }, "Gameintelligence": { "100": 15 }, "Passing": { "100": 20 }, "Shooting": { "100": 10 }, "Heading": {}, "Goalkeeping": {}, "Technique": { "90": 20, "100": 30 }, "Tackling": { "100": 5 }, "Highpassing": { "90": 50, "100": 60 }, "Situations": {}, "Experience": { "100": 30 }, "Form": { "100": 15 } }, "CF": { "ID": 16, "Name": "前锋", "SubCB": false, "SubAtt": true, "SubMF": false, "SubExt": false, "PRI": 18, "XMin": 202, "YMin": 0, "XMax": 799, "YMax": 346, "Speed": { "100": 30 }, "Stamina": { "100": 20 }, "Gameintelligence": { "100": 15 }, "Passing": { "100": 5 }, "Shooting": { "80": 40, "90": 45, "100": 50 }, "Heading": { "80": 40, "90": 45, "100": 50 }, "Goalkeeping": {}, "Technique": { "100": 15 }, "Tackling": {}, "Highpassing": {}, "Situations": {}, "Experience": { "100": 30 }, "Form": { "100": 15 } } }
+    ,
+    TacPlayer: function () {
+        this.Speed = 0;
+        this.Stamina = 0;
+        this.Gameintelligence = 0;
+        this.Passing = 0;
+        this.Shooting = 0;
+        this.Heading = 0;
+        this.Goalkeeping = 0;
+        this.Technique = 0;
+        this.Tackling = 0;
+        this.Highpassing = 0;
+        this.Situations = 0;
+        this.Form = 0;
+        this.Experience = 0;
+
+        this.InitByPlayer = function (imgs, player) {
+            if (player) {
+
+                this.Speed = player.skills.speed * 10 + imgs.eq(0).parent().parent().find(".skill_exact_bar").width();
+                this.Stamina = player.skills.stamina * 10 + imgs.eq(1).parent().parent().find(".skill_exact_bar").width();
+                this.Gameintelligence = player.skills.gameintelligence * 10 + imgs.eq(2).parent().parent().find(".skill_exact_bar").width();
+                this.Passing = player.skills.passing * 10 + imgs.eq(3).parent().parent().find(".skill_exact_bar").width();
+                this.Shooting = player.skills.shooting * 10 + imgs.eq(4).parent().parent().find(".skill_exact_bar").width();
+                this.Heading = player.skills.heading * 10 + imgs.eq(5).parent().parent().find(".skill_exact_bar").width();
+                this.Goalkeeping = player.skills.goalkeeping * 10 + imgs.eq(6).parent().parent().find(".skill_exact_bar").width();
+                this.Technique = player.skills.technique * 10 + imgs.eq(7).parent().parent().find(".skill_exact_bar").width();
+                this.Tackling = player.skills.tackling * 10 + imgs.eq(8).parent().parent().find(".skill_exact_bar").width();
+                this.Highpassing = player.skills.highpassing * 10 + imgs.eq(9).parent().parent().find(".skill_exact_bar").width();
+                this.Situations = player.skills.situations * 10 + imgs.eq(10).parent().parent().find(".skill_exact_bar").width();
+            } else {
+                this.Speed = parseInt(imgs[0].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(0).parent().parent().find(".skill_exact_bar").width();
+                this.Stamina = parseInt(imgs[1].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(1).parent().parent().find(".skill_exact_bar").width();
+                this.Gameintelligence = parseInt(imgs[2].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(2).parent().parent().find(".skill_exact_bar").width();
+                this.Passing = parseInt(imgs[3].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(3).parent().parent().find(".skill_exact_bar").width();
+                this.Shooting = parseInt(imgs[4].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(4).parent().parent().find(".skill_exact_bar").width();
+                this.Heading = parseInt(imgs[5].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(5).parent().parent().find(".skill_exact_bar").width();
+                this.Goalkeeping = parseInt(imgs[6].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(6).parent().parent().find(".skill_exact_bar").width();
+                this.Technique = parseInt(imgs[7].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(7).parent().parent().find(".skill_exact_bar").width();
+                this.Tackling = parseInt(imgs[8].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(8).parent().parent().find(".skill_exact_bar").width();
+                this.Highpassing = parseInt(imgs[9].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(9).parent().parent().find(".skill_exact_bar").width();
+                this.Situations = parseInt(imgs[10].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(10).parent().parent().find(".skill_exact_bar").width();
+            }
+            this.Form = parseInt(imgs[11].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(11).parent().parent().find(".skill_exact_bar").width();
+            this.Experience = parseInt(imgs[12].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(12).parent().parent().find(".skill_exact_bar").width();
+        }
+    }
 };
 
 var vple = {
