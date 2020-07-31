@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.12
+// @version      4.13
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -16,7 +16,8 @@
 // @require      https://cdn.jsdelivr.net/npm/dexie
 // @require      https://cdn.jsdelivr.net/gh/blueimp/JavaScript-MD5/js/md5.min.js
 // @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/base64js.min.js
-// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/vplev5.min.js
+// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/vplev7.min.js
+// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension/Scripts/echarts.min.js
 // ==/UserScript==
 
 var vanGmMzModel = {
@@ -139,6 +140,11 @@ var vanGmMzModel = {
             Pos5: "前锋",
             Pos4: "中场",
             Pos56: "中锋",
+            Pos21: "后腰",
+            Pos22: "边卫",
+            Pos23: "前腰",
+            PosScores: "位置评分",
+            Scores: "评分",
 
             sug_Loser: "关键属性容易早死，尽早交换或开除。",
 
@@ -276,6 +282,11 @@ var vanGmMzModel = {
             Pos5: "ST",
             Pos4: "MF",
             Pos56: "CF",
+            Pos21: "DM",
+            Pos22: "WB",
+            Pos23: "AMF",
+            PosScores: "Tactics score",
+            Scores: "Scores",
 
             sug_Loser: "Key skills too low.Exchange or dismiss as soon as possible.",
 
@@ -410,6 +421,11 @@ var vanGmMzModel = {
             Pos5: "Segundo delantero",
             Pos4: "Centrocampista",
             Pos56: "Miediocampista/Anchor",
+            Pos21: "DM",
+            Pos22: "WB",
+            Pos23: "AMF",
+            PosScores: "Puntuación táctica",
+            Scores: "Puntuación",
 
             sug_Loser: "Habilidades clave demasiado bajas. Intercambialo lo más antes posible.",
 
@@ -545,6 +561,11 @@ var vanGmMzModel = {
             Pos5: "Segundo atacante",
             Pos4: "Meia Central",
             Pos56: "Meio-campo/Volante",
+            Pos21: "DM",
+            Pos22: "WB",
+            Pos23: "AMF",
+            PosScores: "Pontuação tática",
+            Scores: "Pontuação",
 
             sug_Loser: "Habilidades principais muito baixas. Troque ou dispense o mais breve possível.",
 
@@ -925,6 +946,8 @@ var vanGmMz = {
     now_language: vanGmMzModel.language.en
     ,
     pmax: {},
+    tacP: {},
+    tacCof: {},
     trainingInfo: {},
     vv: "",
 
@@ -939,7 +962,6 @@ var vanGmMz = {
                 } else {
                     return true;
                 }
-
             });
         return false;
     }
@@ -1591,6 +1613,7 @@ var vanGmMz = {
 
         $(parent).bind("mouseleave", function () {
             bubble.remove();
+            $(parent).unbind("mouseleave");
         });
     }
     ,
@@ -1630,6 +1653,12 @@ var vanGmMz = {
             this.now_language = vanGmMzModel.language[tmplanguage];
         }
 
+        let tmpTacConf = GM_getValue("TacConf", "");
+        if (tmpTacConf && tmpTacConf.trim() != "") {
+            vanGmMz.tacCof = JSON.parse(tmpTacConf);
+        } else {
+            vanGmMz.tacCof = vpleModel.tacCof;
+        }
         let css = document.createElement('style');
         css.type = 'text/css';
         css.innerHTML = ".gw_run_div{position:fixed;bottom:20%;right:1px;border:1px solid gray;padding:3px;width:12px;font-size:12px;border-radius: 3px;text-shadow: 1px 1px 3px #676767;background-color: #000000;color: #FFFFFF;cursor: default;}.gw_run{cursor:pointer;}.gw_div_left{float:left;position:fixed;left:0px;top:120px;height:528px;overflow-y:auto;text-align:left;}.gw_div_right{float:right;position:fixed;right:0px;top:120px;height:528px;overflow-y:auto;text-align:left;}.shupai{writing-mode:tb-rl;-webkit-writing-mode:vertical-rl;}.gm_ytc{font-style:italic;text-decoration:underline;}.gm_scout_h{font-weight: bold;}.gm_s1{color:red;}.gm_s2{color:darkgoldenrod;}.gm_s3{color:blue;}.gm_s4{color:fuchsia;}";
@@ -1841,6 +1870,10 @@ var vanGmMz = {
     ,
     //GraphsType 0 自动模式 1 强制训练图 2 星级球员显示最大值
     gw_start: function (GraphsType) {
+        $(".player_id_span").unbind("click");
+        $(".player_id_span").bind("click", function () {
+            vanGmMz.showScore($(this));
+        });
         if ($("#players_container").width() < 660) {
             if (vanGmMzModel.mzreg.shortlist_url.test(location.href)) {
                 $(".col_2_of_3").width("660");
@@ -1916,7 +1949,13 @@ var vanGmMz = {
             vanGmMz.setLanguage($("#gm_language").val());
             GM_setValue("xml_mode", $("#gm_xml_mode").val());
             GM_setValue("autoRun1", $("#gm_autorun").val());
-            GM_setValue("TacConf", $("#txtTacConf").val());
+            let tmpTacConf = $("#txtTacConf").val();
+            GM_setValue("TacConf", tmpTacConf);
+            if (tmpTacConf && tmpTacConf.trim() != "") {
+                vanGmMz.tacCof = JSON.parse(tmpTacConf);
+            } else {
+                vanGmMz.tacCof = vpleModel.tacCof;
+            }
 
             $('#gw_run')[0].title = vanGmMz.now_language.ManualColorTitle;
             $('#gw_run').html("<b>" + vanGmMz.now_language.ManualColor + "</b>");
@@ -2713,6 +2752,128 @@ var vanGmMz = {
     },
     D_ShowMaybeSkill: function (pdom, HStar, HP1, HP2, LStar, LP1, LP2) {
 
+    },
+    showScore: function (piddom) {
+
+        let pid = piddom.html();
+        let imgs = piddom.parents(".playerContainer").find("img.skill");
+        let player = vanGmMz.pmax[pid];
+
+        let tacPlayer = this.tacP[pid];
+        if (tacPlayer == undefined) {
+            tacPlayer = new vpleModel.TacPlayer();
+            this.tacP[pid] = tacPlayer;
+        }
+        if (tacPlayer.InitByPlayer(imgs, player)) {
+
+            let CFScore = this.GetScore(tacPlayer, vanGmMz.tacCof["CF"]);
+            let WFScore = this.GetScore(tacPlayer, vanGmMz.tacCof["LWF"]);
+            //let WMFScore = this.GetScore(tacPlayer, vanGmMz.tacCof["LMF"]);
+            let CMFScore = this.GetScore(tacPlayer, vanGmMz.tacCof["CMF"]);
+            let WMScore = this.GetScore(tacPlayer, vanGmMz.tacCof["LM"]);
+            let CDMScore = this.GetScore(tacPlayer, vanGmMz.tacCof["CDM"]);
+            let WBScore = this.GetScore(tacPlayer, vanGmMz.tacCof["LSB"]);
+            let CBScore = this.GetScore(tacPlayer, vanGmMz.tacCof["CB"]);
+            let GKScore = this.GetScore(tacPlayer, vanGmMz.tacCof["GK"]);
+
+            let option = {
+                title: {
+                    text: vanGmMz.now_language.PosScores
+                },
+                tooltip: {},
+                legend: {
+                    data: [pid]
+                },
+                radar: {
+                    name: {
+                        textStyle: {
+                            color: '#fff',
+                            backgroundColor: '#999',
+                            borderRadius: 3,
+                            padding: [3, 5]
+                        }
+                    },
+                    indicator: [
+                        { name: vanGmMz.now_language.Pos56, max: 100 },
+                        { name: vanGmMz.now_language.Pos10, max: 100 },
+                        { name: vanGmMz.now_language.Pos21, max: 100 },
+                        { name: vanGmMz.now_language.Pos22, max: 100 },
+                        { name: vanGmMz.now_language.Pos9, max: 100 },
+                        { name: vanGmMz.now_language.Pos7, max: 100 },
+                        { name: vanGmMz.now_language.Pos4, max: 100 },
+                        { name: vanGmMz.now_language.Pos23, max: 100 }
+                    ]
+                },
+                series: [{
+                    name: vanGmMz.now_language.Scores,
+                    type: 'radar',
+                    data: [
+                        {
+                            value: [CFScore, WFScore, CDMScore, WBScore, CBScore, GKScore, WMScore, CMFScore],
+                            name: pid
+                        },
+                    ]
+                }]
+            };
+            let content = "<div class='clearfix'><div id='ldchart' style='height: 400px; width: 400px'></div>";
+
+            showHelpLayer(content, vanGmMz.now_language.PosScores, true);
+            let radar_chart = echarts.init(document.getElementById("ldchart"));
+            radar_chart.setOption(option);
+        }
+    },
+    GetScore: function (player, tacConfItem) {
+        var Speed = this.GetScoreItem(player.Speed, tacConfItem.Speed);
+        var Stamina = this.GetScoreItem(player.Stamina, tacConfItem.Stamina);
+        var Gameintelligence = this.GetScoreItem(player.Gameintelligence, tacConfItem.Gameintelligence);
+        var Passing = this.GetScoreItem(player.Passing, tacConfItem.Passing);
+        var Shooting = this.GetScoreItem(player.Shooting, tacConfItem.Shooting);
+        var Heading = this.GetScoreItem(player.Heading, tacConfItem.Heading);
+        var Goalkeeping = this.GetScoreItem(player.Goalkeeping, tacConfItem.Goalkeeping);
+        var Technique = this.GetScoreItem(player.Technique, tacConfItem.Technique);
+        var Tackling = this.GetScoreItem(player.Tackling, tacConfItem.Tackling);
+        var Highpassing = this.GetScoreItem(player.Highpassing, tacConfItem.Highpassing);
+        var Situations = this.GetScoreItem(player.Situations, tacConfItem.Situations);
+        var Experience = this.GetScoreItem(player.Experience, tacConfItem.Experience);
+        var Form = this.GetScoreItem(player.Form, tacConfItem.Form);
+
+        var score = player.Speed * Speed
+            + player.Stamina * Stamina
+            + player.Gameintelligence * Gameintelligence
+            + player.Passing * Passing
+            + player.Shooting * Shooting
+            + player.Heading * Heading
+            + player.Goalkeeping * Goalkeeping
+            + player.Technique * Technique
+            + player.Tackling * Tackling
+            + player.Highpassing * Highpassing
+            + player.Situations * Situations
+            + player.Form * Form
+            + player.Experience * Experience;
+        var sum = Speed
+            + Stamina
+            + Gameintelligence
+            + Passing
+            + Shooting
+            + Heading
+            + Goalkeeping
+            + Technique
+            + Tackling
+            + Highpassing
+            + Situations
+            + Form
+            + Experience;
+        return (score / sum).toFixed(2);
+    },
+    GetScoreItem: function (attrVal, prop) {
+        var lastVal = 0;
+        $.each(prop, function (key, values) {
+            lastVal = values;
+            if (attrVal < key) {
+                return false;
+            }
+        });
+        return lastVal;
     }
 };
 

@@ -787,6 +787,9 @@
                 this.Highpassing = player.skills.highpassing * 10 + imgs.eq(9).parent().parent().find(".skill_exact_bar").width();
                 this.Situations = player.skills.situations * 10 + imgs.eq(10).parent().parent().find(".skill_exact_bar").width();
             } else {
+                if (imgs.eq(0).parent().parent().find(".skill_exact_bar").width() == null) {
+                    return false;
+                }
                 this.Speed = parseInt(imgs[0].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(0).parent().parent().find(".skill_exact_bar").width();
                 this.Stamina = parseInt(imgs[1].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(1).parent().parent().find(".skill_exact_bar").width();
                 this.Gameintelligence = parseInt(imgs[2].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(2).parent().parent().find(".skill_exact_bar").width();
@@ -799,8 +802,9 @@
                 this.Highpassing = parseInt(imgs[9].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(9).parent().parent().find(".skill_exact_bar").width();
                 this.Situations = parseInt(imgs[10].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(10).parent().parent().find(".skill_exact_bar").width();
             }
-            this.Form = parseInt(imgs[11].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(11).parent().parent().find(".skill_exact_bar").width();
-            this.Experience = parseInt(imgs[12].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(12).parent().parent().find(".skill_exact_bar").width();
+            this.Experience = parseInt(imgs[11].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(11).parent().parent().find(".skill_exact_bar").width();
+            this.Form = parseInt(imgs[12].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(12).parent().parent().find(".skill_exact_bar").width();
+            return true;
         }
     }
 };
