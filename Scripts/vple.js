@@ -772,40 +772,45 @@
         this.Form = 0;
         this.Experience = 0;
 
-        this.InitByPlayer = function (imgs, player) {
-            if (player) {
-
-                this.Speed = player.skills.speed * 10 + imgs.eq(0).parent().parent().find(".skill_exact_bar").width();
-                this.Stamina = player.skills.stamina * 10 + imgs.eq(1).parent().parent().find(".skill_exact_bar").width();
-                this.Gameintelligence = player.skills.gameintelligence * 10 + imgs.eq(2).parent().parent().find(".skill_exact_bar").width();
-                this.Passing = player.skills.passing * 10 + imgs.eq(3).parent().parent().find(".skill_exact_bar").width();
-                this.Shooting = player.skills.shooting * 10 + imgs.eq(4).parent().parent().find(".skill_exact_bar").width();
-                this.Heading = player.skills.heading * 10 + imgs.eq(5).parent().parent().find(".skill_exact_bar").width();
-                this.Goalkeeping = player.skills.goalkeeping * 10 + imgs.eq(6).parent().parent().find(".skill_exact_bar").width();
-                this.Technique = player.skills.technique * 10 + imgs.eq(7).parent().parent().find(".skill_exact_bar").width();
-                this.Tackling = player.skills.tackling * 10 + imgs.eq(8).parent().parent().find(".skill_exact_bar").width();
-                this.Highpassing = player.skills.highpassing * 10 + imgs.eq(9).parent().parent().find(".skill_exact_bar").width();
-                this.Situations = player.skills.situations * 10 + imgs.eq(10).parent().parent().find(".skill_exact_bar").width();
-            } else {
-                if (imgs.eq(0).parent().parent().find(".skill_exact_bar").width() == null) {
-                    return false;
-                }
-                this.Speed = parseInt(imgs[0].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(0).parent().parent().find(".skill_exact_bar").width();
-                this.Stamina = parseInt(imgs[1].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(1).parent().parent().find(".skill_exact_bar").width();
-                this.Gameintelligence = parseInt(imgs[2].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(2).parent().parent().find(".skill_exact_bar").width();
-                this.Passing = parseInt(imgs[3].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(3).parent().parent().find(".skill_exact_bar").width();
-                this.Shooting = parseInt(imgs[4].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(4).parent().parent().find(".skill_exact_bar").width();
-                this.Heading = parseInt(imgs[5].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(5).parent().parent().find(".skill_exact_bar").width();
-                this.Goalkeeping = parseInt(imgs[6].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(6).parent().parent().find(".skill_exact_bar").width();
-                this.Technique = parseInt(imgs[7].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(7).parent().parent().find(".skill_exact_bar").width();
-                this.Tackling = parseInt(imgs[8].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(8).parent().parent().find(".skill_exact_bar").width();
-                this.Highpassing = parseInt(imgs[9].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(9).parent().parent().find(".skill_exact_bar").width();
-                this.Situations = parseInt(imgs[10].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(10).parent().parent().find(".skill_exact_bar").width();
+        this.InitByTds = function (tds) {
+            if (vpleModel.GetEVal(tds.eq(0)) == null) {
+                return false;
             }
-            this.Experience = parseInt(imgs[11].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(11).parent().parent().find(".skill_exact_bar").width();
-            this.Form = parseInt(imgs[12].src.match(vanGmMzModel.mzreg.img_val)[1]) * 10 + imgs.eq(12).parent().parent().find(".skill_exact_bar").width();
+            this.Speed = vpleModel.GetEVal(tds.eq(0));
+            this.Stamina = vpleModel.GetEVal(tds.eq(1));
+            this.Gameintelligence = vpleModel.GetEVal(tds.eq(2));
+            this.Passing = vpleModel.GetEVal(tds.eq(3));
+            this.Shooting = vpleModel.GetEVal(tds.eq(4));
+            this.Heading = vpleModel.GetEVal(tds.eq(5));
+            this.Goalkeeping = vpleModel.GetEVal(tds.eq(6));
+            this.Technique = vpleModel.GetEVal(tds.eq(7));
+            this.Tackling = vpleModel.GetEVal(tds.eq(8));
+            this.Highpassing = vpleModel.GetEVal(tds.eq(9));
+            this.Situations = vpleModel.GetEVal(tds.eq(10));
+
+            this.Experience = vpleModel.GetEVal(tds.eq(11));
+            this.Form = vpleModel.GetEVal(tds.eq(12));
             return true;
         }
+    }
+    ,
+    GetEVal: function (td) {
+        let w = td.parent().find(".skill_exact_bar").width();
+        if (w == null) {
+            return null;
+        }
+        let ret = parseInt(td.html().match(vanGmMzModel.mzreg.td_skill_val)[1]) * 10
+
+        if (w == 2) {
+            ret += 2.5;
+        }
+        else if (w == 4) {
+            ret += 5;
+        }
+        else if (w == 6) {
+            ret += 7.5;
+        }
+        return ret;
     }
 };
 

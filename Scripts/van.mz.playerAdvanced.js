@@ -854,6 +854,7 @@ var vanGmMzModel = {
     }
     ,
     mzreg: {
+        td_skill_val: /\((\d+)\)/,
         img_val: /(\d+)\.gif/,
         playerMax: /trainingField.players\s*=\s*({.+})/,
         playerId: /player_id_(\d+)/,
@@ -1872,7 +1873,7 @@ var vanGmMz = {
     gw_start: function (GraphsType) {
         $(".player_id_span").unbind("click");
         $(".player_id_span").bind("click", function () {
-            vanGmMz.showScore($(this));
+            vanGmMz.showScore(this.innerText, $(this).parents(".playerContainer"));
         });
         if ($("#players_container").width() < 660) {
             if (vanGmMzModel.mzreg.shortlist_url.test(location.href)) {
@@ -2567,6 +2568,11 @@ var vanGmMz = {
                     if (mz.season - p_age >= 52) {
                         vanGmMz.getScoutReport(pid, pdom);
                     }
+                    let sp = $("span.clippable.bold");
+                    sp.unbind("click");
+                    sp.bind("click", function () {
+                        vanGmMz.showScore(pid, pdom);
+                    });
                 }
             }
         });
@@ -2753,18 +2759,17 @@ var vanGmMz = {
     D_ShowMaybeSkill: function (pdom, HStar, HP1, HP2, LStar, LP1, LP2) {
 
     },
-    showScore: function (piddom) {
+    showScore: function (pid, pdom) {
 
-        let pid = piddom.html();
-        let imgs = piddom.parents(".playerContainer").find("img.skill");
-        let player = vanGmMz.pmax[pid];
+        let tds = pdom.find("td.skillval");
+
 
         let tacPlayer = this.tacP[pid];
         if (tacPlayer == undefined) {
             tacPlayer = new vpleModel.TacPlayer();
             this.tacP[pid] = tacPlayer;
         }
-        if (tacPlayer.InitByPlayer(imgs, player)) {
+        if (tacPlayer.InitByTds(tds)) {
 
             let CFScore = this.GetScore(tacPlayer, vanGmMz.tacCof["CF"]);
             let WFScore = this.GetScore(tacPlayer, vanGmMz.tacCof["LWF"]);
