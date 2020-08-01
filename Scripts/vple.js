@@ -773,7 +773,7 @@
         this.Experience = 0;
 
         this.InitByTds = function (tds) {
-            if (vpleModel.GetEVal(tds.eq(0)) == null) {
+            if (tds.length < 13 || vpleModel.GetEVal(tds.eq(0)) == null) {
                 return false;
             }
             this.Speed = vpleModel.GetEVal(tds.eq(0));
