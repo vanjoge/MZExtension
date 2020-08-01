@@ -799,8 +799,7 @@
         if (w == null) {
             return null;
         }
-        let ret = parseInt(td.html().match(vanGmMzModel.mzreg.td_skill_val)[1]) * 10
-
+        let ret = parseInt(td.html().match(vanGmMzModel.mzreg.td_skill_val)[1]) * 10;
         if (w == 2) {
             ret += 2.5;
         }
