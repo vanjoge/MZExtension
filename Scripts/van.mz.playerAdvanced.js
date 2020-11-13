@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.15
+// @version      4.16
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -2582,6 +2582,13 @@ var vanGmMz = {
         eval(a);
     },
     PLoad: function () {
+        if (unsafeWindow.ajaxSport) {
+            vanGmMz.PLoadInternal();
+        } else {
+            setTimeout(function () { vanGmMz.PLoad(); }, 1000);
+        }
+    },
+    PLoadInternal: function () {
 
         if (ajaxSport && ajaxSport == "soccer") {
             let vgm = this;
