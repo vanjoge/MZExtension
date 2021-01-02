@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.16
+// @version      4.17
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -2589,6 +2589,14 @@ var vanGmMz = {
         }
     },
     PLoadInternal: function () {
+
+        if ($(".fa").css("font-family") != "FontAwesome") {
+            var style = document.createElement('link');
+            style.href = 'https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css';
+            style.rel = 'stylesheet';
+            style.type = 'text/css';
+            document.getElementsByTagName('HEAD').item(0).appendChild(style);
+        }
 
         if (ajaxSport && ajaxSport == "soccer") {
             let vgm = this;
