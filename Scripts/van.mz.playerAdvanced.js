@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.17
+// @version      4.18
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -16,7 +16,7 @@
 // @require      https://cdn.jsdelivr.net/npm/dexie
 // @require      https://cdn.jsdelivr.net/gh/blueimp/JavaScript-MD5@5a82bec64383b510a8f25a2db194f6bf3bada8ef/js/md5.min.js
 // @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension@e586c646cb0b91f501d997921c5f9723d4884616/Scripts/base64js.min.js
-// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension@ca06ad5fe50f47d807c2d582cc2438b9f2a03f48/Scripts/vple.min.js
+// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension@f98f776c5c465dadec09a096358d6bf1b102f2e5/Scripts/vple.min.js
 // @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension@e586c646cb0b91f501d997921c5f9723d4884616/Scripts/echarts.min.js
 // ==/UserScript==
 
@@ -1292,7 +1292,7 @@ var vanGmMz = {
     }
     ,
 
-    getScoutReport: function (pid, pdom, showMB) {
+    getScoutReport: function (pid, pdom, showMB, nochecka) {
         let url = "/ajax.php?p=players&sub=scout_report&pid=" + pid + "&sport=" + vanGmMz.now_sport;
         let cache_mode = 1;
         if (pdom.find("#discard_youth_button").length) {
@@ -1302,9 +1302,10 @@ var vanGmMz = {
         vple.ajax(
             url,
             function (data) {
-
-                if (pdom.find("a[href$='" + pid + "']").length == 0 && pdom.find("#player_id_" + pid).length == 0) {
-                    return;
+                if (!nochecka) {
+                    if (pdom.find("a[href$='" + pid + "']").length == 0 && pdom.find("#player_id_" + pid).length == 0) {
+                        return;
+                    }
                 }
                 let srdom = $($.parseHTML(data));
                 let remark = srdom.find("span.blurred span").text();
@@ -1702,7 +1703,7 @@ var vanGmMz = {
             ad.controls = true;
             ad.loop = true;
             ad.preload = "auto";
-            ad.src = "http://sgj.budeng.win:852/ruok.mp3";
+            ad.src = "https://sgj.budeng.win:851/ruok.mp3";
 
             ad.oncanplay = function () {
                 ad.play();
@@ -1940,7 +1941,7 @@ var vanGmMz = {
 <hr>'+ vanGmMz.now_language.Pay + '<hr>PayPal:<div><a href="https://www.paypal.me/vanjoge">paypal.me/vanjoge</a> or <b>wjj58201@163.com</b></div>\
 <hr>\
 支付宝扫码:   \
-<img style="width: 150px;" src="http://sgj.budeng.win:852/img/zfb.png">\
+<img style="width: 150px;" src="https://sgj.budeng.win:851/img/zfb.png">\
 </div>\
 ';
 
@@ -2578,6 +2579,24 @@ var vanGmMz = {
         });
     }
     ,
+    run_Training: function (pid) {
+        vanGmMz.getMax(function () {
+            let players = $("div.tooltip.shadow");
+            if (players.length > 0) {
+                let pdom = players.eq(0);
+                let player = vanGmMz.pmax[pid];
+                if (player) {
+                    let imgs = pdom.find("img.skill");
+                    vanGmMz.setPlayerImgs(imgs, player);
+                    let p_age = players.find(".box_dark").find("p").eq(0).html().match(/\d+/)[0]
+                    if (mz.season - p_age >= 52) {
+                        vanGmMz.getScoutReport(pid, pdom, false, true);
+                    }
+                }
+            }
+        });
+    }
+    ,
     eval: function (a) {
         eval(a);
     },
@@ -2674,6 +2693,18 @@ var vanGmMz = {
                         vgm._getPlayerInfo.apply(this, arguments);
                         if (GM_getValue("autoRun1", 1) == 1) {
                             vgm.run_Tac(arguments[0]);
+                        }
+                    };
+                }
+            }
+            else if (location.href == "https://www.managerzone.com/?p=training") {
+                if (unsafeWindow.displayAndAdjustTooltipPositions != undefined) {
+                    vgm._displayAndAdjustTooltipPositions = unsafeWindow.displayAndAdjustTooltipPositions;
+                    unsafeWindow.displayAndAdjustTooltipPositions = function () {
+
+                        vgm._displayAndAdjustTooltipPositions.apply(this, arguments);
+                        if (GM_getValue("autoRun1", 1) == 1) {
+                            vgm.run_Training(arguments[3]);
                         }
                     };
                 }
