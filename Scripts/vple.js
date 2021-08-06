@@ -842,60 +842,63 @@ var vple = {
         });
     }
     ,
+    cbs: {},
     ajax: function (url, callback, cache_mode, Cjson) {
         if (cache_mode == undefined) {
             cache_mode = 2;
             //0 不缓存每次都获取 1 缓存每月刷新 2 缓存每日刷新
         }
         var nowcacheItem = this.cacheItem;
+        var cbs = this.cbs;
+        const doajax = function () {
+            let flag2 = false;
+            let clist = cbs[url];
+            if (clist == undefined) {
+                cbs[url] = clist = [];
+                flag2 = true;
+            } else if (clist.length == 0) {
+                flag2 = true;
+            }
+            clist.push({ callback: callback, Cjson, Cjson });
+            if (flag2) {
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    dataType: "html",
+                    success: function (data) {
+                        let b64 = base64js.fromByteArray(pako.gzip(data));
+                        nowcacheItem.setLocValue(url, b64, cache_mode, function () {
+                            let ret = false;
+                            for (var i = 0; i < clist.length; i++) {
+                                if (clist[i].Cjson) {
+                                    ret = clist[i].callback("9" + b64, false) || ret;
+                                } else {
+                                    ret = clist[i].callback(data, false) || ret;
+                                }
+                            }
+                            if (ret) {
+                                nowcacheItem.clearCacheItem(url);
+                            }
+                        });
+                    },
+                    error: function () {
+                        cbs[url] = [];
+                    }
+                });
+            }
+        }
+
         if (cache_mode > 0) {
             this.getLocValue(url, function (flag, tdata) {
                 if (flag) {
                     return callback(tdata, true);
                 } else {
-                    $.ajax({
-                        type: "GET",
-                        url: url,
-                        dataType: "html",
-                        success: function (data) {
-                            let b64 = base64js.fromByteArray(pako.gzip(data));
-                            nowcacheItem.setLocValue(url, b64, cache_mode, function () {
-                                let ret = false;
-                                if (Cjson) {
-                                    ret = callback("9" + b64, false);
-                                } else {
-                                    ret = callback(data, false);
-                                }
-                                if (ret) {
-                                    nowcacheItem.clearCacheItem(url);
-                                }
-                            });
-                        }
-                    });
+                    doajax();
                 }
 
             }, cache_mode, Cjson);
         } else {
-
-            $.ajax({
-                type: "GET",
-                url: url,
-                dataType: "html",
-                success: function (data) {
-                    let b64 = base64js.fromByteArray(pako.gzip(data));
-                    nowcacheItem.setLocValue(url, b64, cache_mode, function () {
-                        let ret = false;
-                        if (Cjson) {
-                            ret = callback("9" + b64, false);
-                        } else {
-                            ret = callback(data, false);
-                        }
-                        if (ret) {
-                            nowcacheItem.clearCacheItem(url);
-                        }
-                    });
-                }
-            });
+            doajax();
         }
     }
     ,
