@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.18
+// @version      4.19
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -16,7 +16,7 @@
 // @require      https://cdn.jsdelivr.net/npm/dexie
 // @require      https://cdn.jsdelivr.net/gh/blueimp/JavaScript-MD5@5a82bec64383b510a8f25a2db194f6bf3bada8ef/js/md5.min.js
 // @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension@e586c646cb0b91f501d997921c5f9723d4884616/Scripts/base64js.min.js
-// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension@f98f776c5c465dadec09a096358d6bf1b102f2e5/Scripts/vple.min.js
+// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension@e9da9bfda0774d1c9406341f3f09da4cff860be0/Scripts/vple.min.js
 // @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension@e586c646cb0b91f501d997921c5f9723d4884616/Scripts/echarts.min.js
 // ==/UserScript==
 
@@ -1055,8 +1055,12 @@ var vanGmMz = {
                 }
                 vanGmMz.getTrainingGraphs(pid, pdom, GraphsType);
             } else if (pdom.find(".scout_report").length > 0) {
-                for (let j = 0; j < imgs.length; j++) {
-                    vanGmMz.setSrc(false, imgs[j], parseInt(imgs[j].src.match(vanGmMzModel.mzreg.img_val)[1]), "");
+                if (player) {
+                    this.setPlayerImgs(imgs, player);
+                } else {
+                    for (let j = 0; j < imgs.length; j++) {
+                        vanGmMz.setSrc(false, imgs[j], parseInt(imgs[j].src.match(vanGmMzModel.mzreg.img_val)[1]), "");
+                    }
                 }
                 vanGmMz.getScoutReport(pid, pdom, GraphsType == 2);
             }
@@ -1893,7 +1897,13 @@ var vanGmMz = {
         } else if ($(".playerContainer").find(".training_graphs").length > 0) {
             vanGmMz.showMax(GraphsType);
         } else if ($(".playerContainer").find(".scout_report").length > 0) {
-            vanGmMz.showMax(GraphsType);
+            if (GraphsType == 0) {
+                vanGmMz.getMax(function () {
+                    vanGmMz.showMax(GraphsType);
+                });
+            } else {
+                vanGmMz.showMax(GraphsType);
+            }
         }
     }
     ,
