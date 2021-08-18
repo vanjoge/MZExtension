@@ -866,6 +866,7 @@ var vple = {
                     url: url,
                     dataType: "html",
                     success: function (data) {
+                        cbs[url] = [];
                         let b64 = base64js.fromByteArray(pako.gzip(data));
                         nowcacheItem.setLocValue(url, b64, cache_mode, function () {
                             let ret = false;
