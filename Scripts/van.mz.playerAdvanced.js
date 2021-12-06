@@ -1969,6 +1969,7 @@ var vanGmMz = {
 ';
 
         showHelpLayer(tmphtml, vanGmMz.now_language.Setting + " v" + GM_info.script.version + vanGmMz.vv, true);
+        this.D_OpenSetting();
         $("#txtTacConf").val(GM_getValue("TacConf", ""));
         $("#gm_setting_save")[0].addEventListener('click', function () {
             vanGmMz.setLanguage($("#gm_language").val());
@@ -2826,6 +2827,9 @@ var vanGmMz = {
         return strSus;
     },
     D_ShowMaybeSkill: function (pdom, HStar, HP1, HP2, LStar, LP1, LP2) {
+
+    },
+    D_OpenSetting: function () {
 
     },
     D_SetMaybeSkill: function (pdom, HStar, HP1, HP2, LStar, LP1, LP2) {
