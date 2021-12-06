@@ -792,6 +792,26 @@
             this.Form = vpleModel.GetEVal(tds.eq(12));
             return true;
         }
+        this.InitByImgs = function (imgs, prop, Experience, Form) {
+            if (imgs.length < 13 || imgs[0][prop] == null) {
+                return false;
+            }
+            this.Speed = imgs[0][prop]*10;
+            this.Stamina = imgs[1][prop] * 10;
+            this.Gameintelligence = imgs[2][prop] * 10;
+            this.Passing = imgs[3][prop] * 10;
+            this.Shooting = imgs[4][prop] * 10;
+            this.Heading = imgs[5][prop] * 10;
+            this.Goalkeeping = imgs[6][prop] * 10;
+            this.Technique = imgs[7][prop] * 10;
+            this.Tackling = imgs[8][prop] * 10;
+            this.Highpassing = imgs[9][prop] * 10;
+            this.Situations = imgs[10][prop] * 10;
+
+            this.Experience = Experience;
+            this.Form = Form;
+            return true;
+        }
     }
     ,
     GetEVal: function (td) {
