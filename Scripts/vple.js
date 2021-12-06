@@ -791,12 +791,12 @@
             this.Experience = vpleModel.GetEVal(tds.eq(11));
             this.Form = vpleModel.GetEVal(tds.eq(12));
             return true;
-        }
+        };
         this.InitByImgs = function (imgs, prop, Experience, Form) {
             if (imgs.length < 13 || imgs[0][prop] == null) {
                 return false;
             }
-            this.Speed = imgs[0][prop]*10;
+            this.Speed = imgs[0][prop] * 10;
             this.Stamina = imgs[1][prop] * 10;
             this.Gameintelligence = imgs[2][prop] * 10;
             this.Passing = imgs[3][prop] * 10;

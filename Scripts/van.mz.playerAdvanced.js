@@ -166,7 +166,7 @@ var vanGmMzModel = {
             ,
             now: "当前",
             future: "可达",
-            max: "最大可能",
+            max: "最大可能"
         }
         ,
 
@@ -309,7 +309,7 @@ var vanGmMzModel = {
             scoutReport: "Scout Report",
             now: "now",
             future: "attainable",
-            max: "max",
+            max: "max"
         }
 
         ,
@@ -451,7 +451,7 @@ var vanGmMzModel = {
             scoutReport: "REPORTE DE SCOUTEO",
             now: "ahora",
             future: "realizable",
-            max: "máximo",
+            max: "máximo"
         }
         ,
 
@@ -594,7 +594,7 @@ var vanGmMzModel = {
             scoutReport: "Relatório de Observador",
             now: "agora",
             future: "realizável",
-            max: "máximo",
+            max: "máximo"
         }
     }
     ,
