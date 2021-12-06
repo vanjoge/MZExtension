@@ -13,7 +13,7 @@
 // @grant        GM_xmlhttpRequest
 // @connect      www.budeng.win
 // @require      https://cdn.jsdelivr.net/pako/1.0.5/pako.min.js
-// @require      https://cdn.jsdelivr.net/npm/dexie
+// @require      https://cdn.jsdelivr.net/npm/dexie@3.2.0/dist/dexie.min.js
 // @require      https://cdn.jsdelivr.net/gh/blueimp/JavaScript-MD5@5a82bec64383b510a8f25a2db194f6bf3bada8ef/js/md5.min.js
 // @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension@e586c646cb0b91f501d997921c5f9723d4884616/Scripts/base64js.min.js
 // @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension@5780df3440a690751f9b3da69527a35c7ebcd5e9/Scripts/vple.min.js
