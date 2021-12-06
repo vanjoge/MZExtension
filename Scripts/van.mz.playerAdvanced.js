@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.19
+// @version      4.20
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -16,7 +16,7 @@
 // @require      https://cdn.jsdelivr.net/npm/dexie
 // @require      https://cdn.jsdelivr.net/gh/blueimp/JavaScript-MD5@5a82bec64383b510a8f25a2db194f6bf3bada8ef/js/md5.min.js
 // @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension@e586c646cb0b91f501d997921c5f9723d4884616/Scripts/base64js.min.js
-// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension@e9da9bfda0774d1c9406341f3f09da4cff860be0/Scripts/vple.min.js
+// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension@5780df3440a690751f9b3da69527a35c7ebcd5e9/Scripts/vple.min.js
 // @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension@e586c646cb0b91f501d997921c5f9723d4884616/Scripts/echarts.min.js
 // ==/UserScript==
 
@@ -163,7 +163,10 @@ var vanGmMzModel = {
 
             ,
             scoutReport: "球探报告"
-
+            ,
+            now: "当前",
+            future: "未来",
+            max: "最大可能",
         }
         ,
 
@@ -303,7 +306,10 @@ var vanGmMzModel = {
             attrName10: "Aerial Passing",
             attrName11: "Set Plays"
             ,
-            scoutReport: "Scout Report"
+            scoutReport: "Scout Report",
+            now: "now",
+            future: "future",
+            max: "max",
         }
 
         ,
@@ -442,7 +448,10 @@ var vanGmMzModel = {
             attrName10: "Pases Largos",
             attrName11: "Balón Parado"
             ,
-            scoutReport: "REPORTE DE SCOUTEO"
+            scoutReport: "REPORTE DE SCOUTEO",
+            now: "ahora",
+            future: "futuro",
+            max: "máximo",
         }
         ,
 
@@ -582,7 +591,10 @@ var vanGmMzModel = {
             attrName10: "Passe Longo",
             attrName11: "Bola Parada"
             ,
-            scoutReport: "Relatório de Observador"
+            scoutReport: "Relatório de Observador",
+            now: "agora",
+            future: "futuro",
+            max: "máximo",
         }
     }
     ,
@@ -1380,6 +1392,7 @@ var vanGmMz = {
                         return false;
                     });
                     pdom.find("a.subheader").after(nsavgstat);
+                    vanGmMz.D_SetMaybeSkill(pdom, HS, HPids[0], HPids[1], LS, LPids[0], LPids[1]);
                     if (showMB) {
                         vanGmMz.D_ShowMaybeSkill(pdom, HS, HPids[0], HPids[1], LS, LPids[0], LPids[1]);
                     }
@@ -2815,72 +2828,185 @@ var vanGmMz = {
     D_ShowMaybeSkill: function (pdom, HStar, HP1, HP2, LStar, LP1, LP2) {
 
     },
+    D_SetMaybeSkill: function (pdom, HStar, HP1, HP2, LStar, LP1, LP2) {
+        let imgs = pdom.find("img.skill");
+        let LMax = 10, Nmin = 4, NMax = 10, Hmin = 7;
+        if (LStar == 1) {
+            Nmin = 4;
+            LMax = 6;
+        }
+        else if (LStar == 2) {
+            Nmin = 5;
+            LMax = 8;
+        } else if (LStar == 3) {
+            Nmin = 7;
+            LMax = 10;
+        }
+        if (HStar < 4) {
+            NMax = 9;
+        }
+        let tmpMSkills = {};
+        for (let i = 0; i < 11; i++) {
+            if (imgs[i].skill == undefined) {
+                return;
+            }
+            let mskill = imgs[i].skill;
+            if (imgs[i].maxed == "green") {
+                mskill += 1;
+            }
+            tmpMSkills[i] = mskill;
+            if (i == LP1 - 1 || i == LP2 - 1) {
+                if (Nmin < mskill) {
+                    Nmin = mskill;
+                }
+            } else if (i == HP1 - 1 || i == HP2 - 1) {
+                //高星
+                if (imgs[i].maxed == "red") {
+                    if (mskill < NMax) {
+                        NMax = mskill;
+                    }
+                }
+            } else {
+                if (Hmin < mskill) {
+                    Hmin = mskill;
+                }
+                if (imgs[i].maxed == "red") {
+                    if (mskill < LMax) {
+                        LMax = mskill;
+                    }
+                }
+            }
+        }
+        for (let i = 0; i < 11; i++) {
+            let mbskill = 4;
+            let mbmax = 10;
+            if (i == HP1 - 1 || i == HP2 - 1) {
+                //高星
+                if (imgs[i].maxed != "red") {
+                    mbmax = 10;
+                }
+
+                if (HStar == 3) {
+                    mbskill = 8;
+                } else if (HStar == 4) {
+                    mbskill = 9;
+                    //h4 9死 另一个一定10
+                    let ahp;
+                    if (i == HP1 - 1) {
+                        ahp = HP2 - 1;
+                    } else {
+                        ahp = HP1 - 1;
+                    }
+                    if (imgs[ahp].maxed == "red" && imgs[ahp].skill == 9) {
+                        mbskill = 10;
+                    }
+                }
+                if (mbskill < Hmin) {
+                    mbskill = Hmin;
+                }
+                if (mbskill < Nmin) {
+                    mbskill = Nmin;
+                }
+            } else if (i == LP1 - 1 || i == LP2 - 1) {
+                //低星
+                if (imgs[i].maxed != "red") {
+                    mbmax = LMax;
+                }
+            } else {
+                if (imgs[i].maxed != "red") {
+                    mbmax = NMax;
+                }
+                if (mbskill < Nmin) {
+                    mbskill = Nmin;
+                }
+            }
+            if (mbskill < tmpMSkills[i]) {
+                mbskill = tmpMSkills[i];
+            }
+            if (imgs[i].maxed == "red") {
+                mbmax = imgs[i].skill;
+            }
+            imgs[i].mbskill = mbskill;
+            imgs[i].mbmax = mbmax;
+        }
+
+    },
+    radarOption: function (tacPlayer, option, text) {
+        let CFScore = this.GetScore(tacPlayer, vanGmMz.tacCof["CF"]);
+        let WFScore = this.GetScore(tacPlayer, vanGmMz.tacCof["LWF"]);
+        //let WMFScore = this.GetScore(tacPlayer, vanGmMz.tacCof["LMF"]);
+        let CMFScore = this.GetScore(tacPlayer, vanGmMz.tacCof["CMF"]);
+        let WMScore = this.GetScore(tacPlayer, vanGmMz.tacCof["LM"]);
+        let CDMScore = this.GetScore(tacPlayer, vanGmMz.tacCof["CDM"]);
+        let WBScore = this.GetScore(tacPlayer, vanGmMz.tacCof["LSB"]);
+        let CBScore = this.GetScore(tacPlayer, vanGmMz.tacCof["CB"]);
+        let GKScore = this.GetScore(tacPlayer, vanGmMz.tacCof["GK"]);
+        option.legend.data.push(text);
+        option.series[0].data.push({
+            value: [CFScore, WFScore, CDMScore, WBScore, CBScore, GKScore, WMScore, CMFScore],
+            name: text
+        });
+    },
+    getRadarOption: function (tacPI, pdom) {
+        let option = {
+            title: {
+                text: vanGmMz.now_language.PosScores
+            },
+            tooltip: {},
+            legend: {
+                data: []
+            },
+            radar: {
+                name: {
+                    textStyle: {
+                        color: '#fff',
+                        backgroundColor: '#999',
+                        borderRadius: 3,
+                        padding: [3, 5]
+                    }
+                },
+                indicator: [
+                    { name: vanGmMz.now_language.Pos56, max: 100 },
+                    { name: vanGmMz.now_language.Pos10, max: 100 },
+                    { name: vanGmMz.now_language.Pos21, max: 100 },
+                    { name: vanGmMz.now_language.Pos22, max: 100 },
+                    { name: vanGmMz.now_language.Pos9, max: 100 },
+                    { name: vanGmMz.now_language.Pos7, max: 100 },
+                    { name: vanGmMz.now_language.Pos4, max: 100 },
+                    { name: vanGmMz.now_language.Pos23, max: 100 }
+                ]
+            },
+            series: [{
+                name: vanGmMz.now_language.Scores,
+                type: 'radar',
+                data: []
+            }]
+        };
+        this.radarOption(tacPI.tacPlayer, option, vanGmMz.now_language.now);
+
+        let imgs = pdom.find("img.skill");
+        if (tacPI.tacPlayerMB.InitByImgs(imgs, "mbskill", 100, 100)) {
+            this.radarOption(tacPI.tacPlayerMB, option, vanGmMz.now_language.future);
+        }
+        if (tacPI.tacPlayerMax.InitByImgs(imgs, "mbmax", 100, 100)) {
+            this.radarOption(tacPI.tacPlayerMax, option, vanGmMz.now_language.max);
+        }
+
+        return option;
+    },
     showScore: function (pid, pdom) {
 
-        let tds = pdom.find("td.skillval");
+        let tacPI = this.tacP[pid];
+        if (tacPI == undefined) {
+            tacPI = { tacPlayer: new vpleModel.TacPlayer(), tacPlayerMB: new vpleModel.TacPlayer(), tacPlayerMax: new vpleModel.TacPlayer() };
 
-
-        let tacPlayer = this.tacP[pid];
-        if (tacPlayer == undefined) {
-            tacPlayer = new vpleModel.TacPlayer();
-            this.tacP[pid] = tacPlayer;
+            this.tacP[pid] = tacPI;
         }
-        if (tacPlayer.InitByTds(tds)) {
-
-            let CFScore = this.GetScore(tacPlayer, vanGmMz.tacCof["CF"]);
-            let WFScore = this.GetScore(tacPlayer, vanGmMz.tacCof["LWF"]);
-            //let WMFScore = this.GetScore(tacPlayer, vanGmMz.tacCof["LMF"]);
-            let CMFScore = this.GetScore(tacPlayer, vanGmMz.tacCof["CMF"]);
-            let WMScore = this.GetScore(tacPlayer, vanGmMz.tacCof["LM"]);
-            let CDMScore = this.GetScore(tacPlayer, vanGmMz.tacCof["CDM"]);
-            let WBScore = this.GetScore(tacPlayer, vanGmMz.tacCof["LSB"]);
-            let CBScore = this.GetScore(tacPlayer, vanGmMz.tacCof["CB"]);
-            let GKScore = this.GetScore(tacPlayer, vanGmMz.tacCof["GK"]);
-
-            let option = {
-                title: {
-                    text: vanGmMz.now_language.PosScores
-                },
-                tooltip: {},
-                legend: {
-                    data: [pid]
-                },
-                radar: {
-                    name: {
-                        textStyle: {
-                            color: '#fff',
-                            backgroundColor: '#999',
-                            borderRadius: 3,
-                            padding: [3, 5]
-                        }
-                    },
-                    indicator: [
-                        { name: vanGmMz.now_language.Pos56, max: 100 },
-                        { name: vanGmMz.now_language.Pos10, max: 100 },
-                        { name: vanGmMz.now_language.Pos21, max: 100 },
-                        { name: vanGmMz.now_language.Pos22, max: 100 },
-                        { name: vanGmMz.now_language.Pos9, max: 100 },
-                        { name: vanGmMz.now_language.Pos7, max: 100 },
-                        { name: vanGmMz.now_language.Pos4, max: 100 },
-                        { name: vanGmMz.now_language.Pos23, max: 100 }
-                    ]
-                },
-                series: [{
-                    name: vanGmMz.now_language.Scores,
-                    type: 'radar',
-                    data: [
-                        {
-                            value: [CFScore, WFScore, CDMScore, WBScore, CBScore, GKScore, WMScore, CMFScore],
-                            name: pid
-                        },
-                    ]
-                }]
-            };
+        if (tacPI.tacPlayer.InitByTds(pdom.find("td.skillval"))) {
             let content = "<div class='clearfix'><div id='ldchart' style='height: 400px; width: 400px'></div>";
-
-            showHelpLayer(content, vanGmMz.now_language.PosScores, true);
+            showHelpLayer(content, (pdom.find(".player_name").html() ?? pdom.find(".player_link").html()) + "(" + pid + ")", true);
             let radar_chart = echarts.init(document.getElementById("ldchart"));
-            radar_chart.setOption(option);
+            radar_chart.setOption(this.getRadarOption(tacPI, pdom));
         }
     },
     GetScore: function (player, tacConfItem) {
