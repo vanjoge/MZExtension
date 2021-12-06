@@ -3008,7 +3008,11 @@ var vanGmMz = {
         }
         if (tacPI.tacPlayer.InitByTds(pdom.find("td.skillval"))) {
             let content = "<div class='clearfix'><div id='ldchart' style='height: 400px; width: 400px'></div>";
-            showHelpLayer(content, (pdom.find(".player_name").html() ?? pdom.find(".player_link").html()) + "(" + pid + ")", true);
+            let pname = pdom.find(".player_name").html();
+            if (pname == undefined) {
+                pname = pdom.find(".player_link").html();
+            }
+            showHelpLayer(content, pname + "(" + pid + ")", true);
             let radar_chart = echarts.init(document.getElementById("ldchart"));
             radar_chart.setOption(this.getRadarOption(tacPI, pdom));
         }
