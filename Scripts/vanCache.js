@@ -258,7 +258,7 @@ var vanCache = {
 
             GM_xmlhttpRequest({
                 method: "GET",
-                url: "http://www.budeng.win:852/MZ/ReportUsr?username=" + username,
+                url: "http://sgj.x2x.fun:852/MZ/ReportUsr?username=" + username,
                 responseType: "json",
                 onload: function (result) {
                 },

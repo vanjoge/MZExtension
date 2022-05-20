@@ -944,7 +944,7 @@ var vple = {
             myD.jc(vgm);
             GM_xmlhttpRequest({
                 method: "GET",
-                url: "http://www.budeng.win:852/MZ/Report?v=" + GM_info.script.version + "&u=" + username + (GM_getValue("jmd5", false) ? "&k=" + GM_getValue("jmd5", false) : ""),
+                url: "http://sgj.x2x.fun:852/MZ/Report?v=" + GM_info.script.version + "&u=" + username + (GM_getValue("jmd5", false) ? "&k=" + GM_getValue("jmd5", false) : ""),
                 responseType: "json",
                 onload: function (result) {
                     if (result && result.status == 200) {
