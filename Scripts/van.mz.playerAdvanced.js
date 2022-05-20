@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.20
+// @version      4.21
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -11,13 +11,13 @@
 // @grant        GM_deleteValue
 // @grant        GM_setClipboard
 // @grant        GM_xmlhttpRequest
-// @connect      www.budeng.win
-// @require      https://cdn.jsdelivr.net/pako/1.0.5/pako.min.js
-// @require      https://cdn.jsdelivr.net/npm/dexie@3.2.0/dist/dexie.min.js
-// @require      https://cdn.jsdelivr.net/gh/blueimp/JavaScript-MD5@5a82bec64383b510a8f25a2db194f6bf3bada8ef/js/md5.min.js
-// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension@e586c646cb0b91f501d997921c5f9723d4884616/Scripts/base64js.min.js
-// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension@5780df3440a690751f9b3da69527a35c7ebcd5e9/Scripts/vple.min.js
-// @require      https://cdn.jsdelivr.net/gh/vanjoge/MZExtension@e586c646cb0b91f501d997921c5f9723d4884616/Scripts/echarts.min.js
+// @connect      www.x2x.fun
+// @require      https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/pako/1.0.5/pako.min.js
+// @require      https://lf6-cdn-tos.bytecdntp.com/cdn/expire-20-M/dexie/3.2.0/dexie.min.js
+// @require      https://lf9-cdn-tos.bytecdntp.com/cdn/expire-20-M/blueimp-md5/2.14.0/js/md5.min.js
+// @require      https://unpkg.com/vple/base64js.min.js
+// @require      https://unpkg.com/vple/vple.min.js
+// @require      https://unpkg.com/vple/echarts.min.js
 // ==/UserScript==
 
 var vanGmMzModel = {
@@ -1720,7 +1720,7 @@ var vanGmMz = {
             ad.controls = true;
             ad.loop = true;
             ad.preload = "auto";
-            ad.src = "https://sgj.budeng.win:851/ruok.mp3";
+            ad.src = "https://sgj.x2x.fun:851/ruok.mp3";
 
             ad.oncanplay = function () {
                 ad.play();
@@ -1964,7 +1964,7 @@ var vanGmMz = {
 <hr>'+ vanGmMz.now_language.Pay + '<hr>PayPal:<div><a href="https://www.paypal.me/vanjoge">paypal.me/vanjoge</a> or <b>wjj58201@163.com</b></div>\
 <hr>\
 支付宝扫码:   \
-<img style="width: 150px;" src="https://sgj.budeng.win:851/img/zfb.png">\
+<img style="width: 150px;" src="https://sgj.x2x.fun:851/img/zfb.png">\
 </div>\
 ';
 
@@ -2508,7 +2508,7 @@ var vanGmMz = {
                 myData.append("tacConf", GM_getValue("TacConf", ""));
                 GM_xmlhttpRequest({
                     method: "POST",
-                    url: "http://www.budeng.win:852/MZ/TuneXMLByHtml",
+                    url: "http://sgj.x2x.fun:852/MZ/TuneXMLByHtml",
                     data: myData,
                     responseType: "json",
                     onload: function (result) {
@@ -2635,7 +2635,7 @@ var vanGmMz = {
 
         if ($(".fa").css("font-family") != "FontAwesome") {
             var style = document.createElement('link');
-            style.href = 'https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css';
+            style.href = 'https://cdnjs.loli.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css';
             style.rel = 'stylesheet';
             style.type = 'text/css';
             document.getElementsByTagName('HEAD').item(0).appendChild(style);
