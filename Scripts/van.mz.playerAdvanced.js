@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.22
+// @version      4.23
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -991,7 +991,7 @@ var vanGmMz = {
                     vanGmMz.getTrainingGraphsBySkill_id(pid, k, function (data) {
                         let result = data.match(new RegExp('{"x":' + skillBallDay + ',"y":(\\d+),[^}]*"marker"'));
                         if (result && result.length) {
-                            $(img).parent().parent().find("td.skillval").html("(<span class=\"" + (maxed ? "maxed" : "") + "\">" + result[1] + "</span>)");
+                            $(img).parents("tr:first").find("td.skillval").html("(<span class=\"" + (maxed ? "maxed" : "") + "\">" + result[1] + "</span>)");
                             vanGmMz.setSrc(false, img, parseInt(result[1]), maxed, false, pid, k);
                             flag_exit = true;
                             return true;
@@ -1006,8 +1006,8 @@ var vanGmMz = {
             if (flag_exit) {
                 return;
             }
+            let p_tr = $(img).parents("tr:first");
             if (pid && vanGmMz.trainingInfo[pid][k]) {
-                let p_tr = $(img).parents("tr:first");
                 let extmp = p_tr.find(".skill_exact2");
                 if (extmp.length > 0) {
                     extmp.remove();
@@ -1022,7 +1022,7 @@ var vanGmMz = {
             }
 
             if (img.isYtc) {
-                $(img).parent().parent().children().eq(0).addClass("gm_ytc");
+                p_tr.children().eq(0).addClass("gm_ytc");
             }
         }
         let strdiv = "<div class='skill' style='font-size:0;padding: 0 0 0 4px;'>";
