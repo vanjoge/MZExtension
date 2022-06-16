@@ -991,7 +991,7 @@ var vanGmMz = {
                     vanGmMz.getTrainingGraphsBySkill_id(pid, k, function (data) {
                         let result = data.match(new RegExp('{"x":' + skillBallDay + ',"y":(\\d+),[^}]*"marker"'));
                         if (result && result.length) {
-                            $(img).parents("tr:first").find("td.skillval").html("(<span class=\"" + (maxed ? "maxed" : "") + "\">" + result[1] + "</span>)");
+                            $(img).parents("tr:first").find("td.skillval").html("(<span class=\"" + (maxed === "red" ? "maxed" : "") + "\">" + result[1] + "</span>)");
                             vanGmMz.setSrc(false, img, parseInt(result[1]), maxed, false, pid, k);
                             flag_exit = true;
                             return true;
