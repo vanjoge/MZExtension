@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.21
+// @version      4.22
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -12,6 +12,7 @@
 // @grant        GM_setClipboard
 // @grant        GM_xmlhttpRequest
 // @connect      www.x2x.fun
+// @connect      sgj.x2x.fun
 // @require      https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/pako/1.0.5/pako.min.js
 // @require      https://lf6-cdn-tos.bytecdntp.com/cdn/expire-20-M/dexie/3.2.0/dexie.min.js
 // @require      https://lf9-cdn-tos.bytecdntp.com/cdn/expire-20-M/blueimp-md5/2.14.0/js/md5.min.js
@@ -866,7 +867,7 @@ var vanGmMzModel = {
     }
     ,
     mzreg: {
-        td_skill_val: /\((\d+)\)/,
+        td_skill_val: /(\d+)/,
         img_val: /(\d+)\.gif/,
         playerMax: /trainingField.players\s*=\s*({.+})/,
         playerId: /player_id_(\d+)/,
@@ -990,7 +991,7 @@ var vanGmMz = {
                     vanGmMz.getTrainingGraphsBySkill_id(pid, k, function (data) {
                         let result = data.match(new RegExp('{"x":' + skillBallDay + ',"y":(\\d+),[^}]*"marker"'));
                         if (result && result.length) {
-                            $(img).parent().parent().find("td.skillval").html("(" + result[1] + ")");
+                            $(img).parent().parent().find("td.skillval").html("(<span class=\"" + (maxed ? "maxed" : "") + "\">" + result[1] + "</span>)");
                             vanGmMz.setSrc(false, img, parseInt(result[1]), maxed, false, pid, k);
                             flag_exit = true;
                             return true;
@@ -1006,7 +1007,8 @@ var vanGmMz = {
                 return;
             }
             if (pid && vanGmMz.trainingInfo[pid][k]) {
-                let extmp = $(img).parent().parent().find(".skill_exact2");
+                let p_tr = $(img).parents("tr:first");
+                let extmp = p_tr.find(".skill_exact2");
                 if (extmp.length > 0) {
                     extmp.remove();
                 }
@@ -1016,7 +1018,7 @@ var vanGmMz = {
                 } else if (vanGmMz.trainingInfo[pid][k][skill]) {
                     sum = vanGmMz.trainingInfo[pid][k][skill].stat.getSum();
                 }
-                $(img).parent().parent().append("<td class='skill_exact2'><div><span id=" + pid + "_" + k + "_" + skill + " class='skillval skill_exact_van'>" + sum + "%</span></div></td>");
+                p_tr.append("<td class='skill_exact2'><div><span id=" + pid + "_" + k + "_" + skill + " class='skillval skill_exact_van'>" + sum + "%</span></div></td>");
             }
 
             if (img.isYtc) {
