@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.23
+// @version      4.24
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -1283,7 +1283,7 @@ var vanGmMz = {
         }
         vanGmMz.trainingInfo[pid] = allSkillTraining;
         for (let k = 0; k < maxeds.length; k++) {
-            vanGmMz.setSrc($(".player_share_skills").length == 0, imgs[k], imgs[k].nowSkill, maxeds[k], skillBallDays[k], pid, k);
+            vanGmMz.setSrc(pdom.find(".player_share_skills").length == 0, imgs[k], imgs[k].nowSkill, maxeds[k], skillBallDays[k], pid, k);
         }
         vanGmMz.D_NowSeasonText(pid, NowSeasonInfo, pdom);
 
