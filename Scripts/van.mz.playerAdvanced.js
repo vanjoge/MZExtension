@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.24
+// @version      4.25
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -983,6 +983,7 @@ var vanGmMz = {
     setSrc: function (transfer, img, skill, maxed, skillBallDay, pid, k) {
         img.skill = skill;
         img.maxed = maxed;
+        let old = true;
         if (skill > 0) {
             let flag_exit = false;
             if (transfer && skillBallDay) {
@@ -1007,6 +1008,10 @@ var vanGmMz = {
                 return;
             }
             let p_tr = $(img).parents("tr:first");
+            if (p_tr.length == 0) {
+                p_tr = $(img).nextAll(".skill_exact:first");
+                old = false;
+            }
             if (pid && vanGmMz.trainingInfo[pid][k]) {
                 let extmp = p_tr.find(".skill_exact2");
                 if (extmp.length > 0) {
@@ -1018,14 +1023,23 @@ var vanGmMz = {
                 } else if (vanGmMz.trainingInfo[pid][k][skill]) {
                     sum = vanGmMz.trainingInfo[pid][k][skill].stat.getSum();
                 }
-                p_tr.append("<td class='skill_exact2'><div><span id=" + pid + "_" + k + "_" + skill + " class='skillval skill_exact_van'>" + sum + "%</span></div></td>");
+                if (old) {
+                    p_tr.append("<td class='skill_exact2'><div><span id=" + pid + "_" + k + "_" + skill + " class='skillval skill_exact_van'>" + sum + "%</span></div></td>");
+                } else {
+                    p_tr.append("<div class='skill_exact2 clearfix' style='display:inline-block;'><div><span id=" + pid + "_" + k + "_" + skill + " class='skillval skill_exact_van'>" + sum + "%</span></div></div>");
+                }
             }
 
             if (img.isYtc) {
                 p_tr.children().eq(0).addClass("gm_ytc");
             }
         }
-        let strdiv = "<div class='skill' style='font-size:0;padding: 0 0 0 4px;'>";
+        let strdiv;
+        if (old) {
+            strdiv = "<div class='skill' style='font-size:0;padding: 0 0 0 4px;'>";
+        } else {
+            strdiv = "<div class='skilladd ignore-fluid'>";
+        }
         let tmpImg = vanGmMzModel.mzImg;
         if (vanGmMz.now_sport != "soccer") {
             tmpImg = vanGmMzModel.hImg;
@@ -1045,8 +1059,11 @@ var vanGmMz = {
         }
         strdiv += "</div>";
         $(img).hide();
-
-        $(img).parent().find("div").remove();
+        if (old) {
+            $(img).parent().find("div").remove();
+        } else {
+            $(img).nextAll("div.skilladd:first").remove();
+        }
         $(img).after(strdiv);
     }
     ,
@@ -1056,7 +1073,10 @@ var vanGmMz = {
             let pdom = players.eq(i);
             let pid = pdom.html().match(vanGmMzModel.mzreg.playerId)[1];
             let player = vanGmMz.pmax[pid];
-            let imgs = pdom.find("img.skill");
+            let imgs = pdom.find("div.player-skills").find("img.ignore-fluid");
+            if (imgs.length == 0) {
+                imgs = pdom.find("img.skill");
+            }
 
             if (GraphsType == 0 && player) {
                 this.setPlayerImgs(imgs, player);
@@ -1117,7 +1137,12 @@ var vanGmMz = {
         }
     },
     drawPlayerByTrainingGraphs: function (pid, data, pdom) {
-        let imgs = pdom.find("img.skill");
+        let imgs = pdom.find("div.player-skills").find("img.ignore-fluid");
+        let old = false;
+        if (imgs.length == 0) {
+            imgs = pdom.find("img.skill");
+            old = true;
+        }
 
         var series = undefined;
         eval(data);
@@ -1350,7 +1375,12 @@ var vanGmMz = {
 
                     let HPids = [], LPids = [];
 
-                    let skillnames = pdom.find("td > span.clippable");
+                    let skillnames = pdom.find("div.player-skills").find("span.responsive-hide.responsive-container");
+
+                    if (skillnames.length == 0) {
+                        skillnames = pdom.find("td > span.clippable");
+                    }
+
                     for (let i = 0; i < skillnames.length; i++) {
                         if (HArr.indexOf(skillnames.eq(i).text()) >= 0) {
                             skillnames.eq(i).parent().addClass("gm_scout_h");
