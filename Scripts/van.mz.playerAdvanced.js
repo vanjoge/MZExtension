@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.25
+// @version      4.26
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -984,6 +984,11 @@ var vanGmMz = {
         img.skill = skill;
         img.maxed = maxed;
         let old = true;
+        let p_tr = $(img).parents("tr:first");
+        if (p_tr.length == 0) {
+            p_tr = $(img).nextAll(".skill_exact:first");
+            old = false;
+        }
         if (skill > 0) {
             let flag_exit = false;
             if (transfer && skillBallDay) {
@@ -1006,11 +1011,6 @@ var vanGmMz = {
             }
             if (flag_exit) {
                 return;
-            }
-            let p_tr = $(img).parents("tr:first");
-            if (p_tr.length == 0) {
-                p_tr = $(img).nextAll(".skill_exact:first");
-                old = false;
             }
             if (pid && vanGmMz.trainingInfo[pid][k]) {
                 let extmp = p_tr.find(".skill_exact2");
