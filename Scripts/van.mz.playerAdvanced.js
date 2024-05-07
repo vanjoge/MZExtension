@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.26
+// @version      4.27
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -985,7 +985,7 @@ var vanGmMz = {
         img.maxed = maxed;
         let old = true;
         let p_tr = $(img).parents("tr:first");
-        if (p_tr.length == 0) {
+        if (p_tr.length == 0 || p_tr.attr("class")) {
             p_tr = $(img).nextAll(".skill_exact:first");
             old = false;
         }
