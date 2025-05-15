@@ -1014,9 +1014,7 @@ var vanGmMz = {
             if (flag_exit) {
                 return;
             }
-            console.log("holaa")
             if (pid && vanGmMz.trainingInfo[pid][k]) {
-                console.log("si entro a agregarse")
                 let extmp = p_tr.find(".skill_exact2");
                 if (extmp.length > 0) {
                     extmp.remove();
@@ -1387,13 +1385,13 @@ var vanGmMz = {
                         skillnames = pdom.find("td > span.clippable");
                     }
 
-                    let isMercado = false;
+                    let onMarket = false;
                     if(skillnames.length == 0){
                         skillnames = pdom.find("td > span.skill_name")
-                        isMercado = true;
+                        onMarket = true;
                     }
                     for (let i = 0; i < skillnames.length; i++) {
-                        let skillText = isMercado ? skillnames.find("span:first").eq(i).text() : skillnames.eq(i).text()
+                        let skillText = onMarket ? skillnames.find("span:first").eq(i).text() : skillnames.eq(i).text()
                         if (HArr.indexOf(skillText) >= 0) {
                             skillnames.eq(i).parent().addClass("gm_scout_h");
                             skillnames.eq(i).parent().addClass("gm_s" + HS);
