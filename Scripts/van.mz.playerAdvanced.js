@@ -19,8 +19,6 @@
 // @require      https://unpkg.com/vple/base64js.min.js
 // @require      https://unpkg.com/vple/vple.min.js
 // @require      https://unpkg.com/vple/echarts.min.js
-// @downloadURL https://update.greasyfork.org/scripts/373382/vanmzplayerAdvanced.user.js
-// @updateURL https://update.greasyfork.org/scripts/373382/vanmzplayerAdvanced.meta.js
 // ==/UserScript==
 
 var vanGmMzModel = {
