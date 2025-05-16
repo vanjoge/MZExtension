@@ -1,7 +1,7 @@
-﻿// ==UserScript==
+// ==UserScript==
 // @name         van.mz.playerAdvanced
 // @namespace    van
-// @version      4.27
+// @version      4.28
 // @description  Player display optimization 球员着色插件
 // @author       van
 // @match        https://www.managerzone.com/*
@@ -19,6 +19,8 @@
 // @require      https://unpkg.com/vple/base64js.min.js
 // @require      https://unpkg.com/vple/vple.min.js
 // @require      https://unpkg.com/vple/echarts.min.js
+// @downloadURL https://update.greasyfork.org/scripts/373382/vanmzplayerAdvanced.user.js
+// @updateURL https://update.greasyfork.org/scripts/373382/vanmzplayerAdvanced.meta.js
 // ==/UserScript==
 
 var vanGmMzModel = {
@@ -1077,7 +1079,6 @@ var vanGmMz = {
             if (imgs.length == 0) {
                 imgs = pdom.find("img.skill");
             }
-
             if (GraphsType == 0 && player) {
                 this.setPlayerImgs(imgs, player);
                 if (pdom.find(".scout_report").length > 0) {
@@ -1085,6 +1086,9 @@ var vanGmMz = {
                 }
             } else if (pdom.find(".training_graphs").length > 0 && imgs.length > 0) {
                 if (pdom.find(".scout_report").length > 0) {
+                    vanGmMz.getScoutReport(pid, pdom);
+                }
+                else if(pdom.find(".scout_report_stars")) {
                     vanGmMz.getScoutReport(pid, pdom);
                 }
                 vanGmMz.getTrainingGraphs(pid, pdom, GraphsType);
@@ -1381,12 +1385,18 @@ var vanGmMz = {
                         skillnames = pdom.find("td > span.clippable");
                     }
 
+                    let onMarket = false;
+                    if(skillnames.length == 0){
+                        skillnames = pdom.find("td > span.skill_name")
+                        onMarket = true;
+                    }
                     for (let i = 0; i < skillnames.length; i++) {
-                        if (HArr.indexOf(skillnames.eq(i).text()) >= 0) {
+                        let skillText = onMarket ? skillnames.find("span:first").eq(i).text() : skillnames.eq(i).text()
+                        if (HArr.indexOf(skillText) >= 0) {
                             skillnames.eq(i).parent().addClass("gm_scout_h");
                             skillnames.eq(i).parent().addClass("gm_s" + HS);
                             HPids.push(i + 1);
-                        } else if (LArr.indexOf(skillnames.eq(i).text()) >= 0) {
+                        } else if (LArr.indexOf(skillText) >= 0) {
                             skillnames.eq(i).parent().removeClass("gm_scout_h");
                             skillnames.eq(i).parent().addClass("gm_s" + LS);
                             LPids.push(i + 1);
@@ -1576,7 +1586,6 @@ var vanGmMz = {
                     return true;
                 }
                 let ret = vanGmMz.drawPlayerByTrainingGraphs(pid, data, pdom);
-
                 if (GraphsType == 2 && pdom.find(".scout_report").length > 0) {
                     vanGmMz.getScoutReport(pid, pdom, true);
                 }
